@@ -19,6 +19,7 @@ model User {
   name           String
   email          String          @unique
   birthDate      DateTime
+  password       String          @db.VarChar(64)
   gender         Gender
   role           Role            @default(USER)
   ledgers        Ledger[]        @relation("UserLedgers")
@@ -35,6 +36,8 @@ model Ledger {
   ownerId        String          @db.Uuid
   owner          User            @relation("UserLedgers", fields: [ownerId], references: [id])
   collaborations Collaboration[] @relation("LedgerCollaborations")
+  groups         Group[]         @relation("LedgerGroups")
+  transactions Transaction[] @relation("LedgerTransactions")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -59,7 +62,7 @@ model Debt {
   id        Int              @id @default(autoincrement())
   owner DebtOwner @relation("DebtOwner", fields: [debtOwnerId], references: [id])
   debtOwnerId Int
-  directio DebtDirection
+  direction DebtDirection
   amount Float
   month DateTime
 
@@ -78,7 +81,57 @@ model PaymentMethod {
   type PaymentType
 }
 
+model Category {
+  id        Int              @id @default(autoincrement())
+  name String   @unique
+  description String?
 
+  transactions Transaction[] @relation("TransactionCategory")
+}
+
+model Group {
+  id        Int              @id @default(autoincrement())
+  name String
+  ledgerId Int
+
+  ledger    Ledger   @relation("LedgerGroups", fields: [ledgerId], references: [id])
+  transactions Transaction[] @relation("TransactionGroup") 
+  
+}
+
+model Transaction {
+  id        Int              @id @default(autoincrement())
+  ledgerId Int
+  status Status
+  entryType EntryType
+  categoryId Int
+  groupId Int?
+  transactionDate DateTime
+  paymentMonth DateTime?
+  installments Int @default(1)
+  installment Int @default(1)
+  comment  String?
+  currency Currency
+  totalAmount Decimal
+  monthlyAmount Decimal
+  debtOwnerId Int?
+  transactionsBreakDown TransactionBreakDown[] @relation("TransactionsBreakDown")
+
+  ledger Ledger @relation("LedgerTransactions", fields: [ledgerId], references: [id])
+  category Category @relation("TransactionCategory", fields: [categoryId], references: [id])
+  group Group? @relation("TransactionGroup", fields: [groupId], references: [id])
+
+
+}
+
+model TransactionBreakDown {
+  id        Int              @id @default(autoincrement())
+  transactionId Int
+  weekNumber Int
+  amount Decimal
+
+  transaction Transaction @relation("TransactionsBreakDown", fields: [transactionId], references: [id])
+}
 
 enum Gender {
   MALE
@@ -118,5 +171,15 @@ enum PaymentType {
 enum DebtDirection {
   OWED_TO_ME   // They owe me
   OWED_BY_ME   // I owe them
+}
+
+enum Currency {
+  ARS
+  USD
+}
+enum Status {
+  CLOSED
+  CURRENT
+  FUTURE
 }
 
