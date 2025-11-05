@@ -27,19 +27,6 @@ model User {
   updatedAt      DateTime        @updatedAt
 }
 
-enum Gender {
-  MALE
-  FEMALE
-}
-
-enum Role {
-  ADMIN
-  USER
-}
-
-enum CollaborationRole {
-  COLLABORATOR
-}
 
 model Ledger {
   id             Int             @id @default(autoincrement())
@@ -59,5 +46,77 @@ model Collaboration {
   ledgerId  Int
   user      User              @relation("UserCollaborations", fields: [userId], references: [id])
   ledger    Ledger            @relation("LedgerCollaborations", fields: [ledgerId], references: [id])
+}
+
+model CreditCard {
+  id        Int              @id @default(autoincrement())
+  name String
+  type CreditBrand
+
+}
+
+model Debt {
+  id        Int              @id @default(autoincrement())
+  owner DebtOwner @relation("DebtOwner", fields: [debtOwnerId], references: [id])
+  debtOwnerId Int
+  directio DebtDirection
+  amount Float
+  month DateTime
+
+
+}
+
+model DebtOwner {
+  id        Int              @id @default(autoincrement())
+  name String
+  debts Debt[] @relation("DebtOwner")
+}
+
+model PaymentMethod {
+  id        Int              @id @default(autoincrement())
+  name String
+  type PaymentType
+}
+
+
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum CollaborationRole {
+  COLLABORATOR
+}
+
+enum EntryType {
+  INCOME
+  EXPENSE
+}
+
+enum CreditBrand {
+  VISA
+  AMEX
+  MASTER
+  OTHER
+}
+
+enum PaymentType {
+  CASH
+  BANK
+  WALLET
+  CREDIT_CARD
+  DEBT
+  OTHER
+}
+
+enum DebtDirection {
+  OWED_TO_ME   // They owe me
+  OWED_BY_ME   // I owe them
 }
 
