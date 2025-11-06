@@ -24,6 +24,8 @@ model User {
   role           Role            @default(USER)
   ledgers        Ledger[]        @relation("UserLedgers")
   collaborations Collaboration[] @relation("UserCollaborations")
+  creditCards CreditCard[]       @relation("UserCreditCards")
+  groups      Group[]            @relation("UserGroups")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -38,6 +40,7 @@ model Ledger {
   collaborations Collaboration[] @relation("LedgerCollaborations")
   groups         Group[]         @relation("LedgerGroups")
   transactions Transaction[] @relation("LedgerTransactions")
+  creditCards LedgerCreditCard[]  @relation("LedgerCreditCards")
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -55,7 +58,21 @@ model CreditCard {
   id        Int              @id @default(autoincrement())
   name String
   type CreditBrand
+  userId String @db.Uuid
+  user User @relation("UserCreditCards", fields: [userId], references: [id])
+  ledgers LedgerCreditCard[] 
 
+}
+
+model LedgerCreditCard {
+  creditCard CreditCard @relation(fields: [creditCardId], references: [id])
+  creditCardId Int
+  ledger Ledger @relation("LedgerCreditCards", fields: [ledgerId], references: [id])
+  ledgerId Int
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([creditCardId, ledgerId])
 }
 
 model Debt {
@@ -92,10 +109,14 @@ model Category {
 model Group {
   id        Int              @id @default(autoincrement())
   name String
-  ledgerId Int
+  ledgerId Int ?
+  userId String @db.Uuid
+  isGlobal Boolean @default(false)
 
-  ledger    Ledger   @relation("LedgerGroups", fields: [ledgerId], references: [id])
-  transactions Transaction[] @relation("TransactionGroup") 
+  ledger    Ledger?   @relation("LedgerGroups", fields: [ledgerId], references: [id])
+  transactions Transaction[] @relation("TransactionGroup")
+  user User @relation("UserGroups", fields: [userId], references: [id])
+
   
 }
 
