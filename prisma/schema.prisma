@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+
 }
 
 datasource db {
@@ -26,6 +26,7 @@ model User {
   collaborations Collaboration[] @relation("UserCollaborations")
   creditCards CreditCard[]       @relation("UserCreditCards")
   groups      Group[]            @relation("UserGroups")
+  isActive      Boolean
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
