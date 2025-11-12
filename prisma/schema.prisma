@@ -24,136 +24,154 @@ model User {
   role           Role            @default(USER)
   ledgers        Ledger[]        @relation("UserLedgers")
   collaborations Collaboration[] @relation("UserCollaborations")
-  creditCards CreditCard[]       @relation("UserCreditCards")
-  groups      Group[]            @relation("UserGroups")
-  isActive      Boolean          @default(true)
+  creditCards    CreditCard[]    @relation("UserCreditCards")
+  groups         Group[]         @relation("UserGroups")
+  isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+
+  @@map("users")
 }
 
-
 model Ledger {
-  id             Int             @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   name           String
-  description    String
-  ownerId        String          @db.Uuid
-  owner          User            @relation("UserLedgers", fields: [ownerId], references: [id])
-  collaborations Collaboration[] @relation("LedgerCollaborations")
-  groups         Group[]         @relation("LedgerGroups")
-  transactions Transaction[] @relation("LedgerTransactions")
-  creditCards LedgerCreditCard[]  @relation("LedgerCreditCards")
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  description    String?
+  ownerId        String           @db.Uuid
+  owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])
+  collaborations Collaboration[]  @relation("LedgerCollaborations")
+  groups         Group[]          @relation("LedgerGroups")
+  transactions   Transaction[]    @relation("LedgerTransactions")
+  creditCards    LedgerCreditCard[] @relation("LedgerCreditCards")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("ledgers")
 }
 
 model Collaboration {
-  id        Int              @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   role      CollaborationRole @default(COLLABORATOR)
-  userId    String            @db.Uuid
+  userId    String             @db.Uuid
   ledgerId  Int
-  user      User              @relation("UserCollaborations", fields: [userId], references: [id])
-  ledger    Ledger            @relation("LedgerCollaborations", fields: [ledgerId], references: [id])
+  user      User               @relation("UserCollaborations", fields: [userId], references: [id])
+  ledger    Ledger             @relation("LedgerCollaborations", fields: [ledgerId], references: [id])
+
+  @@map("collaborations")
 }
 
 model CreditCard {
   id        Int              @id @default(autoincrement())
-  name String
-  type CreditBrand
-  userId String @db.Uuid
-  user User @relation("UserCreditCards", fields: [userId], references: [id])
-  ledgers LedgerCreditCard[] 
+  name      String
+  type      CreditBrand
+  userId    String           @db.Uuid
+  user      User             @relation("UserCreditCards", fields: [userId], references: [id])
+  ledgers   LedgerCreditCard[]
 
+  @@map("credit_cards")
 }
 
 model LedgerCreditCard {
-  creditCard CreditCard @relation(fields: [creditCardId], references: [id])
+  creditCard   CreditCard  @relation(fields: [creditCardId], references: [id])
   creditCardId Int
-  ledger Ledger @relation("LedgerCreditCards", fields: [ledgerId], references: [id])
-  ledgerId Int
-  assignedAt DateTime @default(now())
-  assignedBy String
+  ledger       Ledger      @relation("LedgerCreditCards", fields: [ledgerId], references: [id])
+  ledgerId     Int
+  assignedAt   DateTime    @default(now())
+  assignedBy   String
 
   @@id([creditCardId, ledgerId])
+  @@map("ledgers_credit_cards")
 }
 
 model Debt {
-  id        Int              @id @default(autoincrement())
-  owner DebtOwner @relation("DebtOwner", fields: [debtOwnerId], references: [id])
-  debtOwnerId Int
-  direction DebtDirection
-  amount Float
-  month DateTime
+  id           Int         @id @default(autoincrement())
+  owner        DebtOwner   @relation("DebtOwner", fields: [debtOwnerId], references: [id])
+  debtOwnerId  Int
+  direction    DebtDirection
+  amount       Float
+  month        DateTime
 
-
+  @@map("debts")
 }
 
 model DebtOwner {
-  id        Int              @id @default(autoincrement())
-  name String
-  debts Debt[] @relation("DebtOwner")
+  id     Int     @id @default(autoincrement())
+  name   String
+  debts  Debt[]  @relation("DebtOwner")
+
+  @@map("debt_owners")
 }
 
 model PaymentMethod {
-  id        Int              @id @default(autoincrement())
+  id   Int         @id @default(autoincrement())
   name String
   type PaymentType
+
+  @@map("payment_methods")
 }
 
 model Category {
-  id        Int              @id @default(autoincrement())
-  name String   @unique
-  description String?
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  description   String?
+  transactions  Transaction[]   @relation("TransactionCategory")
 
-  transactions Transaction[] @relation("TransactionCategory")
+  @@map("categories")
 }
 
 model Group {
-  id        Int              @id @default(autoincrement())
-  name String
-  ledgerId Int ?
-  userId String @db.Uuid
-  isGlobal Boolean @default(false)
+  id            Int             @id @default(autoincrement())
+  name          String
+  ledgerId      Int?
+  userId        String           @db.Uuid
+  isGlobal      Boolean          @default(false)
 
-  ledger    Ledger?   @relation("LedgerGroups", fields: [ledgerId], references: [id])
-  transactions Transaction[] @relation("TransactionGroup")
-  user User @relation("UserGroups", fields: [userId], references: [id])
+  ledger        Ledger?          @relation("LedgerGroups", fields: [ledgerId], references: [id])
+  transactions  Transaction[]    @relation("TransactionGroup")
+  user          User             @relation("UserGroups", fields: [userId], references: [id])
 
-  
+  @@map("groups")
 }
 
 model Transaction {
-  id        Int              @id @default(autoincrement())
-  ledgerId Int
-  status Status
-  entryType EntryType
-  categoryId Int
-  groupId Int?
-  transactionDate DateTime
-  paymentMonth DateTime?
-  installments Int @default(1)
-  installment Int @default(1)
-  comment  String?
-  currency Currency
-  totalAmount Decimal
-  monthlyAmount Decimal
-  debtOwnerId Int?
-  transactionsBreakDown TransactionBreakDown[] @relation("TransactionsBreakDown")
+  id                    Int                     @id @default(autoincrement())
+  ledgerId              Int
+  status                Status
+  entryType             EntryType
+  categoryId            Int
+  groupId               Int?
+  transactionDate       DateTime
+  paymentMonth          DateTime?
+  installments          Int                     @default(1)
+  installment           Int                     @default(1)
+  comment               String?
+  currency              Currency
+  totalAmount           Decimal
+  monthlyAmount         Decimal
+  debtOwnerId           Int?
+  transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
 
-  ledger Ledger @relation("LedgerTransactions", fields: [ledgerId], references: [id])
-  category Category @relation("TransactionCategory", fields: [categoryId], references: [id])
-  group Group? @relation("TransactionGroup", fields: [groupId], references: [id])
+  ledger      Ledger      @relation("LedgerTransactions", fields: [ledgerId], references: [id])
+  category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
+  group       Group?      @relation("TransactionGroup", fields: [groupId], references: [id])
 
-
+  @@map("transactions")
 }
 
 model TransactionBreakDown {
-  id        Int              @id @default(autoincrement())
-  transactionId Int
-  weekNumber Int
-  amount Decimal
+  id             Int          @id @default(autoincrement())
+  transactionId  Int
+  weekNumber     Int
+  amount         Decimal
 
-  transaction Transaction @relation("TransactionsBreakDown", fields: [transactionId], references: [id])
+  transaction    Transaction  @relation("TransactionsBreakDown", fields: [transactionId], references: [id])
+
+  @@map("transactions_break_down")
 }
+
+// =====================================================
+// ENUMS
+// =====================================================
 
 enum Gender {
   MALE
@@ -199,6 +217,7 @@ enum Currency {
   ARS
   USD
 }
+
 enum Status {
   CLOSED
   CURRENT
