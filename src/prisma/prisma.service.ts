@@ -20,9 +20,9 @@ export class PrismaService
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async enableShutdownHooks(app: INestApplication) {
-    this.$on('beforeExit' as never, () => {
-      void app.close();
-    });
-  }
+  // async enableShutdownHooks(app: INestApplication) {
+  //   this.$on('beforeExit' as never, () => {
+  //     void app.close();
+  //   });
+  // }
 }

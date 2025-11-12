@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, Role } from 'generated/prisma/enums';
+import { Gender, Role } from '@prisma/client';
 import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
 import { CreditCardEntity } from 'src/modules/credit-cards/entities/credit-card.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
@@ -90,6 +90,8 @@ export class UserEntity {
     required: false,
   })
   groups: GroupEntity[];
+
+  isActive: boolean;
 
   @ApiProperty({
     description: 'Timestamp of when the user record was created.',

@@ -26,7 +26,7 @@ model User {
   collaborations Collaboration[] @relation("UserCollaborations")
   creditCards CreditCard[]       @relation("UserCreditCards")
   groups      Group[]            @relation("UserGroups")
-  isActive      Boolean
+  isActive      Boolean          @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
