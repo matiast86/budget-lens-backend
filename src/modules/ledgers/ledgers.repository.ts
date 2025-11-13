@@ -34,7 +34,7 @@ export class LedgersRepository {
     }
   }
 
-  async update(id: number, data: Partial<Ledger>): Promise<Ledger> {
+  async update(id: number, data: Prisma.LedgerUpdateInput): Promise<Ledger> {
     return await this.prisma.ledger.update({ where: { id }, data });
   }
 
@@ -42,7 +42,7 @@ export class LedgersRepository {
     return await this.prisma.ledger.create({ data });
   }
 
-  async delete(id: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     await this.prisma.ledger.delete({ where: { id } });
   }
 }

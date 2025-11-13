@@ -15,17 +15,17 @@ export class LedgersService {
 
   async create(
     ownerId: string,
-    createLedgerDto: CreateLedgerDto,
+    dto: CreateLedgerDto,
   ): Promise<LedgerResponseDto> {
-    const { name, description } = createLedgerDto;
-    const owner = await this.usersService.findOne(ownerId);
+    await this.usersService.findOne(ownerId);
+
     const data: Prisma.LedgerCreateInput = {
-      name,
-      description,
+      name: dto.name,
+      description: dto.description,
       owner: { connect: { id: ownerId } },
     };
+
     const newLedger = await this.ledgersRepository.create(data);
-    owner.ledgers.push(newLedger);
 
     return new LedgerResponseDto(newLedger);
   }
@@ -37,8 +37,8 @@ export class LedgersService {
 
   async findLedgersByOwner(
     ownerId: string,
-    skip: number = 0,
-    take: number = 10,
+    skip: number,
+    take: number,
   ): Promise<LedgerResponseDto[]> {
     const where: Prisma.LedgerWhereInput = { ownerId };
     const ledgers: Ledger[] = await this.ledgersRepository.findAllPaginated(
@@ -54,10 +54,16 @@ export class LedgersService {
     return await this.ledgersRepository.findLedgerById(id);
   }
 
-  async update(id: number, updateLedgerDto: UpdateLedgerDto): Promise<Ledger> {
+  async update(
+    id: number,
+    updateLedgerDto: UpdateLedgerDto,
+  ): Promise<LedgerResponseDto> {
     await this.ledgersRepository.findLedgerById(id);
-    const data: Partial<Ledger> = updateLedgerDto;
-    return await this.ledgersRepository.update(id, data);
+
+    const data: Prisma.LedgerUpdateInput = { ...updateLedgerDto };
+    const updated = await this.ledgersRepository.update(id, data);
+
+    return new LedgerResponseDto(updated);
   }
 
   async deactivate(id: number): Promise<void> {
@@ -66,8 +72,8 @@ export class LedgersService {
     await this.ledgersRepository.update(id, data);
   }
 
-  async delete(id: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     await this.ledgersRepository.findLedgerById(id);
-    await this.ledgersRepository.delete(id);
+    await this.ledgersRepository.remove(id);
   }
 }
