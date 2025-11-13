@@ -43,6 +43,7 @@ model Ledger {
   groups         Group[]          @relation("LedgerGroups")
   transactions   Transaction[]    @relation("LedgerTransactions")
   creditCards    LedgerCreditCard[] @relation("LedgerCreditCards")
+  isActive       Boolean         @default(true)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 

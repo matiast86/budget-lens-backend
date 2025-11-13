@@ -32,13 +32,6 @@ export class UsersRepository {
     return await this.prisma.user.update({ where: { id }, data });
   }
 
-  async delete(id: string): Promise<User> {
-    return await this.prisma.user.update({
-      where: { id },
-      data: { isActive: false },
-    });
-  }
-
   async create(data: Prisma.UserCreateInput): Promise<User> {
     return await this.prisma.user.create({ data });
   }

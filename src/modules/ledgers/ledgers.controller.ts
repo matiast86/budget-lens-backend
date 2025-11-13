@@ -1,20 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { LedgersService } from './ledgers.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { UpdateLedgerDto } from './dto/update-ledger.dto';
+import { LedgersService } from './ledgers.service';
 
 @Controller('ledgers')
 export class LedgersController {
   constructor(private readonly ledgersService: LedgersService) {}
 
   @Post()
-  create(@Body() createLedgerDto: CreateLedgerDto) {
-    return this.ledgersService.create(createLedgerDto);
+  async create(
+    @Body() createLedgerDto: CreateLedgerDto,
+    @GetUser('id') ownerId: string,
+  ) {
+    return await this.ledgersService.create(ownerId, createLedgerDto);
   }
 
   @Get()
-  findAll() {
-    return this.ledgersService.findAll();
+  async findAll() {
+    return await this.ledgersService.findAll();
   }
 
   @Get(':id')

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { LedgersService } from './ledgers.service';
 import { LedgersController } from './ledgers.controller';
+import { LedgersRepository } from './ledgers.repository';
+import { LedgersService } from './ledgers.service';
 
 @Module({
   controllers: [LedgersController],
-  providers: [LedgersService],
+  providers: [LedgersService, LedgersRepository],
 })
 export class LedgersModule {}

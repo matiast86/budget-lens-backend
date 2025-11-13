@@ -42,6 +42,10 @@ export class UsersService {
     return new UserResponseDto(user);
   }
 
+  async findOneById(id: string): Promise<User> {
+    return await this.usersRepository.getUserById(id);
+  }
+
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
