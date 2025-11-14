@@ -12,9 +12,10 @@ import { PaymentMethodsModule } from './modules/payment-methods/payment-methods.
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { TransactionsBreakDownModule } from './modules/transactions-break-down/transactions-break-down.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, SharedModule, UsersModule, LedgersModule, CollaborationsModule, CreditCardsModule, GroupsModule, DebtsModule, DebtOwnersModule, PaymentMethodsModule, CategoriesModule, TransactionsModule, TransactionsBreakDownModule],
+  imports: [PrismaModule, SharedModule, UsersModule, LedgersModule, CollaborationsModule, CreditCardsModule, GroupsModule, DebtsModule, DebtOwnersModule, PaymentMethodsModule, CategoriesModule, TransactionsModule, TransactionsBreakDownModule, AuthModule],
   controllers: [],
   providers: [],
 })

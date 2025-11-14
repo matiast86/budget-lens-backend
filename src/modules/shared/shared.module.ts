@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({
@@ -7,6 +8,28 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       envFilePath: ['.env.development', '.env'],
       isGlobal: true,
+    }),
+
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET');
+        if (!secret) {
+          throw new Error('JWT_SECRET not defined');
+        }
+
+        const expiresIn = config.get<number>('JWT_EXPIRATION') ?? 3600;
+
+        return {
+          secret,
+          signOptions: {
+            expiresIn: expiresIn,
+            algorithm: 'HS256',
+          },
+        };
+      },
     }),
   ],
 })

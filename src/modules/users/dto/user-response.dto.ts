@@ -1,51 +1,53 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, User } from '@prisma/client';
+import { Gender, Role, User } from '@prisma/client';
+import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
+import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 
 export class UserResponseDto {
-  @ApiProperty({
-    description: 'Unique identifier of the user.',
-    example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133',
-  })
+  @ApiProperty({ example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133' })
   id: string;
 
-  @ApiProperty({
-    description: 'Full name of the user.',
-    example: 'John Doe',
-  })
+  @ApiProperty({ example: 'John Doe' })
   name: string;
 
-  @ApiProperty({
-    description: 'Email address of the user.',
-    example: 'johndoe@example.com',
-  })
+  @ApiProperty({ example: 'johndoe@example.com' })
   email: string;
 
   @ApiProperty({
-    description: 'Date of birth of the user, formatted as an ISO string.',
+    description: 'Date of birth (ISO string).',
     example: '1992-05-18T00:00:00.000Z',
   })
   birthDate: string;
 
-  @ApiProperty({
-    enum: Gender,
-    description: 'Gender of the user.',
-    example: Gender.MALE,
-  })
+  @ApiProperty({ enum: Gender, example: Gender.MALE })
   gender: Gender;
 
   @ApiProperty({
-    description: 'Ledgers owned by the user.',
-    type: [Object],
-    example: [],
+    enum: Role,
+    description: 'Defines user permissions.',
+    example: Role.USER,
   })
-  ledgers: object[];
+  role: Role;
+
+  @ApiProperty({ example: '2025-01-01T12:00:00.000Z' })
+  createdAt: string;
+
+  @ApiProperty({ example: '2025-01-01T12:00:00.000Z' })
+  updatedAt: string;
 
   @ApiProperty({
-    description: 'Collaborations the user participates in.',
-    type: [Object],
-    example: [],
+    type: () => LedgerEntity,
+    isArray: true,
+    description: 'Ledgers owned by the user.',
   })
-  collaborations: object[];
+  ledgers: LedgerEntity[];
+
+  @ApiProperty({
+    type: () => CollaborationEntity,
+    isArray: true,
+    description: 'Collaborations of the user.',
+  })
+  collaborations: CollaborationEntity[];
 
   constructor(user: User) {
     this.id = user.id;
@@ -53,6 +55,11 @@ export class UserResponseDto {
     this.email = user.email;
     this.birthDate = user.birthDate.toISOString();
     this.gender = user.gender;
+    this.role = user.role;
+    this.createdAt = user.createdAt.toISOString();
+    this.updatedAt = user.updatedAt.toISOString();
+
+    // initially empty, expandable later
     this.ledgers = [];
     this.collaborations = [];
   }

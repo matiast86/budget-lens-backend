@@ -149,6 +149,7 @@ model Transaction {
   currency              Currency
   totalAmount           Decimal
   monthlyAmount         Decimal
+  type                  TransactionType        @default(VARIABLE)
   debtOwnerId           Int?
   transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
 
@@ -223,5 +224,10 @@ enum Status {
   CLOSED
   CURRENT
   FUTURE
+}
+
+enum TransactionType {
+  FIXED
+  VARIABLE
 }
 
