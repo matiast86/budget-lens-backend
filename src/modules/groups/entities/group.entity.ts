@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { GroupwithRelations } from 'src/types/entities/entities-with-relations';
 
 export class GroupEntity {
   @ApiProperty({
@@ -56,4 +57,19 @@ export class GroupEntity {
     description: 'User who created or manages this group.',
   })
   user: UserEntity;
+
+  constructor(group: GroupwithRelations | GroupEntity) {
+    this.id = group.id;
+    this.name = group.name;
+    this.ledgerId = group.ledgerId ? group.ledgerId : undefined;
+    this.userId = group.userId;
+    this.isGlobal = group.isGlobal;
+    this.ledger = group.ledger
+      ? new LedgerEntity(group.ledger as any)
+      : undefined;
+    this.user = new UserEntity(group.user as any);
+    this.transactions = group.transactions
+      ? group.transactions.map((t) => new TransactionEntity(t))
+      : [];
+  }
 }

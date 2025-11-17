@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CreditBrand } from 'generated/prisma/enums';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { CreditCardWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class CreditCardEntity {
   @ApiProperty({
@@ -42,4 +43,14 @@ export class CreditCardEntity {
     required: false,
   })
   ledgers: LedgerEntity[];
+
+  constructor(creditCard: CreditCardWithRelations | CreditCardEntity) {
+    this.id = creditCard.id;
+    this.name = creditCard.name;
+    this.userId = creditCard.userId;
+    this.user = new UserEntity(creditCard.user as any);
+    this.ledgers = creditCard.ledgers
+      ? creditCard.ledgers.map((l) => new LedgerEntity(l))
+      : [];
+  }
 }

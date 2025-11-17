@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 
 @Global()
 @Module({
@@ -20,7 +20,8 @@ import { JwtModule } from '@nestjs/jwt';
           throw new Error('JWT_SECRET not defined');
         }
 
-        const expiresIn = config.get<number>('JWT_EXPIRATION') ?? 3600;
+        const expiresIn = (config.get<string>('JWT_EXPIRATION') ??
+          '60m') as JwtSignOptions['expiresIn'];
 
         return {
           secret,

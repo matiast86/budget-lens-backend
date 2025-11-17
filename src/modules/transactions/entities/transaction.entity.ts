@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TransactionType } from '@prisma/client';
 import { Currency, EntryType, Status } from 'generated/prisma/enums';
 import { CategoryEntity } from 'src/modules/categories/entities/category.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
+import { TransactionWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class TransactionEntity {
   @ApiProperty({
@@ -94,6 +96,8 @@ export class TransactionEntity {
   })
   totalAmount: number;
 
+  type: TransactionType;
+
   @ApiProperty({
     description: 'Amount due per month or installment.',
     example: 9166.83,
@@ -124,4 +128,32 @@ export class TransactionEntity {
     required: false,
   })
   transactionsBreakDown: TransactionsBreakDownEntity[];
+
+  constructor(transaction: TransactionWithRelations | TransactionEntity) {
+    this.id = transaction.id;
+    this.ledgerId = transaction.ledgerId;
+    this.status = transaction.status;
+    this.entryType = transaction.entryType;
+    this.categoryId = transaction.categoryId;
+    this.groupId = transaction.groupId ? transaction.groupId : undefined;
+    this.transactionDate = transaction.transactionDate;
+    this.paymentMonth = transaction.paymentMonth
+      ? transaction.paymentMonth
+      : undefined;
+    this.installments = transaction.installments;
+    this.installment = transaction.installment;
+    this.comment = transaction.comment ? transaction.comment : undefined;
+    this.currency = transaction.currency;
+    this.totalAmount = transaction.totalAmount as number;
+    this.monthlyAmount = transaction.monthlyAmount as number;
+    this.type = transaction.type;
+    this.debtOwnerId = transaction.debtOwnerId
+      ? transaction.debtOwnerId
+      : undefined;
+    this.transactionsBreakDown = transaction.transactionsBreakDown
+      ? transaction.transactionsBreakDown.map(
+          (tb) => new TransactionsBreakDownEntity(tb),
+        )
+      : [];
+  }
 }

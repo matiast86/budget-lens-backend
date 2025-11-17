@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DebtEntity } from 'src/modules/debts/entities/debt.entity';
+import { DebtOwnerWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class DebtOwnerEntity {
   @ApiProperty({
@@ -21,4 +22,12 @@ export class DebtOwnerEntity {
     required: false,
   })
   debts: DebtEntity[];
+
+  constructor(debtOwner: DebtOwnerWithRelations | DebtOwnerEntity) {
+    this.id = debtOwner.id;
+    this.name = debtOwner.name;
+    this.debts = debtOwner.debts
+      ? debtOwner.debts.map((d) => new DebtEntity(d))
+      : [];
+  }
 }

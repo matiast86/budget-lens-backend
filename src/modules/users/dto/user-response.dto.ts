@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, Role, User } from '@prisma/client';
+import { Gender, Role } from '@prisma/client';
 import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
+import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class UserResponseDto {
   @ApiProperty({ example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133' })
@@ -49,7 +50,7 @@ export class UserResponseDto {
   })
   collaborations: CollaborationEntity[];
 
-  constructor(user: User) {
+  constructor(user: UserWithRelations) {
     this.id = user.id;
     this.name = user.name;
     this.email = user.email;
@@ -60,7 +61,7 @@ export class UserResponseDto {
     this.updatedAt = user.updatedAt.toISOString();
 
     // initially empty, expandable later
-    this.ledgers = [];
+    this.ledgers = user.ledgers.map((l) => new LedgerEntity(l));
     this.collaborations = [];
   }
 }

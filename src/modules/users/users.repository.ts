@@ -12,7 +12,10 @@ export class UsersRepository {
 
   async getUserById(id: string): Promise<User> {
     try {
-      return await this.prisma.user.findUniqueOrThrow({ where: { id } });
+      return await this.prisma.user.findUniqueOrThrow({
+        where: { id },
+        include: { ledgers: true, collaborations: true },
+      });
     } catch {
       throw new NotFoundException(`User with id: ${id} not found`);
     }
@@ -22,6 +25,7 @@ export class UsersRepository {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { email },
+        include: { ledgers: true, collaborations: true },
       });
     } catch {
       throw new NotFoundException(`User with email: ${email} not found`);

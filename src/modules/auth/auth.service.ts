@@ -39,10 +39,12 @@ export class AuthService {
       };
 
       const token = await this.jwtService.signAsync(payload);
+
       const safeUser = new UserResponseDto(user);
 
       return { token, user: safeUser };
-    } catch {
+    } catch (e) {
+      console.error('SIGNIN ERROR:', e);
       throw new HttpException(
         'Email or password do not match.',
         HttpStatus.UNAUTHORIZED,

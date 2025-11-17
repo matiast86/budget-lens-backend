@@ -4,6 +4,7 @@ import { CreditCardEntity } from 'src/modules/credit-cards/entities/credit-card.
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { LedgerWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class LedgerEntity {
   @ApiProperty({
@@ -13,16 +14,13 @@ export class LedgerEntity {
   id: number;
 
   @ApiProperty({
-    description:
-      'Name of the ledger, usually representing a shared or personal account.',
+    description: 'Name of the ledger.',
     example: 'Home Budget 2025',
   })
   name: string;
 
   @ApiProperty({
-    description:
-      'Short description to help identify the purpose of this ledger.',
-    example: 'Tracks monthly family expenses and shared utilities.',
+    description: 'Short description of the ledger.',
     required: false,
   })
   description?: string;
@@ -36,13 +34,13 @@ export class LedgerEntity {
   @ApiProperty({
     type: () => UserEntity,
     description: 'User entity that owns this ledger.',
+    required: false,
   })
-  owner: UserEntity;
+  owner?: UserEntity;
 
   @ApiProperty({
     type: () => CollaborationEntity,
     isArray: true,
-    description: 'Collaborators granted access to this ledger.',
     required: false,
   })
   collaborations: CollaborationEntity[];
@@ -50,8 +48,6 @@ export class LedgerEntity {
   @ApiProperty({
     type: () => GroupEntity,
     isArray: true,
-    description:
-      'Custom transaction groups under this ledger (e.g., categories, projects).',
     required: false,
   })
   groups: GroupEntity[];
@@ -59,7 +55,6 @@ export class LedgerEntity {
   @ApiProperty({
     type: () => TransactionEntity,
     isArray: true,
-    description: 'Transactions associated with this ledger.',
     required: false,
   })
   transactions: TransactionEntity[];
@@ -67,29 +62,41 @@ export class LedgerEntity {
   @ApiProperty({
     type: () => CreditCardEntity,
     isArray: true,
-    description:
-      'List of credit cards associated with this ledger. A card can belong to multiple ledgers (many-to-many).',
     required: false,
-    example: [
-      {
-        id: 12,
-        name: 'Visa Galicia Classic',
-        type: 'VISA',
-        userId: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133',
-      },
-    ],
   })
   creditCards: CreditCardEntity[];
 
-  @ApiProperty({
-    description: 'Timestamp of when the ledger was created.',
-    example: '2025-01-15T09:00:00.000Z',
-  })
+  @ApiProperty({ description: 'Creation timestamp.' })
   createdAt: Date;
 
-  @ApiProperty({
-    description: 'Timestamp of the most recent update to this ledger.',
-    example: '2025-02-02T21:45:00.000Z',
-  })
+  @ApiProperty({ description: 'Last update timestamp.' })
   updatedAt: Date;
+
+  constructor(ledger: LedgerWithRelations | LedgerEntity) {
+    this.id = ledger.id;
+    this.name = ledger.name;
+    this.description = ledger.description || undefined;
+    this.ownerId = ledger.ownerId;
+    this.createdAt = ledger.createdAt;
+    this.updatedAt = ledger.updatedAt;
+
+    // Map nested relations safely if present
+    this.owner = ledger.owner ? new UserEntity(ledger.owner as any) : undefined;
+
+    this.collaborations = ledger.collaborations
+      ? ledger.collaborations.map((c) => new CollaborationEntity(c))
+      : [];
+
+    this.groups = ledger.groups
+      ? ledger.groups.map((g) => new GroupEntity(g))
+      : [];
+
+    this.transactions = ledger.transactions
+      ? ledger.transactions.map((t) => new TransactionEntity(t))
+      : [];
+
+    this.creditCards = ledger.creditCards
+      ? ledger.creditCards.map((c) => new CreditCardEntity(c))
+      : [];
+  }
 }

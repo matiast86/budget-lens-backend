@@ -20,4 +20,10 @@ export class PaymentMethodEntity {
     example: PaymentType.OTHER,
   })
   type: PaymentType;
+
+  constructor(paymentMethod: PaymentMethodEntity) {
+    this.id = paymentMethod.id;
+    this.name = paymentMethod.name;
+    this.type = paymentMethod.type;
+  }
 }
