@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DebtDirection } from 'generated/prisma/enums';
 import { DebtOwnerEntity } from 'src/modules/debt-owners/entities/debt-owner.entity';
-import { DebtWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class DebtEntity {
   @ApiProperty({
@@ -33,12 +32,7 @@ export class DebtEntity {
   @ApiProperty({ type: () => DebtOwnerEntity })
   owner: DebtOwnerEntity;
 
-  constructor(debt: DebtWithRelations | DebtEntity) {
-    this.id = debt.id;
-    this.debtOwnerId = debt.debtOwnerId;
-    this.direction = debt.direction;
-    this.amount = debt.amount;
-    this.month = debt.month;
-    this.owner = new DebtOwnerEntity(debt.owner as any);
+  constructor(partial: Partial<DebtEntity>) {
+    Object.assign(this, partial);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 
 @Injectable()
 export class UsersRepository {
@@ -10,7 +11,7 @@ export class UsersRepository {
     return await this.prisma.user.findMany();
   }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(id: string): Promise<UserWithRelations> {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { id },

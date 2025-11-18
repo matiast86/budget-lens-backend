@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CollaborationRole } from 'generated/prisma/enums';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
-import { CollaborationWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class CollaborationEntity {
   @ApiProperty({
@@ -44,12 +43,7 @@ export class CollaborationEntity {
   })
   ledger: LedgerEntity;
 
-  constructor(collaboration: CollaborationWithRelations | CollaborationEntity) {
-    this.id = collaboration.id;
-    this.role = collaboration.role;
-    this.userId = collaboration.userId;
-    this.ledgerId = collaboration.ledgerId;
-    this.user = new UserEntity(collaboration.user as any);
-    this.ledger = new LedgerEntity(collaboration.ledger as any);
+  constructor(partial: Partial<CollaborationEntity>) {
+    Object.assign(this, partial);
   }
 }

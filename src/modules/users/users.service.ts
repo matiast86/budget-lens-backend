@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { hash } from 'bcrypt';
+import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -28,7 +29,16 @@ export class UsersService {
       gender,
     };
     const newUser: User = await this.usersRepository.create(data);
-    return new UserResponseDto(newUser);
+    const response: Partial<UserResponseDto> = {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      gender: newUser.gender,
+      role: newUser.role,
+      createdAt: newUser.createdAt.toISOString(),
+      updatedAt: newUser.updatedAt.toISOString(),
+    };
+    return new UserResponseDto(response);
   }
 
   async findAll(): Promise<UserResponseDto[]> {
@@ -38,8 +48,20 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.getUserById(id);
-    return new UserResponseDto(user);
+    const user: UserWithRelations = await this.usersRepository.getUserById(id);
+    const ledgers = user.ledgers;
+
+    const response: Partial<UserResponseDto> = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      birthDate: user.birthDate.toISOString(),
+      gender: user.gender,
+      role: user.role,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toDateString(),
+    };
+    return new UserResponseDto(response);
   }
 
   async findOneById(id: string): Promise<User> {

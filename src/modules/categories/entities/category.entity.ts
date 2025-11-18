@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
-import { CategoryWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class CategoryEntity {
   @ApiProperty({
@@ -30,12 +29,7 @@ export class CategoryEntity {
   })
   transactions: TransactionEntity[];
 
-  constructor(category: CategoryWithRelations | CategoryEntity) {
-    this.id = category.id;
-    this.name = category.name;
-    this.description = category.description as string | undefined;
-    this.transactions = category.transactions
-      ? category.transactions.map((t) => new TransactionEntity(t))
-      : [];
+  constructor(partial: Partial<CategoryEntity>) {
+    Object.assign(this, partial);
   }
 }

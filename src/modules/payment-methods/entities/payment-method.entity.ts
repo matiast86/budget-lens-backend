@@ -21,9 +21,7 @@ export class PaymentMethodEntity {
   })
   type: PaymentType;
 
-  constructor(paymentMethod: PaymentMethodEntity) {
-    this.id = paymentMethod.id;
-    this.name = paymentMethod.name;
-    this.type = paymentMethod.type;
+  constructor(partial: Partial<PaymentMethodEntity>) {
+    Object.assign(this, partial);
   }
 }

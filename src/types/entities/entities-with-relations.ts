@@ -37,6 +37,9 @@ export type GroupwithRelations = Prisma.GroupGetPayload<{
   include: { transactions: true; ledger: true; user: true };
 }>;
 
+export type PaymentMethodWithRelations =
+  Prisma.PaymentMethodGetPayload<undefined>;
+
 export type TransactionWithRelations = Prisma.TransactionGetPayload<{
   include: {
     transactionsBreakDown: true;
@@ -46,5 +49,5 @@ export type TransactionWithRelations = Prisma.TransactionGetPayload<{
   };
 }>;
 
-export type TransactionBreakDownWithRelationships =
+export type TransactionBreakDownWithRelations =
   Prisma.TransactionBreakDownGetPayload<{ include: { transaction: true } }>;

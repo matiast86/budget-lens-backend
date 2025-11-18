@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender, Role } from '@prisma/client';
-import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
-import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
-import { UserWithRelations } from 'src/types/entities/entities-with-relations';
+import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
+import { CreaditCardResponseDto } from 'src/modules/credit-cards/dto/credit-card-response.dto';
+import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
 
 export class UserResponseDto {
   @ApiProperty({ example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133' })
@@ -37,31 +37,27 @@ export class UserResponseDto {
   updatedAt: string;
 
   @ApiProperty({
-    type: () => LedgerEntity,
+    type: () => LedgerResponseDto,
     isArray: true,
     description: 'Ledgers owned by the user.',
   })
-  ledgers: LedgerEntity[];
+  ledgers: LedgerResponseDto[];
 
   @ApiProperty({
-    type: () => CollaborationEntity,
+    type: () => CollaborationResponseDto,
     isArray: true,
     description: 'Collaborations of the user.',
   })
-  collaborations: CollaborationEntity[];
+  collaborations: CollaborationResponseDto[];
 
-  constructor(user: UserWithRelations) {
-    this.id = user.id;
-    this.name = user.name;
-    this.email = user.email;
-    this.birthDate = user.birthDate.toISOString();
-    this.gender = user.gender;
-    this.role = user.role;
-    this.createdAt = user.createdAt.toISOString();
-    this.updatedAt = user.updatedAt.toISOString();
+  @ApiProperty({
+    type: () => CreaditCardResponseDto,
+    isArray: true,
+    description: 'Credit Cards of the user.',
+  })
+  creditCards: CreaditCardResponseDto[];
 
-    // initially empty, expandable later
-    this.ledgers = user.ledgers.map((l) => new LedgerEntity(l));
-    this.collaborations = [];
+  constructor(partial: Partial<UserResponseDto>) {
+    Object.assign(this, partial);
   }
 }

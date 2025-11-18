@@ -4,7 +4,6 @@ import { CollaborationEntity } from 'src/modules/collaborations/entities/collabo
 import { CreditCardEntity } from 'src/modules/credit-cards/entities/credit-card.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
-import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 
 export class UserEntity {
   @ApiProperty()
@@ -48,24 +47,7 @@ export class UserEntity {
   @ApiProperty()
   updatedAt: Date;
 
-  constructor(user: UserWithRelations) {
-    this.id = user.id;
-    this.name = user.name;
-    this.email = user.email;
-    this.birthDate = user.birthDate;
-    this.gender = user.gender;
-    this.role = user.role;
-    this.password = user.password; // ⚠ remove if you don't want to expose password
-    this.isActive = user.isActive;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
-
-    // --- Nested Relations ---
-    this.ledgers = user.ledgers?.map((l) => new LedgerEntity(l)) ?? [];
-    this.collaborations =
-      user.collaborations?.map((c) => new CollaborationEntity(c)) ?? [];
-    this.creditCards =
-      user.creditCards?.map((cc) => new CreditCardEntity(cc)) ?? [];
-    this.groups = user.groups?.map((g) => new GroupEntity(g)) ?? [];
+  constructor(partial: Partial<UserEntity>) {
+    Object.assign(this, partial);
   }
 }
