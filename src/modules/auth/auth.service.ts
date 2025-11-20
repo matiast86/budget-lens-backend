@@ -1,7 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { compare } from 'bcrypt';
+import {
+  userEntityToResponseDto,
+  userToEntity,
+} from 'src/helpers/mappers/user.mapper';
+import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 import { JwtPayload } from 'src/types/payload/payload';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -23,7 +27,8 @@ export class AuthService {
     const { email, password } = credentials;
 
     try {
-      const user: User = await this.usersService.findOneByEmail(email);
+      const user: UserWithRelations =
+        await this.usersService.findOneByEmail(email);
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const isPasswordMatching = await compare(password, user.password);
@@ -40,7 +45,7 @@ export class AuthService {
 
       const token = await this.jwtService.signAsync(payload);
 
-      const safeUser = new UserResponseDto(user);
+      const safeUser = userEntityToResponseDto(userToEntity(user));
 
       return { token, user: safeUser };
     } catch (e) {

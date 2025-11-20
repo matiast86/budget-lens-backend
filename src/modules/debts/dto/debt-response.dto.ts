@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DebtDirection } from '@prisma/client';
+import { DebtOwnerResponseDto } from 'src/modules/debt-owners/dto/debt-owner-response.dto';
 
 export class DebtResponseDto {
   @ApiProperty({
@@ -27,6 +28,9 @@ export class DebtResponseDto {
     example: '2025-03-01T00:00:00.000Z',
   })
   month: string;
+
+  @ApiProperty({ type: () => DebtOwnerResponseDto })
+  owner: DebtOwnerResponseDto;
   constructor(partial: Partial<DebtResponseDto>) {
     Object.assign(this, partial);
   }

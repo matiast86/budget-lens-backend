@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt';
 import {
   userEntityToResponseDto,
@@ -32,17 +32,9 @@ export class UsersService {
       password,
       gender,
     };
-    const newUser: User = await this.usersRepository.create(data);
-    const response: Partial<UserResponseDto> = {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      gender: newUser.gender,
-      role: newUser.role,
-      createdAt: newUser.createdAt.toISOString(),
-      updatedAt: newUser.updatedAt.toISOString(),
-    };
-    return new UserResponseDto(response);
+    const newUser: UserWithRelations = await this.usersRepository.create(data);
+
+    return userEntityToResponseDto(userToEntity(newUser));
   }
 
   async findAll(): Promise<UserResponseDto[]> {
@@ -57,26 +49,31 @@ export class UsersService {
     return userEntityToResponseDto(userToEntity(user));
   }
 
-  async findOneById(id: string): Promise<User> {
-    return await this.usersRepository.getUserById(id);
+  async findOneById(id: string): Promise<UserResponseDto> {
+    const user = await this.usersRepository.getUserById(id);
+    return userEntityToResponseDto(userToEntity(user));
   }
 
-  async findOneByEmail(email: string): Promise<User> {
-    return await this.usersRepository.findByEmail(email);
+  async findOneByEmail(email: string): Promise<UserResponseDto> {
+    const user = await this.usersRepository.findByEmail(email);
+    return userEntityToResponseDto(userToEntity(user));
   }
 
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    const data: Partial<User> = updateUserDto;
-    const updatedUser = await this.usersRepository.update(id, data);
-    return new UserResponseDto({});
+    const data: Prisma.UserUpdateInput = updateUserDto;
+    const updatedUser: UserWithRelations = await this.usersRepository.update(
+      id,
+      data,
+    );
+    return userEntityToResponseDto(userToEntity(updatedUser));
   }
 
   async remove(id: string): Promise<void> {
     await this.usersRepository.getUserById(id);
-    const data: Partial<User> = { isActive: false };
+    const data: Prisma.UserUpdateInput = { isActive: false };
     await this.usersRepository.update(id, data);
   }
 }

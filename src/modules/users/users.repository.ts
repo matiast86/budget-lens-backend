@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 
@@ -34,7 +34,7 @@ export class UsersRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<UserWithRelations> {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { email },
@@ -50,11 +50,31 @@ export class UsersRepository {
     }
   }
 
-  async update(id: string, data: Partial<User>): Promise<User> {
-    return await this.prisma.user.update({ where: { id }, data });
+  async update(
+    id: string,
+    data: Prisma.UserUpdateInput,
+  ): Promise<UserWithRelations> {
+    return await this.prisma.user.update({
+      where: { id },
+      data,
+      include: {
+        ledgers: true,
+        collaborations: true,
+        creditCards: true,
+        groups: true,
+      },
+    });
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<User> {
-    return await this.prisma.user.create({ data });
+  async create(data: Prisma.UserCreateInput): Promise<UserWithRelations> {
+    return await this.prisma.user.create({
+      data,
+      include: {
+        ledgers: true,
+        collaborations: true,
+        creditCards: true,
+        groups: true,
+      },
+    });
   }
 }

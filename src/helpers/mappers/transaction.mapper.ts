@@ -41,7 +41,7 @@ export const transactionToEntity = (
     entryType,
     categoryId,
     groupId: groupId ?? undefined,
-    transactionDate: transactionDate ?? undefined,
+    transactionDate: transactionDate,
     paymentMonth: paymentMonth ?? undefined,
     installments,
     installment,

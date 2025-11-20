@@ -34,7 +34,8 @@ export const ledgerToEntity = (ledger: LedgerWithRelations): LedgerEntity => {
     collaborations: collaborations?.map(collaborationToEntity) ?? [],
     groups: groups?.map(groupToEntity) ?? [],
     transactions: transactions?.map(transactionToEntity) ?? [],
-    creditCards: creditCards?.map((cc) => creditCardToEntity(cc.creditCard)),
+    creditCards:
+      creditCards?.map((cc) => creditCardToEntity(cc.creditCard)) ?? [],
     createdAt,
     updatedAt,
   });

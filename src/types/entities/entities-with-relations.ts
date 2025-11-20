@@ -1,5 +1,9 @@
 import { Prisma } from '@prisma/client';
 
+/* ==========================================================================
+   USER TYPES
+   ========================================================================== */
+
 export type UserWithRelations = Prisma.UserGetPayload<{
   include: {
     ledgers: true;
@@ -9,51 +13,118 @@ export type UserWithRelations = Prisma.UserGetPayload<{
   };
 }>;
 
+/* ==========================================================================
+   LEDGER TYPES
+   ========================================================================== */
+
 export type LedgerWithRelations = Prisma.LedgerGetPayload<{
   include: {
     collaborations: true;
     transactions: true;
-    creditCards: { include: { creditCard: true } };
+    creditCards: {
+      include: {
+        creditCard: true; // minimal credit card, no nested rels
+      };
+    };
     groups: true;
-    owner: true;
   };
 }>;
 
+/* ==========================================================================
+   COLLABORATION TYPES
+   ========================================================================== */
+
 export type CollaborationWithRelations = Prisma.CollaborationGetPayload<{
-  include: { user: true; ledger: true };
+  include: {
+    user: true;
+    ledger: true;
+  };
 }>;
 
+/* ==========================================================================
+   CREDIT CARD TYPES
+   ========================================================================== */
+
+// Credit card used inside Ledger context (minimal)
 export type CreditCardMinimal = Prisma.CreditCardGetPayload<{
-  include: { ledgers: false; user: false };
+  include: {
+    user: false;
+    ledgers: false;
+  };
+}>;
+
+// Full credit card (if needed in credits module later)
+export type CreditCardWithRelations = Prisma.CreditCardGetPayload<{
+  include: {
+    user: true;
+    ledgers: true;
+  };
+}>;
+
+/* ==========================================================================
+   DEBT & DEBT OWNER TYPES
+   ========================================================================== */
+
+// Minimal owner inside Debt — prevents recursion
+export type DebtOwnerMinimal = Prisma.DebtOwnerGetPayload<{
+  include: { debts: false };
 }>;
 
 export type DebtWithRelations = Prisma.DebtGetPayload<{
-  include: { owner: true };
+  include: {
+    owner: { include: { debts: false } }; // prevents recursion
+  };
 }>;
 
+// Full owner with debt list (use only on owner endpoints)
 export type DebtOwnerWithRelations = Prisma.DebtOwnerGetPayload<{
-  include: { debts: true };
+  include: {
+    debts: {
+      include: {
+        owner: false; // no back-reference
+      };
+    };
+  };
 }>;
+
+/* ==========================================================================
+   CATEGORY TYPES
+   ========================================================================== */
 
 export type CategoryMinimal = Prisma.CategoryGetPayload<{
   include: { transactions: false };
 }>;
 
+/* ==========================================================================
+   GROUP TYPES
+   ========================================================================== */
+
 export type GroupMinimal = Prisma.GroupGetPayload<{
-  include: { transactions: false; ledger: false; user: false };
+  include: {
+    ledger: false;
+    user: false;
+    transactions: false;
+  };
 }>;
 
-export type PaymentMethodWithRelations =
-  Prisma.PaymentMethodGetPayload<undefined>;
+/* ==========================================================================
+   TRANSACTION TYPES
+   ========================================================================== */
 
 export type TransactionWithRelations = Prisma.TransactionGetPayload<{
   include: {
     transactionsBreakDown: true;
     category: true;
     group: true;
-    ledger: false;
+    ledger: false; // do not include ledger (cycle)
   };
 }>;
 
 export type TransactionBreakDownMinimal =
-  Prisma.TransactionBreakDownGetPayload<{ include: { transaction: false } }>;
+  Prisma.TransactionBreakDownGetPayload<{
+    include: { transaction: false };
+  }>;
+
+/* ==========================================================================
+   END
+   ========================================================================== */

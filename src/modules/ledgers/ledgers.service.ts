@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Ledger, Prisma } from '@prisma/client';
+import {
+  ledgerArrayToArrayDto,
+  ledgerEntityToResponseDto,
+  ledgerToEntity,
+} from 'src/helpers/mappers/ledger.mapper';
+import { LedgerWithRelations } from 'src/types/entities/entities-with-relations';
 import { UsersService } from '../users/users.service';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerResponseDto } from './dto/ledger-response.dto';
@@ -27,12 +33,13 @@ export class LedgersService {
 
     const newLedger = await this.ledgersRepository.create(data);
 
-    return new LedgerResponseDto(newLedger);
+    return ledgerEntityToResponseDto(ledgerToEntity(newLedger));
   }
 
   async findAll() {
-    const ledgers: Ledger[] = await this.ledgersRepository.findAll();
-    return ledgers.map((ledger) => new LedgerResponseDto(ledger));
+    const ledgers: LedgerWithRelations[] =
+      await this.ledgersRepository.findAll();
+    return ledgerArrayToArrayDto(ledgers.map(ledgerToEntity));
   }
 
   async findLedgersByOwner(
@@ -41,17 +48,15 @@ export class LedgersService {
     take: number,
   ): Promise<LedgerResponseDto[]> {
     const where: Prisma.LedgerWhereInput = { ownerId };
-    const ledgers: Ledger[] = await this.ledgersRepository.findAllPaginated(
-      skip,
-      take,
-      where,
-    );
+    const ledgers: LedgerWithRelations[] =
+      await this.ledgersRepository.findAllPaginated(skip, take, where);
 
-    return ledgers.map((ledger) => new LedgerResponseDto(ledger));
+    return ledgerArrayToArrayDto(ledgers.map(ledgerToEntity));
   }
 
-  async findOne(id: number): Promise<Ledger> {
-    return await this.ledgersRepository.findLedgerById(id);
+  async findOne(id: number): Promise<LedgerResponseDto> {
+    const ledger = await this.ledgersRepository.findLedgerById(id);
+    return ledgerEntityToResponseDto(ledgerToEntity(ledger));
   }
 
   async update(
@@ -63,7 +68,7 @@ export class LedgersService {
     const data: Prisma.LedgerUpdateInput = { ...updateLedgerDto };
     const updated = await this.ledgersRepository.update(id, data);
 
-    return new LedgerResponseDto(updated);
+    return ledgerEntityToResponseDto(ledgerToEntity(updated));
   }
 
   async deactivate(id: number): Promise<void> {
