@@ -7,15 +7,27 @@ import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllUsers(): Promise<User[]> {
-    return await this.prisma.user.findMany();
+  async getAllUsers(): Promise<UserWithRelations[]> {
+    return await this.prisma.user.findMany({
+      include: {
+        ledgers: true,
+        collaborations: true,
+        creditCards: true,
+        groups: true,
+      },
+    });
   }
 
   async getUserById(id: string): Promise<UserWithRelations> {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { id },
-        include: { ledgers: true, collaborations: true },
+        include: {
+          ledgers: true,
+          collaborations: true,
+          creditCards: true,
+          groups: true,
+        },
       });
     } catch {
       throw new NotFoundException(`User with id: ${id} not found`);
@@ -26,7 +38,12 @@ export class UsersRepository {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { email },
-        include: { ledgers: true, collaborations: true },
+        include: {
+          ledgers: true,
+          collaborations: true,
+          creditCards: true,
+          groups: true,
+        },
       });
     } catch {
       throw new NotFoundException(`User with email: ${email} not found`);

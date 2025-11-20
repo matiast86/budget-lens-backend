@@ -1,8 +1,28 @@
+import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
-import { GroupwithRelations } from 'src/types/entities/entities-with-relations';
+import { GroupMinimal } from 'src/types/entities/entities-with-relations';
 
-export const groupToEntity = (group: GroupwithRelations) => {};
+export const groupToEntity = (group: GroupMinimal): GroupEntity => {
+  const { id, name, ledgerId, userId, isGlobal } = group;
 
-export const groupEntityToResponseDto = (group: GroupEntity) => {};
+  return new GroupEntity({
+    id,
+    name,
+    ledgerId: ledgerId ?? undefined,
+    userId,
+    isGlobal,
+  });
+};
 
-export const groupArrayToArrayDto = (groupArray: GroupEntity[]) => {};
+export const groupEntityToResponseDto = (
+  group: GroupEntity,
+): GroupResponseDto => {
+  const { id, name, ledgerId, userId, isGlobal } = group;
+  return new GroupResponseDto({ id, name, ledgerId, userId, isGlobal });
+};
+
+export const groupArrayToArrayDto = (
+  groupArray: GroupEntity[],
+): GroupResponseDto[] => {
+  return groupArray.map(groupEntityToResponseDto);
+};

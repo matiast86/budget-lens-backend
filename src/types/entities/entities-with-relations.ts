@@ -1,14 +1,20 @@
 import { Prisma } from '@prisma/client';
 
 export type UserWithRelations = Prisma.UserGetPayload<{
-  include: { ledgers: true; collaborations: true };
+  include: {
+    ledgers: true;
+    collaborations: true;
+    creditCards: true;
+    groups: true;
+  };
 }>;
 
 export type LedgerWithRelations = Prisma.LedgerGetPayload<{
   include: {
     collaborations: true;
     transactions: true;
-    creditCards: true;
+    creditCards: { include: { creditCard: true } };
+    groups: true;
     owner: true;
   };
 }>;
@@ -17,8 +23,8 @@ export type CollaborationWithRelations = Prisma.CollaborationGetPayload<{
   include: { user: true; ledger: true };
 }>;
 
-export type CreditCardWithRelations = Prisma.CreditCardGetPayload<{
-  include: { ledgers: true; user: true };
+export type CreditCardMinimal = Prisma.CreditCardGetPayload<{
+  include: { ledgers: false; user: false };
 }>;
 
 export type DebtWithRelations = Prisma.DebtGetPayload<{
@@ -29,12 +35,12 @@ export type DebtOwnerWithRelations = Prisma.DebtOwnerGetPayload<{
   include: { debts: true };
 }>;
 
-export type CategoryWithRelations = Prisma.CategoryGetPayload<{
-  include: { transactions: true };
+export type CategoryMinimal = Prisma.CategoryGetPayload<{
+  include: { transactions: false };
 }>;
 
-export type GroupwithRelations = Prisma.GroupGetPayload<{
-  include: { transactions: true; ledger: true; user: true };
+export type GroupMinimal = Prisma.GroupGetPayload<{
+  include: { transactions: false; ledger: false; user: false };
 }>;
 
 export type PaymentMethodWithRelations =
@@ -45,9 +51,9 @@ export type TransactionWithRelations = Prisma.TransactionGetPayload<{
     transactionsBreakDown: true;
     category: true;
     group: true;
-    ledger: true;
+    ledger: false;
   };
 }>;
 
-export type TransactionBreakDownWithRelations =
-  Prisma.TransactionBreakDownGetPayload<{ include: { transaction: true } }>;
+export type TransactionBreakDownMinimal =
+  Prisma.TransactionBreakDownGetPayload<{ include: { transaction: false } }>;

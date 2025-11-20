@@ -35,7 +35,7 @@ export class LedgerEntity {
     description: 'User entity that owns this ledger.',
     required: false,
   })
-  owner?: UserEntity;
+  owner: UserEntity;
 
   @ApiProperty({
     type: () => CollaborationEntity,

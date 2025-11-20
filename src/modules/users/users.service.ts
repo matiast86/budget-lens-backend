@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { hash } from 'bcrypt';
+import {
+  userEntityToResponseDto,
+  userToEntity,
+} from 'src/helpers/mappers/user.mapper';
 import { UserWithRelations } from 'src/types/entities/entities-with-relations';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,26 +46,15 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserResponseDto[]> {
-    const users: User[] = await this.usersRepository.getAllUsers();
+    const users: UserWithRelations[] = await this.usersRepository.getAllUsers();
 
-    return users.map((user) => new UserResponseDto(user));
+    return users.map((user) => userEntityToResponseDto(userToEntity(user)));
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
     const user: UserWithRelations = await this.usersRepository.getUserById(id);
-    const ledgers = user.ledgers;
 
-    const response: Partial<UserResponseDto> = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      birthDate: user.birthDate.toISOString(),
-      gender: user.gender,
-      role: user.role,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toDateString(),
-    };
-    return new UserResponseDto(response);
+    return userEntityToResponseDto(userToEntity(user));
   }
 
   async findOneById(id: string): Promise<User> {
@@ -78,7 +71,7 @@ export class UsersService {
   ): Promise<UserResponseDto> {
     const data: Partial<User> = updateUserDto;
     const updatedUser = await this.usersRepository.update(id, data);
-    return new UserResponseDto(updatedUser);
+    return new UserResponseDto({});
   }
 
   async remove(id: string): Promise<void> {

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Gender, Role } from '@prisma/client';
 import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
 import { CreaditCardResponseDto } from 'src/modules/credit-cards/dto/credit-card-response.dto';
+import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
 
 export class UserResponseDto {
@@ -56,6 +57,13 @@ export class UserResponseDto {
     description: 'Credit Cards of the user.',
   })
   creditCards: CreaditCardResponseDto[];
+
+  @ApiProperty({
+    type: () => GroupResponseDto,
+    isArray: true,
+    description: 'Groups of the user.',
+  })
+  groups: GroupResponseDto[];
 
   constructor(partial: Partial<UserResponseDto>) {
     Object.assign(this, partial);
