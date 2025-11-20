@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender, Role } from '@prisma/client';
 import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
-import { CreaditCardResponseDto } from 'src/modules/credit-cards/dto/credit-card-response.dto';
+import { CreditCardResponseDto } from 'src/modules/credit-cards/dto/credit-card-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
 
@@ -52,11 +52,11 @@ export class UserResponseDto {
   collaborations: CollaborationResponseDto[];
 
   @ApiProperty({
-    type: () => CreaditCardResponseDto,
+    type: () => CreditCardResponseDto,
     isArray: true,
     description: 'Credit Cards of the user.',
   })
-  creditCards: CreaditCardResponseDto[];
+  creditCards: CreditCardResponseDto[];
 
   @ApiProperty({
     type: () => GroupResponseDto,

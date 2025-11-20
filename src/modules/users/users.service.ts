@@ -54,9 +54,8 @@ export class UsersService {
     return userEntityToResponseDto(userToEntity(user));
   }
 
-  async findOneByEmail(email: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.findByEmail(email);
-    return userEntityToResponseDto(userToEntity(user));
+  async findOneByEmail(email: string): Promise<UserWithRelations> {
+    return await this.usersRepository.findByEmail(email);
   }
 
   async update(
