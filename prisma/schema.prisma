@@ -103,13 +103,6 @@ model DebtOwner {
   @@map("debt_owners")
 }
 
-model PaymentMethod {
-  id   Int         @id @default(autoincrement())
-  name String
-  type PaymentType
-
-  @@map("payment_methods")
-}
 
 model Category {
   id            Int             @id @default(autoincrement())
@@ -142,7 +135,8 @@ model Transaction {
   categoryId            Int
   groupId               Int?
   transactionDate       DateTime
-  paymentMonth          DateTime?
+  paymentMonth          DateTime
+  paymentType           PaymentType
   installments          Int                     @default(1)
   installment           Int                     @default(1)
   comment               String?
@@ -206,7 +200,6 @@ enum PaymentType {
   BANK
   WALLET
   CREDIT_CARD
-  DEBT
   OTHER
 }
 

@@ -1,94 +1,32 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 
-  - You are about to drop the `Category` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Collaboration` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `CreditCard` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Debt` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `DebtOwner` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Group` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Ledger` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `LedgerCreditCard` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `PaymentMethod` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Transaction` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `TransactionBreakDown` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
 
-*/
--- DropForeignKey
-ALTER TABLE "Collaboration" DROP CONSTRAINT "Collaboration_ledgerId_fkey";
+-- CreateEnum
+CREATE TYPE "CollaborationRole" AS ENUM ('COLLABORATOR');
 
--- DropForeignKey
-ALTER TABLE "Collaboration" DROP CONSTRAINT "Collaboration_userId_fkey";
+-- CreateEnum
+CREATE TYPE "EntryType" AS ENUM ('INCOME', 'EXPENSE');
 
--- DropForeignKey
-ALTER TABLE "CreditCard" DROP CONSTRAINT "CreditCard_userId_fkey";
+-- CreateEnum
+CREATE TYPE "CreditBrand" AS ENUM ('VISA', 'AMEX', 'MASTER', 'OTHER');
 
--- DropForeignKey
-ALTER TABLE "Debt" DROP CONSTRAINT "Debt_debtOwnerId_fkey";
+-- CreateEnum
+CREATE TYPE "PaymentType" AS ENUM ('CASH', 'BANK', 'WALLET', 'CREDIT_CARD', 'OTHER');
 
--- DropForeignKey
-ALTER TABLE "Group" DROP CONSTRAINT "Group_ledgerId_fkey";
+-- CreateEnum
+CREATE TYPE "DebtDirection" AS ENUM ('OWED_TO_ME', 'OWED_BY_ME');
 
--- DropForeignKey
-ALTER TABLE "Group" DROP CONSTRAINT "Group_userId_fkey";
+-- CreateEnum
+CREATE TYPE "Currency" AS ENUM ('ARS', 'USD');
 
--- DropForeignKey
-ALTER TABLE "Ledger" DROP CONSTRAINT "Ledger_ownerId_fkey";
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('CLOSED', 'CURRENT', 'FUTURE');
 
--- DropForeignKey
-ALTER TABLE "LedgerCreditCard" DROP CONSTRAINT "LedgerCreditCard_creditCardId_fkey";
-
--- DropForeignKey
-ALTER TABLE "LedgerCreditCard" DROP CONSTRAINT "LedgerCreditCard_ledgerId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Transaction" DROP CONSTRAINT "Transaction_categoryId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Transaction" DROP CONSTRAINT "Transaction_groupId_fkey";
-
--- DropForeignKey
-ALTER TABLE "Transaction" DROP CONSTRAINT "Transaction_ledgerId_fkey";
-
--- DropForeignKey
-ALTER TABLE "TransactionBreakDown" DROP CONSTRAINT "TransactionBreakDown_transactionId_fkey";
-
--- DropTable
-DROP TABLE "Category";
-
--- DropTable
-DROP TABLE "Collaboration";
-
--- DropTable
-DROP TABLE "CreditCard";
-
--- DropTable
-DROP TABLE "Debt";
-
--- DropTable
-DROP TABLE "DebtOwner";
-
--- DropTable
-DROP TABLE "Group";
-
--- DropTable
-DROP TABLE "Ledger";
-
--- DropTable
-DROP TABLE "LedgerCreditCard";
-
--- DropTable
-DROP TABLE "PaymentMethod";
-
--- DropTable
-DROP TABLE "Transaction";
-
--- DropTable
-DROP TABLE "TransactionBreakDown";
-
--- DropTable
-DROP TABLE "User";
+-- CreateEnum
+CREATE TYPE "TransactionType" AS ENUM ('FIXED', 'VARIABLE');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -112,6 +50,7 @@ CREATE TABLE "ledgers" (
     "name" TEXT NOT NULL,
     "description" TEXT,
     "ownerId" UUID NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -168,15 +107,6 @@ CREATE TABLE "debt_owners" (
 );
 
 -- CreateTable
-CREATE TABLE "payment_methods" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "type" "PaymentType" NOT NULL,
-
-    CONSTRAINT "payment_methods_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "categories" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -205,13 +135,15 @@ CREATE TABLE "transactions" (
     "categoryId" INTEGER NOT NULL,
     "groupId" INTEGER,
     "transactionDate" TIMESTAMP(3) NOT NULL,
-    "paymentMonth" TIMESTAMP(3),
+    "paymentMonth" TIMESTAMP(3) NOT NULL,
+    "paymentType" "PaymentType" NOT NULL,
     "installments" INTEGER NOT NULL DEFAULT 1,
     "installment" INTEGER NOT NULL DEFAULT 1,
     "comment" TEXT,
     "currency" "Currency" NOT NULL,
     "totalAmount" DECIMAL(65,30) NOT NULL,
     "monthlyAmount" DECIMAL(65,30) NOT NULL,
+    "type" "TransactionType" NOT NULL DEFAULT 'VARIABLE',
     "debtOwnerId" INTEGER,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
