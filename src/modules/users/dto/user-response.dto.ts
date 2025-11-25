@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender, Role } from '@prisma/client';
 import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
-import { CreditCardResponseDto } from 'src/modules/credit-cards/dto/credit-card-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
+import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
 
 export class UserResponseDto {
   @ApiProperty({ example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133' })
@@ -52,11 +52,11 @@ export class UserResponseDto {
   collaborations: CollaborationResponseDto[];
 
   @ApiProperty({
-    type: () => CreditCardResponseDto,
+    type: () => PaymentMethodResponseDto,
     isArray: true,
-    description: 'Credit Cards of the user.',
+    description: 'Payment methods of the user.',
   })
-  creditCards: CreditCardResponseDto[];
+  paymentMethods: PaymentMethodResponseDto[];
 
   @ApiProperty({
     type: () => GroupResponseDto,

@@ -4,6 +4,7 @@ import { CollaborationEntity } from 'src/modules/collaborations/entities/collabo
 import { CreditCardEntity } from 'src/modules/credit-cards/entities/credit-card.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
+import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 
 export class UserEntity {
   @ApiProperty()
@@ -34,7 +35,7 @@ export class UserEntity {
   collaborations: CollaborationEntity[];
 
   @ApiProperty({ type: () => CreditCardEntity, isArray: true })
-  creditCards: CreditCardEntity[];
+  paymentMethods: PaymentMethodEntity[];
 
   @ApiProperty({ type: () => GroupEntity, isArray: true })
   groups: GroupEntity[];

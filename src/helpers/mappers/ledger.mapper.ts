@@ -5,8 +5,11 @@ import {
   collaborationArrayToArrayDto,
   collaborationToEntity,
 } from './collaboration.mapper';
-import { creditCardToEntity } from './credit-cards.mapper';
 import { groupArrayToArrayDto, groupToEntity } from './group.mapper';
+import {
+  paymentMethodArrayToArrayDto,
+  paymentMethodToEntity,
+} from './payment-method.mapper';
 import {
   transactionArrayToArrayDto,
   transactionToEntity,
@@ -21,7 +24,7 @@ export const ledgerToEntity = (ledger: LedgerWithRelations): LedgerEntity => {
     collaborations,
     groups,
     transactions,
-    creditCards,
+    paymentMethods,
     createdAt,
     updatedAt,
   } = ledger;
@@ -34,8 +37,9 @@ export const ledgerToEntity = (ledger: LedgerWithRelations): LedgerEntity => {
     collaborations: collaborations?.map(collaborationToEntity) ?? [],
     groups: groups?.map(groupToEntity) ?? [],
     transactions: transactions?.map(transactionToEntity) ?? [],
-    creditCards:
-      creditCards?.map((cc) => creditCardToEntity(cc.creditCard)) ?? [],
+    paymentMethods:
+      paymentMethods?.map((pm) => paymentMethodToEntity(pm.paymentMethod)) ??
+      [],
     createdAt,
     updatedAt,
   });
@@ -52,7 +56,7 @@ export const ledgerEntityToResponseDto = (
     collaborations,
     groups,
     transactions,
-    creditCards,
+    paymentMethods,
     createdAt,
     updatedAt,
   } = ledger;
@@ -64,7 +68,7 @@ export const ledgerEntityToResponseDto = (
     collaborations: collaborationArrayToArrayDto(collaborations),
     groups: groupArrayToArrayDto(groups),
     transactions: transactionArrayToArrayDto(transactions),
-    creditCards,
+    paymentMethods: paymentMethodArrayToArrayDto(paymentMethods),
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   });

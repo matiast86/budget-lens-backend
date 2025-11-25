@@ -5,12 +5,12 @@ import {
   collaborationArrayToArrayDto,
   collaborationToEntity,
 } from './collaboration.mapper';
-import {
-  creditCardArrayToArrayDto,
-  creditCardToEntity,
-} from './credit-cards.mapper';
 import { groupArrayToArrayDto, groupToEntity } from './group.mapper';
 import { ledgerArrayToArrayDto, ledgerToEntity } from './ledger.mapper';
+import {
+  paymentMethodArrayToArrayDto,
+  paymentMethodToEntity,
+} from './payment-method.mapper';
 
 export const userToEntity = (user: UserWithRelations): UserEntity => {
   const {
@@ -23,7 +23,7 @@ export const userToEntity = (user: UserWithRelations): UserEntity => {
     role,
     ledgers,
     collaborations,
-    creditCards,
+    paymentMethods,
     groups,
     isActive,
     createdAt,
@@ -40,7 +40,7 @@ export const userToEntity = (user: UserWithRelations): UserEntity => {
     role,
     ledgers: ledgers?.map(ledgerToEntity) ?? [],
     collaborations: collaborations?.map(collaborationToEntity) ?? [],
-    creditCards: creditCards?.map(creditCardToEntity) ?? [],
+    paymentMethods: paymentMethods?.map(paymentMethodToEntity) ?? [],
     groups: groups?.map(groupToEntity) ?? [],
     isActive,
     createdAt,
@@ -58,7 +58,7 @@ export const userEntityToResponseDto = (user: UserEntity): UserResponseDto => {
     role,
     ledgers,
     collaborations,
-    creditCards,
+    paymentMethods,
     groups,
     createdAt,
     updatedAt,
@@ -73,7 +73,7 @@ export const userEntityToResponseDto = (user: UserEntity): UserResponseDto => {
     role,
     ledgers: ledgerArrayToArrayDto(ledgers),
     collaborations: collaborationArrayToArrayDto(collaborations),
-    creditCards: creditCardArrayToArrayDto(creditCards),
+    paymentMethods: paymentMethodArrayToArrayDto(paymentMethods),
     groups: groupArrayToArrayDto(groups),
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),

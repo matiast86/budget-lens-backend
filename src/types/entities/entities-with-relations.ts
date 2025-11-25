@@ -8,7 +8,7 @@ export type UserWithRelations = Prisma.UserGetPayload<{
   include: {
     ledgers: true;
     collaborations: true;
-    creditCards: true;
+    paymentMethods: true;
     groups: true;
   };
 }>;
@@ -21,9 +21,13 @@ export type LedgerWithRelations = Prisma.LedgerGetPayload<{
   include: {
     collaborations: true;
     transactions: true;
-    creditCards: {
+    paymentMethods: {
       include: {
-        creditCard: true; // minimal credit card, no nested rels
+        paymentMethod: {
+          include: {
+            transactions: true;
+          };
+        };
       };
     };
     groups: true;
@@ -46,18 +50,20 @@ export type CollaborationWithRelations = Prisma.CollaborationGetPayload<{
    ========================================================================== */
 
 // Credit card used inside Ledger context (minimal)
-export type CreditCardMinimal = Prisma.CreditCardGetPayload<{
+export type PaymentMethodMinimal = Prisma.PaymentMethodGetPayload<{
   include: {
     user: false;
     ledgers: false;
+    transactions: true;
   };
 }>;
 
 // Full credit card (if needed in credits module later)
-export type CreditCardWithRelations = Prisma.CreditCardGetPayload<{
+export type PaymentMethodWithRelations = Prisma.PaymentMethodGetPayload<{
   include: {
     user: true;
     ledgers: true;
+    transactions: true;
   };
 }>;
 
@@ -117,6 +123,7 @@ export type TransactionWithRelations = Prisma.TransactionGetPayload<{
     category: true;
     group: true;
     ledger: false; // do not include ledger (cycle)
+    paymentMethod: true;
   };
 }>;
 
