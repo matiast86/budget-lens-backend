@@ -24,7 +24,7 @@ model User {
   role           Role            @default(USER)
   ledgers        Ledger[]        @relation("UserLedgers")
   collaborations Collaboration[] @relation("UserCollaborations")
-  creditCards    CreditCard[]    @relation("UserCreditCards")
+  paymentMethods  PaymentMethod[] @relation("UserPaymentMethods")
   groups         Group[]         @relation("UserGroups")
   isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
@@ -42,7 +42,7 @@ model Ledger {
   collaborations Collaboration[]  @relation("LedgerCollaborations")
   groups         Group[]          @relation("LedgerGroups")
   transactions   Transaction[]    @relation("LedgerTransactions")
-  creditCards    LedgerCreditCard[] @relation("LedgerCreditCards")
+  paymentMethods LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
   isActive       Boolean         @default(true)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -61,27 +61,34 @@ model Collaboration {
   @@map("collaborations")
 }
 
-model CreditCard {
+model PaymentMethod {
   id        Int              @id @default(autoincrement())
   name      String
-  type      CreditBrand
+  type      PaymentType
+  brand     CreditBrand?
+  color String? 
+  icon  String?
+  currency Currency?
+  isActive Boolean @default(true)
   userId    String           @db.Uuid
-  user      User             @relation("UserCreditCards", fields: [userId], references: [id])
-  ledgers   LedgerCreditCard[]
+  user      User             @relation("UserPaymentMethods", fields: [userId], references: [id])
+  transactions Transaction[] @relation("PaymentMethodTransactions")
+  ledgers   LedgerPaymentMethod[]
 
-  @@map("credit_cards")
+
+  @@map("payment_methods")
 }
 
-model LedgerCreditCard {
-  creditCard   CreditCard  @relation(fields: [creditCardId], references: [id])
-  creditCardId Int
-  ledger       Ledger      @relation("LedgerCreditCards", fields: [ledgerId], references: [id])
+model LedgerPaymentMethod {
+  paymentMethod  PaymentMethod  @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId Int
+  ledger       Ledger      @relation("LedgerPaymentMethods", fields: [ledgerId], references: [id])
   ledgerId     Int
   assignedAt   DateTime    @default(now())
   assignedBy   String
 
-  @@id([creditCardId, ledgerId])
-  @@map("ledgers_credit_cards")
+  @@id([paymentMethodId, ledgerId])
+  @@map("ledgers_payment_methods")
 }
 
 model Debt {
@@ -136,7 +143,6 @@ model Transaction {
   groupId               Int?
   transactionDate       DateTime
   paymentMonth          DateTime
-  paymentType           PaymentType
   installments          Int                     @default(1)
   installment           Int                     @default(1)
   comment               String?
@@ -145,11 +151,13 @@ model Transaction {
   monthlyAmount         Decimal
   type                  TransactionType        @default(VARIABLE)
   debtOwnerId           Int?
+  paymentMethodId       Int
   transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
 
   ledger      Ledger      @relation("LedgerTransactions", fields: [ledgerId], references: [id])
   category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
   group       Group?      @relation("TransactionGroup", fields: [groupId], references: [id])
+  paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
 
   @@map("transactions")
 }
