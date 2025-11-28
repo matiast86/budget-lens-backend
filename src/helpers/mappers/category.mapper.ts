@@ -1,26 +1,19 @@
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
-import { CategoryEntity } from 'src/modules/categories/entities/category.entity';
 import { CategoryMinimal } from 'src/types/entities/entities-with-relations';
 
-export const categoryToEntity = (category: CategoryMinimal): CategoryEntity => {
+export const categoryToResponseDto = (
+  category: CategoryMinimal,
+): CategoryResponseDto => {
   const { id, name, description } = category;
-
-  return new CategoryEntity({
+  return new CategoryResponseDto({
     id,
     name,
-    description: description ? description : undefined,
+    description: description ?? undefined,
   });
 };
 
-export const categoryEntityToResponseDto = (
-  category: CategoryEntity,
-): CategoryResponseDto => {
-  const { id, name, description } = category;
-  return new CategoryResponseDto({ id, name, description });
-};
-
 export const categoryArraytoArrayDto = (
-  entityArray: CategoryEntity[],
+  entityArray: CategoryMinimal[],
 ): CategoryResponseDto[] => {
-  return entityArray.map((c) => categoryEntityToResponseDto(c));
+  return entityArray ? entityArray.map((c) => categoryToResponseDto(c)) : [];
 };

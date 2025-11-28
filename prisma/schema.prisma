@@ -75,6 +75,9 @@ model PaymentMethod {
   transactions Transaction[] @relation("PaymentMethodTransactions")
   ledgers   LedgerPaymentMethod[]
 
+  @@unique([userId, name])
+  @@unique([id, userId])
+
 
   @@map("payment_methods")
 }
@@ -106,6 +109,7 @@ model DebtOwner {
   id     Int     @id @default(autoincrement())
   name   String
   debts  Debt[]  @relation("DebtOwner")
+  transactions Transaction[] @relation("TransactionDebtOwner")
 
   @@map("debt_owners")
 }
@@ -158,6 +162,7 @@ model Transaction {
   category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
   group       Group?      @relation("TransactionGroup", fields: [groupId], references: [id])
   paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
+  debtOwner   DebtOwner? @relation("TransactionDebtOwner", fields: [debtOwnerId], references: [id])
 
   @@map("transactions")
 }

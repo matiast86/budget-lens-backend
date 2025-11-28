@@ -1,13 +1,11 @@
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
-import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
 import { TransactionBreakDownMinimal } from 'src/types/entities/entities-with-relations';
 
-export const transactionBreakDownToEntity = (
+export const transactionBdToResponseDto = (
   tbd: TransactionBreakDownMinimal,
-): TransactionsBreakDownEntity => {
+): TransactionBreakDownResponseDto => {
   const { id, transactionId, weekNumber, amount } = tbd;
-
-  return new TransactionsBreakDownEntity({
+  return new TransactionBreakDownResponseDto({
     id,
     transactionId,
     weekNumber,
@@ -15,20 +13,8 @@ export const transactionBreakDownToEntity = (
   });
 };
 
-export const transactionBdToResponseDto = (
-  tbd: TransactionsBreakDownEntity,
-): TransactionBreakDownResponseDto => {
-  const { id, transactionId, weekNumber, amount } = tbd;
-  return new TransactionBreakDownResponseDto({
-    id,
-    transactionId,
-    weekNumber,
-    amount,
-  });
-};
-
 export const transactionBdArrayToArrayDto = (
-  tbdArray: TransactionsBreakDownEntity[],
+  tbdArray: TransactionBreakDownMinimal[],
 ): TransactionBreakDownResponseDto[] => {
-  return tbdArray.map(transactionBdToResponseDto);
+  return tbdArray ? tbdArray.map(transactionBdToResponseDto) : [];
 };

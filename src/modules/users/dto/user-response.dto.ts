@@ -65,6 +65,8 @@ export class UserResponseDto {
   })
   groups: GroupResponseDto[];
 
+  isActive: boolean;
+
   constructor(partial: Partial<UserResponseDto>) {
     Object.assign(this, partial);
   }

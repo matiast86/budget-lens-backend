@@ -25,7 +25,14 @@ export type LedgerWithRelations = Prisma.LedgerGetPayload<{
       include: {
         paymentMethod: {
           include: {
-            transactions: true;
+            transactions: {
+              include: {
+                transactionsBreakDown: true;
+                category: true;
+                group: true;
+                paymentMethod: true;
+              };
+            };
           };
         };
       };
@@ -54,7 +61,7 @@ export type PaymentMethodMinimal = Prisma.PaymentMethodGetPayload<{
   include: {
     user: false;
     ledgers: false;
-    transactions: true;
+    transactions: false;
   };
 }>;
 
@@ -124,6 +131,7 @@ export type TransactionWithRelations = Prisma.TransactionGetPayload<{
     group: true;
     ledger: false; // do not include ledger (cycle)
     paymentMethod: true;
+    debtOWner: true;
   };
 }>;
 

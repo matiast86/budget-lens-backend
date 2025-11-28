@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Currency, EntryType, Status, TransactionType } from '@prisma/client';
+import { Currency, EntryType, Status } from '@prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
+import { DebtOwnerResponseDto } from 'src/modules/debt-owners/dto/debt-owner-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
+import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
 
 export class TransactionResponseDto {
@@ -31,19 +33,6 @@ export class TransactionResponseDto {
     example: EntryType.EXPENSE,
   })
   entryType: EntryType;
-
-  @ApiProperty({
-    description: 'ID of the associated category.',
-    example: 3,
-  })
-  categoryId: number;
-
-  @ApiProperty({
-    description: 'Optional ID of the group that categorizes this transaction.',
-    example: 78,
-    required: false,
-  })
-  groupId?: number;
 
   @ApiProperty({
     description: 'Date the transaction occurred (ISO 8601).',
@@ -93,27 +82,23 @@ export class TransactionResponseDto {
   })
   totalAmount: number;
 
-  type: TransactionType;
-
   @ApiProperty({
     description: 'Amount due per month or installment.',
     example: 9166.83,
   })
   monthlyAmount: number;
 
-  @ApiProperty({
-    description:
-      'Optional reference to a debt owner if this transaction involves shared debt.',
-    example: 10,
-    required: false,
-  })
-  debtOwnerId?: number;
+  @ApiProperty({ type: () => DebtOwnerResponseDto })
+  debtOwner: DebtOwnerResponseDto;
 
   @ApiProperty({ type: () => CategoryResponseDto })
   category: CategoryResponseDto;
 
   @ApiProperty({ type: () => GroupResponseDto, required: false })
   group?: GroupResponseDto;
+
+  @ApiProperty({ type: () => PaymentMethodResponseDto })
+  paymentMethod: PaymentMethodResponseDto;
 
   @ApiProperty({
     type: () => TransactionBreakDownResponseDto,

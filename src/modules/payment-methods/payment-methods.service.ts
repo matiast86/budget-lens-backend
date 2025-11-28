@@ -1,26 +1,88 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentType } from '@prisma/client';
+import {
+  paymentMethodArrayToArrayDto,
+  paymentMethodEntityToResponseDto,
+  paymentMethodToEntity,
+} from 'src/helpers/mappers/payment-method.mapper';
+import { UsersService } from '../users/users.service';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
+import { PaymentMethodResponseDto } from './dto/payment-method-response.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
+import { PaymentMethodsRepository } from './payment-methods.repository';
 
 @Injectable()
 export class PaymentMethodsService {
-  create(createPaymentMethodDto: CreatePaymentMethodDto) {
-    return 'This action adds a new paymentMethod';
+  constructor(
+    private readonly paymentMethodsRepository: PaymentMethodsRepository,
+    private readonly usersService: UsersService,
+  ) {}
+
+  async create(
+    userId: string,
+    createPaymentMethodDto: CreatePaymentMethodDto,
+  ): Promise<PaymentMethodResponseDto> {
+    const { name, type, brand, color, icon, currency } = createPaymentMethodDto;
+    await this.usersService.findOne(userId);
+    const newPM = await this.paymentMethodsRepository.create({
+      name,
+      type,
+      brand,
+      color,
+      icon,
+      currency,
+      user: { connect: { id: userId } },
+    });
+
+    return paymentMethodEntityToResponseDto(paymentMethodToEntity(newPM));
   }
 
-  findAll() {
-    return `This action returns all paymentMethods`;
+  async findAllByUser(userId: string): Promise<PaymentMethodResponseDto[]> {
+    const methods = await this.paymentMethodsRepository.findAllByUser(userId);
+    return paymentMethodArrayToArrayDto(methods.map(paymentMethodToEntity));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} paymentMethod`;
+  async findOne(id: number): Promise<PaymentMethodResponseDto> {
+    const paymentMethod = await this.paymentMethodsRepository.findById(id);
+    return paymentMethodEntityToResponseDto(
+      paymentMethodToEntity(paymentMethod),
+    );
   }
 
-  update(id: number, updatePaymentMethodDto: UpdatePaymentMethodDto) {
-    return `This action updates a #${id} paymentMethod`;
+  async findByName(
+    userId: string,
+    name: string,
+  ): Promise<PaymentMethodResponseDto> {
+    const method = await this.paymentMethodsRepository.findByName(userId, name);
+    return paymentMethodEntityToResponseDto(paymentMethodToEntity(method));
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} paymentMethod`;
+  async findByType(
+    userId: string,
+    type: PaymentType,
+  ): Promise<PaymentMethodResponseDto[]> {
+    const methods = await this.paymentMethodsRepository.findByType(
+      userId,
+      type,
+    );
+    return paymentMethodArrayToArrayDto(methods.map(paymentMethodToEntity));
+  }
+
+  async update(
+    userId: string,
+    id: number,
+    updatePaymentMethodDto: UpdatePaymentMethodDto,
+  ): Promise<PaymentMethodResponseDto> {
+    const updatedPM = await this.paymentMethodsRepository.update(
+      id,
+      userId,
+      updatePaymentMethodDto,
+    );
+
+    return paymentMethodEntityToResponseDto(paymentMethodToEntity(updatedPM));
+  }
+
+  async remove(userId: string, id: number): Promise<void> {
+    await this.paymentMethodsRepository.delete(id, userId);
   }
 }

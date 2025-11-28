@@ -12,7 +12,7 @@ export class LedgersRepository {
       include: {
         collaborations: true,
         transactions: true,
-        creditCards: { include: { creditCard: true } },
+        paymentMethods: { include: { paymentMethod: true } },
         groups: true,
       },
     });
@@ -30,7 +30,7 @@ export class LedgersRepository {
       include: {
         collaborations: true,
         transactions: true,
-        creditCards: { include: { creditCard: true } },
+        paymentMethods: { include: { paymentMethod: true } },
         groups: true,
       },
     });
@@ -43,7 +43,7 @@ export class LedgersRepository {
         include: {
           collaborations: true,
           transactions: true,
-          creditCards: { include: { creditCard: true } },
+          paymentMethods: { include: { paymentMethod: true } },
           groups: true,
         },
       });
@@ -59,7 +59,7 @@ export class LedgersRepository {
         include: {
           collaborations: true,
           transactions: true,
-          creditCards: { include: { creditCard: true } },
+          paymentMethods: { include: { paymentMethod: true } },
           groups: true,
         },
       });
@@ -78,7 +78,7 @@ export class LedgersRepository {
       include: {
         collaborations: true,
         transactions: true,
-        creditCards: { include: { creditCard: true } },
+        paymentMethods: { include: { paymentMethod: true } },
         groups: true,
       },
     });
@@ -90,7 +90,7 @@ export class LedgersRepository {
       include: {
         collaborations: true,
         transactions: true,
-        creditCards: { include: { creditCard: true } },
+        paymentMethods: { include: { paymentMethod: true } },
         groups: true,
       },
     });

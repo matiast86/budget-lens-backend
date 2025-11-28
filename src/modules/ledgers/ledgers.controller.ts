@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -36,6 +38,7 @@ export class LedgersController {
   // ────────────────────────────────────────────────
   // CREATE
   // ────────────────────────────────────────────────
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   @ApiOperation({ summary: 'Create a new ledger for the authenticated user' })
   @ApiResponse({
@@ -54,6 +57,7 @@ export class LedgersController {
   // ────────────────────────────────────────────────
   // FIND ALL
   // ────────────────────────────────────────────────
+  @HttpCode(HttpStatus.OK)
   @Get()
   @ApiOperation({ summary: 'Retrieve all ledgers' })
   @ApiResponse({
@@ -65,6 +69,7 @@ export class LedgersController {
     return this.ledgersService.findAll();
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get()
   @ApiOperation({
     summary: 'Retrieve all ledgers owned by the authenticated user (paginated)',
@@ -97,6 +102,7 @@ export class LedgersController {
   // ────────────────────────────────────────────────
   // FIND ONE
   // ────────────────────────────────────────────────
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a ledger by its ID' })
   @ApiResponse({
@@ -112,6 +118,7 @@ export class LedgersController {
   // ────────────────────────────────────────────────
   // UPDATE
   // ────────────────────────────────────────────────
+  @HttpCode(HttpStatus.OK)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a ledger by ID' })
   @ApiResponse({
@@ -130,6 +137,7 @@ export class LedgersController {
   // ────────────────────────────────────────────────
   // DELETE
   // ────────────────────────────────────────────────
+  @HttpCode(HttpStatus.OK)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a ledger by ID' })
   @ApiResponse({ status: 200, description: 'Ledger successfully removed' })

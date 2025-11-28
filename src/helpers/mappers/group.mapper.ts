@@ -1,11 +1,9 @@
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
-import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { GroupMinimal } from 'src/types/entities/entities-with-relations';
 
-export const groupToEntity = (group: GroupMinimal): GroupEntity => {
+export const groupToResponseDto = (group: GroupMinimal): GroupResponseDto => {
   const { id, name, ledgerId, userId, isGlobal } = group;
-
-  return new GroupEntity({
+  return new GroupResponseDto({
     id,
     name,
     ledgerId: ledgerId ?? undefined,
@@ -14,15 +12,8 @@ export const groupToEntity = (group: GroupMinimal): GroupEntity => {
   });
 };
 
-export const groupEntityToResponseDto = (
-  group: GroupEntity,
-): GroupResponseDto => {
-  const { id, name, ledgerId, userId, isGlobal } = group;
-  return new GroupResponseDto({ id, name, ledgerId, userId, isGlobal });
-};
-
 export const groupArrayToArrayDto = (
-  groupArray: GroupEntity[],
+  groupArray: GroupMinimal[],
 ): GroupResponseDto[] => {
-  return groupArray.map(groupEntityToResponseDto);
+  return groupArray.map(groupToResponseDto);
 };

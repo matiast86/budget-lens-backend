@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CreditBrand, Currency, PaymentType } from '@prisma/client';
-import { TransactionResponseDto } from 'src/modules/transactions/dto/transaction-response.dto';
-import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
 
 export class PaymentMethodResponseDto {
   @ApiProperty({
@@ -64,12 +62,6 @@ export class PaymentMethodResponseDto {
     example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133',
   })
   userId: string;
-
-  @ApiProperty({
-    type: () => [TransactionEntity],
-    description: 'Transactions linked to this payment method.',
-  })
-  transactions: TransactionResponseDto[];
 
   constructor(partial: Partial<PaymentMethodResponseDto>) {
     Object.assign(this, partial);

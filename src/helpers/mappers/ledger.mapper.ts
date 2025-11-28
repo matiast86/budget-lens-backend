@@ -1,52 +1,12 @@
 import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
-import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { LedgerWithRelations } from 'src/types/entities/entities-with-relations';
-import {
-  collaborationArrayToArrayDto,
-  collaborationToEntity,
-} from './collaboration.mapper';
-import { groupArrayToArrayDto, groupToEntity } from './group.mapper';
-import {
-  paymentMethodArrayToArrayDto,
-  paymentMethodToEntity,
-} from './payment-method.mapper';
-import {
-  transactionArrayToArrayDto,
-  transactionToEntity,
-} from './transaction.mapper';
+import { collaborationArrayToArrayDto } from './collaboration.mapper';
+import { groupArrayToArrayDto } from './group.mapper';
+import { paymentMethodArrayToArrayDto } from './payment-method.mapper';
+import { transactionArrayToArrayDto } from './transaction.mapper';
 
-export const ledgerToEntity = (ledger: LedgerWithRelations): LedgerEntity => {
-  const {
-    id,
-    name,
-    description,
-    ownerId,
-    collaborations,
-    groups,
-    transactions,
-    paymentMethods,
-    createdAt,
-    updatedAt,
-  } = ledger;
-
-  return new LedgerEntity({
-    id,
-    name,
-    description: description ? description : undefined,
-    ownerId,
-    collaborations: collaborations?.map(collaborationToEntity) ?? [],
-    groups: groups?.map(groupToEntity) ?? [],
-    transactions: transactions?.map(transactionToEntity) ?? [],
-    paymentMethods:
-      paymentMethods?.map((pm) => paymentMethodToEntity(pm.paymentMethod)) ??
-      [],
-    createdAt,
-    updatedAt,
-  });
-};
-
-export const ledgerEntityToResponseDto = (
-  ledger: LedgerEntity,
+export const ledgerToResponseDto = (
+  ledger: LedgerWithRelations,
 ): LedgerResponseDto => {
   const {
     id,
@@ -63,7 +23,7 @@ export const ledgerEntityToResponseDto = (
   return new LedgerResponseDto({
     id,
     name,
-    description,
+    description: description ?? undefined,
     ownerId,
     collaborations: collaborationArrayToArrayDto(collaborations),
     groups: groupArrayToArrayDto(groups),
@@ -75,7 +35,7 @@ export const ledgerEntityToResponseDto = (
 };
 
 export const ledgerArrayToArrayDto = (
-  entityArray: LedgerEntity[],
+  entityArray: LedgerWithRelations[],
 ): LedgerResponseDto[] => {
-  return entityArray.map(ledgerEntityToResponseDto);
+  return entityArray ? entityArray.map(ledgerToResponseDto) : [];
 };

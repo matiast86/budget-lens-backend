@@ -12,7 +12,7 @@ export class UsersRepository {
       include: {
         ledgers: true,
         collaborations: true,
-        creditCards: true,
+        paymentMethods: true,
         groups: true,
       },
     });
@@ -25,7 +25,7 @@ export class UsersRepository {
         include: {
           ledgers: true,
           collaborations: true,
-          creditCards: true,
+          paymentMethods: true,
           groups: true,
         },
       });
@@ -41,7 +41,7 @@ export class UsersRepository {
         include: {
           ledgers: true,
           collaborations: true,
-          creditCards: true,
+          paymentMethods: true,
           groups: true,
         },
       });
@@ -60,7 +60,7 @@ export class UsersRepository {
       include: {
         ledgers: true,
         collaborations: true,
-        creditCards: true,
+        paymentMethods: true,
         groups: true,
       },
     });
@@ -72,7 +72,7 @@ export class UsersRepository {
       include: {
         ledgers: true,
         collaborations: true,
-        creditCards: true,
+        paymentMethods: true,
         groups: true,
       },
     });
