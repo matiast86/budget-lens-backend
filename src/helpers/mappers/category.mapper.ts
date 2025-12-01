@@ -1,8 +1,8 @@
+import { Category } from '@prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
-import { CategoryMinimal } from 'src/types/entities/entities-with-relations';
 
 export const categoryToResponseDto = (
-  category: CategoryMinimal,
+  category: Category,
 ): CategoryResponseDto => {
   const { id, name, description } = category;
   return new CategoryResponseDto({
@@ -13,7 +13,7 @@ export const categoryToResponseDto = (
 };
 
 export const categoryArraytoArrayDto = (
-  entityArray: CategoryMinimal[],
+  entityArray: Category[],
 ): CategoryResponseDto[] => {
   return entityArray ? entityArray.map((c) => categoryToResponseDto(c)) : [];
 };
