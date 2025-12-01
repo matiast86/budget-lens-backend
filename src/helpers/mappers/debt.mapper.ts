@@ -1,21 +1,17 @@
+import { Debt } from '@prisma/client';
 import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
-import { DebtWithRelations } from 'src/types/entities/entities-with-relations';
-import { debtOwnerToResponseDto } from './debt-owner.mapper';
 
-export const debtToResponseDto = (debt: DebtWithRelations): DebtResponseDto => {
-  const { id, debtOwnerId, direction, amount, month, owner } = debt;
+export const debtToResponseDto = (debt: Debt): DebtResponseDto => {
+  const { id, debtOwnerId, direction, amount, month } = debt;
   return new DebtResponseDto({
     id,
     debtOwnerId,
     direction,
     amount,
     month: month.toISOString(),
-    owner: debtOwnerToResponseDto(owner),
   });
 };
 
-export const debtArrayToArrayDto = (
-  debtArray: DebtWithRelations[],
-): DebtResponseDto[] => {
+export const debtArrayToArrayDto = (debtArray: Debt[]): DebtResponseDto[] => {
   return debtArray.map(debtToResponseDto);
 };

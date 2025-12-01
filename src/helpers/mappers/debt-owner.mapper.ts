@@ -1,15 +1,15 @@
 import { DebtOwnerResponseDto } from 'src/modules/debt-owners/dto/debt-owner-response.dto';
-import { DebtOwnerMinimal } from 'src/types/entities/entities-with-relations';
+import { DebtOwnerWithDebts } from 'src/types/entities/debt.types';
 
 export const debtOwnerToResponseDto = (
-  debtOwnerEntity: DebtOwnerMinimal,
+  debtOwner: DebtOwnerWithDebts,
 ): DebtOwnerResponseDto => {
-  const { id, name } = debtOwnerEntity;
-  return new DebtOwnerResponseDto({ id, name });
+  const { id, name, debts } = debtOwner;
+  return new DebtOwnerResponseDto({ id, name, debts });
 };
 
 export const debtOwnerArrayToArrayDto = (
-  debtOwnerArray: DebtOwnerMinimal[],
+  debtOwnerArray: DebtOwnerWithDebts[],
 ): DebtOwnerResponseDto[] => {
   return debtOwnerArray.map(debtOwnerToResponseDto);
 };

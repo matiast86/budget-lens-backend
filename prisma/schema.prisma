@@ -38,6 +38,7 @@ model Ledger {
   name           String
   description    String?
   ownerId        String           @db.Uuid
+  debtOwners     DebtOwner[]      @relation("LedgerDebtOwners")
   owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])
   collaborations Collaboration[]  @relation("LedgerCollaborations")
   groups         Group[]          @relation("LedgerGroups")
@@ -108,8 +109,12 @@ model Debt {
 model DebtOwner {
   id     Int     @id @default(autoincrement())
   name   String
+  ledgerId Int
+
+  ledger Ledger @relation("LedgerDebtOwners", fields: [ledgerId], references: [id])
   debts  Debt[]  @relation("DebtOwner")
   transactions Transaction[] @relation("TransactionDebtOwner")
+
 
   @@map("debt_owners")
 }

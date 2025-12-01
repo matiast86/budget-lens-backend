@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
 
 export class DebtOwnerResponseDto {
   @ApiProperty({
@@ -12,6 +13,8 @@ export class DebtOwnerResponseDto {
     example: 'Ana Pérez',
   })
   name: string;
+  ledgerId: string;
+  debts: DebtResponseDto[];
   constructor(partial: Partial<DebtOwnerResponseDto>) {
     Object.assign(this, partial);
   }
