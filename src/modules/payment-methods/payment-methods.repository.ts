@@ -1,15 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentMethod, PaymentType, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaymentMethodMinimal } from 'src/types/entities/entities-with-relations';
 
 @Injectable()
 export class PaymentMethodsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    data: Prisma.PaymentMethodCreateInput,
-  ): Promise<PaymentMethodMinimal> {
+  async create(data: Prisma.PaymentMethodCreateInput): Promise<PaymentMethod> {
     return await this.prisma.paymentMethod.create({
       data,
       include: { transactions: true },
@@ -20,7 +17,7 @@ export class PaymentMethodsRepository {
     return await this.prisma.paymentMethod.findMany({ where: { userId } });
   }
 
-  async findById(id: number, userId: string): Promise<PaymentMethodMinimal> {
+  async findById(id: number, userId: string): Promise<PaymentMethod> {
     try {
       return await this.prisma.paymentMethod.findUniqueOrThrow({
         where: { id_userId: { id, userId } },
@@ -31,10 +28,7 @@ export class PaymentMethodsRepository {
     }
   }
 
-  async findByName(
-    userId: string,
-    name: string,
-  ): Promise<PaymentMethodMinimal> {
+  async findByName(userId: string, name: string): Promise<PaymentMethod> {
     try {
       return await this.prisma.paymentMethod.findUniqueOrThrow({
         where: { userId_name: { userId, name } },
@@ -60,7 +54,7 @@ export class PaymentMethodsRepository {
     id: number,
     userId: string,
     data: Prisma.PaymentMethodUpdateInput,
-  ): Promise<PaymentMethodMinimal> {
+  ): Promise<PaymentMethod> {
     return await this.prisma.paymentMethod.update({
       where: { id_userId: { id, userId } },
       data,

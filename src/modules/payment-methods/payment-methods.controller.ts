@@ -45,8 +45,8 @@ export class PaymentMethodsController {
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.paymentMethodsService.findOne(+id);
+  async findOne(@Param('id') id: string, @GetUser('id') userId: string) {
+    return await this.paymentMethodsService.findOne(userId, +id);
   }
 
   @HttpCode(HttpStatus.OK)

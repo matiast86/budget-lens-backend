@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
-import { CreditCardEntity } from 'src/modules/credit-cards/entities/credit-card.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
@@ -60,7 +59,7 @@ export class LedgerEntity {
   transactions: TransactionEntity[];
 
   @ApiProperty({
-    type: () => CreditCardEntity,
+    type: () => PaymentMethodEntity,
     isArray: true,
     required: false,
   })

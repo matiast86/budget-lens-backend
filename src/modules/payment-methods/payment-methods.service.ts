@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentType } from '@prisma/client';
+
 import {
   paymentMethodArrayToArrayDto,
-  paymentMethodEntityToResponseDto,
-  paymentMethodToEntity,
+  paymentMethodToResponseDto,
 } from 'src/helpers/mappers/payment-method.mapper';
 import { UsersService } from '../users/users.service';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
@@ -34,19 +34,21 @@ export class PaymentMethodsService {
       user: { connect: { id: userId } },
     });
 
-    return paymentMethodEntityToResponseDto(paymentMethodToEntity(newPM));
+    return paymentMethodToResponseDto(newPM);
   }
 
   async findAllByUser(userId: string): Promise<PaymentMethodResponseDto[]> {
     const methods = await this.paymentMethodsRepository.findAllByUser(userId);
-    return paymentMethodArrayToArrayDto(methods.map(paymentMethodToEntity));
+    return paymentMethodArrayToArrayDto(methods);
   }
 
-  async findOne(id: number): Promise<PaymentMethodResponseDto> {
-    const paymentMethod = await this.paymentMethodsRepository.findById(id);
-    return paymentMethodEntityToResponseDto(
-      paymentMethodToEntity(paymentMethod),
+  async findOne(userId: string, id: number): Promise<PaymentMethodResponseDto> {
+    await this.usersService.findOne(userId);
+    const paymentMethod = await this.paymentMethodsRepository.findById(
+      id,
+      userId,
     );
+    return paymentMethodToResponseDto(paymentMethod);
   }
 
   async findByName(
@@ -54,7 +56,7 @@ export class PaymentMethodsService {
     name: string,
   ): Promise<PaymentMethodResponseDto> {
     const method = await this.paymentMethodsRepository.findByName(userId, name);
-    return paymentMethodEntityToResponseDto(paymentMethodToEntity(method));
+    return paymentMethodToResponseDto(method);
   }
 
   async findByType(
@@ -65,7 +67,7 @@ export class PaymentMethodsService {
       userId,
       type,
     );
-    return paymentMethodArrayToArrayDto(methods.map(paymentMethodToEntity));
+    return paymentMethodArrayToArrayDto(methods);
   }
 
   async update(
@@ -79,7 +81,7 @@ export class PaymentMethodsService {
       updatePaymentMethodDto,
     );
 
-    return paymentMethodEntityToResponseDto(paymentMethodToEntity(updatedPM));
+    return paymentMethodToResponseDto(updatedPM);
   }
 
   async remove(userId: string, id: number): Promise<void> {
