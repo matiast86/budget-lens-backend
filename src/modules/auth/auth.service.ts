@@ -1,11 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
-import {
-  userEntityToResponseDto,
-  userToEntity,
-} from 'src/helpers/mappers/user.mapper';
-import { UserWithRelations } from 'src/types/entities/entities-with-relations';
+import { userToDashboardResponseDto } from 'src/helpers/mappers/user.mapper';
+import { UserDashboardView } from 'src/types/entities/user.types';
 import { JwtPayload } from 'src/types/payload/payload';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -27,10 +24,9 @@ export class AuthService {
     const { email, password } = credentials;
 
     try {
-      const user: UserWithRelations =
+      const user: UserDashboardView =
         await this.usersService.findOneByEmail(email);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const isPasswordMatching = await compare(password, user.password);
 
       if (!isPasswordMatching) {
@@ -45,7 +41,7 @@ export class AuthService {
 
       const token = await this.jwtService.signAsync(payload);
 
-      const safeUser = userEntityToResponseDto(userToEntity(user));
+      const safeUser = userToDashboardResponseDto(user);
 
       return { token, user: safeUser };
     } catch (e) {

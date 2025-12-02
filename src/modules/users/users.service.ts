@@ -1,11 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { hash } from 'bcrypt';
-import {
-  userEntityToResponseDto,
-  userToEntity,
-} from 'src/helpers/mappers/user.mapper';
-import { UserWithRelations } from 'src/types/entities/entities-with-relations';
+import { userToResponseDto } from 'src/helpers/mappers/user.mapper';
+import { UserDashboardView } from 'src/types/entities/user.types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -22,7 +19,6 @@ export class UsersService {
     if (rawPassword != repeatPassword)
       throw new BadRequestException('Passwords do not match.');
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const password: string = await hash(rawPassword, 10);
 
     const data: Prisma.UserCreateInput = {
@@ -32,29 +28,24 @@ export class UsersService {
       password,
       gender,
     };
-    const newUser: UserWithRelations = await this.usersRepository.create(data);
+    const newUser: User = await this.usersRepository.create(data);
 
-    return userEntityToResponseDto(userToEntity(newUser));
+    return userToResponseDto(newUser);
   }
 
   async findAll(): Promise<UserResponseDto[]> {
-    const users: UserWithRelations[] = await this.usersRepository.getAllUsers();
+    const users: User[] = await this.usersRepository.getAllUsers();
 
-    return users.map((user) => userEntityToResponseDto(userToEntity(user)));
+    return users.map((user) => userToResponseDto(user));
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const user: UserWithRelations = await this.usersRepository.getUserById(id);
+    const user: User = await this.usersRepository.getUserById(id);
 
-    return userEntityToResponseDto(userToEntity(user));
+    return userToResponseDto(user);
   }
 
-  async findOneById(id: string): Promise<UserResponseDto> {
-    const user = await this.usersRepository.getUserById(id);
-    return userEntityToResponseDto(userToEntity(user));
-  }
-
-  async findOneByEmail(email: string): Promise<UserWithRelations> {
+  async findOneByEmail(email: string): Promise<UserDashboardView> {
     return await this.usersRepository.findByEmail(email);
   }
 
@@ -63,11 +54,8 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     const data: Prisma.UserUpdateInput = updateUserDto;
-    const updatedUser: UserWithRelations = await this.usersRepository.update(
-      id,
-      data,
-    );
-    return userEntityToResponseDto(userToEntity(updatedUser));
+    const updatedUser: User = await this.usersRepository.update(id, data);
+    return userToResponseDto(updatedUser);
   }
 
   async remove(id: string): Promise<void> {

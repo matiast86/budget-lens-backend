@@ -23,8 +23,9 @@ import {
 import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 
+import { LedgerDetailView } from 'src/types/entities/ledger.types';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
-import { LedgerResponseDto } from './dto/ledger-response.dto';
+import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
 import { UpdateLedgerDto } from './dto/update-ledger.dto';
 import { LedgersService } from './ledgers.service';
 
@@ -44,13 +45,13 @@ export class LedgersController {
   @ApiResponse({
     status: 201,
     description: 'Ledger successfully created',
-    type: LedgerResponseDto,
+    type: LedgerDashboardResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   async create(
     @Body() createLedgerDto: CreateLedgerDto,
     @GetUser('id') ownerId: string,
-  ): Promise<LedgerResponseDto> {
+  ): Promise<LedgerDashboardResponseDto> {
     return this.ledgersService.create(ownerId, createLedgerDto);
   }
 
@@ -63,10 +64,12 @@ export class LedgersController {
   @ApiResponse({
     status: 200,
     description: 'List of ledgers',
-    type: [LedgerResponseDto],
+    type: [LedgerDashboardResponseDto],
   })
-  async findAll(): Promise<LedgerResponseDto[]> {
-    return this.ledgersService.findAll();
+  async findAll(
+    @GetUser('id') ownerId: string,
+  ): Promise<LedgerDashboardResponseDto[]> {
+    return this.ledgersService.findAll(ownerId);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -89,7 +92,7 @@ export class LedgersController {
   @ApiResponse({
     status: 200,
     description: 'List of owned ledgers',
-    type: [LedgerResponseDto],
+    type: [LedgerDashboardResponseDto],
   })
   async findAllPaginated(
     @Query('skip', ParseIntPipe) skip: number = 0,
@@ -108,11 +111,10 @@ export class LedgersController {
   @ApiResponse({
     status: 200,
     description: 'Ledger found',
-    type: LedgerResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Ledger not found' })
-  async findOne(@Param('id') id: string): Promise<LedgerResponseDto> {
-    return new LedgerResponseDto(await this.ledgersService.findOne(+id));
+  async findOne(@Param('id') id: string): Promise<LedgerDetailView> {
+    return await this.ledgersService.findOne(+id);
   }
 
   // ────────────────────────────────────────────────
@@ -124,13 +126,13 @@ export class LedgersController {
   @ApiResponse({
     status: 200,
     description: 'Ledger updated',
-    type: LedgerResponseDto,
+    type: LedgerDashboardResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Ledger not found' })
   async update(
     @Param('id') id: string,
     @Body() updateLedgerDto: UpdateLedgerDto,
-  ): Promise<LedgerResponseDto> {
+  ): Promise<LedgerDashboardResponseDto> {
     return await this.ledgersService.update(+id, updateLedgerDto);
   }
 

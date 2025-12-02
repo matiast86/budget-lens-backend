@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserWithRelations } from 'src/types/entities/entities-with-relations';
+import { UserDashboardView } from 'src/types/entities/user.types';
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllUsers(): Promise<UserWithRelations[]> {
+  async getAllUsers(): Promise<User[]> {
     return await this.prisma.user.findMany({
       include: {
         ledgers: true,
@@ -18,15 +18,20 @@ export class UsersRepository {
     });
   }
 
-  async getUserById(id: string): Promise<UserWithRelations> {
+  async getUserById(id: string): Promise<UserDashboardView> {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { id },
         include: {
-          ledgers: true,
-          collaborations: true,
-          paymentMethods: true,
-          groups: true,
+          ledgers: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
         },
       });
     } catch {
@@ -34,15 +39,20 @@ export class UsersRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<UserWithRelations> {
+  async findByEmail(email: string): Promise<UserDashboardView> {
     try {
       return await this.prisma.user.findUniqueOrThrow({
         where: { email },
         include: {
-          ledgers: true,
-          collaborations: true,
-          paymentMethods: true,
-          groups: true,
+          ledgers: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
         },
       });
     } catch {
@@ -50,31 +60,16 @@ export class UsersRepository {
     }
   }
 
-  async update(
-    id: string,
-    data: Prisma.UserUpdateInput,
-  ): Promise<UserWithRelations> {
+  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     return await this.prisma.user.update({
       where: { id },
       data,
-      include: {
-        ledgers: true,
-        collaborations: true,
-        paymentMethods: true,
-        groups: true,
-      },
     });
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<UserWithRelations> {
+  async create(data: Prisma.UserCreateInput): Promise<User> {
     return await this.prisma.user.create({
       data,
-      include: {
-        ledgers: true,
-        collaborations: true,
-        paymentMethods: true,
-        groups: true,
-      },
     });
   }
 }

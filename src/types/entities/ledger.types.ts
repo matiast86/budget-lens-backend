@@ -20,6 +20,7 @@ export const LedgerIncludes = {
       paymentMethods: { include: { paymentMethod: true } },
       collaborations: true,
       groups: true,
+      debtOwners: true,
     },
   },
 } as const;

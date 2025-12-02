@@ -1,20 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Ledger, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { LedgerWithRelations } from 'src/types/entities/entities-with-relations';
 
 @Injectable()
 export class LedgersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<LedgerWithRelations[]> {
+  async findAllByUserId(ownerId: string): Promise<Ledger[]> {
     return await this.prisma.ledger.findMany({
-      include: {
-        collaborations: true,
-        transactions: true,
-        paymentMethods: { include: { paymentMethod: true } },
-        groups: true,
-      },
+      where: { ownerId },
     });
   }
 
@@ -22,29 +16,26 @@ export class LedgersRepository {
     skip: number,
     take: number,
     where?: Prisma.LedgerWhereInput,
-  ): Promise<LedgerWithRelations[]> {
+  ): Promise<Ledger[]> {
     return await this.prisma.ledger.findMany({
       where,
       skip,
       take,
-      include: {
-        collaborations: true,
-        transactions: true,
-        paymentMethods: { include: { paymentMethod: true } },
-        groups: true,
-      },
     });
   }
 
-  async findLedgerById(id: number): Promise<LedgerWithRelations> {
+  async findLedgerById(id: number): Promise<Ledger> {
     try {
       return await this.prisma.ledger.findFirstOrThrow({
         where: { id },
         include: {
           collaborations: true,
-          transactions: true,
+          transactions: {
+            include: { category: true, paymentMethod: true, debtOwner: true },
+          },
           paymentMethods: { include: { paymentMethod: true } },
           groups: true,
+          debtOwners: true,
         },
       });
     } catch {
@@ -52,15 +43,18 @@ export class LedgersRepository {
     }
   }
 
-  async findLedgerByName(name: string): Promise<LedgerWithRelations> {
+  async findLedgerByName(name: string): Promise<Ledger> {
     try {
       return await this.prisma.ledger.findFirstOrThrow({
         where: { name },
         include: {
           collaborations: true,
-          transactions: true,
+          transactions: {
+            include: { category: true, paymentMethod: true, debtOwner: true },
+          },
           paymentMethods: { include: { paymentMethod: true } },
           groups: true,
+          debtOwners: true,
         },
       });
     } catch {
@@ -68,31 +62,16 @@ export class LedgersRepository {
     }
   }
 
-  async update(
-    id: number,
-    data: Prisma.LedgerUpdateInput,
-  ): Promise<LedgerWithRelations> {
+  async update(id: number, data: Prisma.LedgerUpdateInput): Promise<Ledger> {
     return await this.prisma.ledger.update({
       where: { id },
       data,
-      include: {
-        collaborations: true,
-        transactions: true,
-        paymentMethods: { include: { paymentMethod: true } },
-        groups: true,
-      },
     });
   }
 
-  async create(data: Prisma.LedgerCreateInput): Promise<LedgerWithRelations> {
+  async create(data: Prisma.LedgerCreateInput): Promise<Ledger> {
     return await this.prisma.ledger.create({
       data,
-      include: {
-        collaborations: true,
-        transactions: true,
-        paymentMethods: { include: { paymentMethod: true } },
-        groups: true,
-      },
     });
   }
 
