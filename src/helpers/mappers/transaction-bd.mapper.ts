@@ -1,8 +1,8 @@
+import { TransactionBreakDown } from '@prisma/client';
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
-import { TransactionBreakDownMinimal } from 'src/types/entities/entities-with-relations';
 
 export const transactionBdToResponseDto = (
-  tbd: TransactionBreakDownMinimal,
+  tbd: TransactionBreakDown,
 ): TransactionBreakDownResponseDto => {
   const { id, transactionId, weekNumber, amount } = tbd;
   return new TransactionBreakDownResponseDto({
@@ -14,7 +14,7 @@ export const transactionBdToResponseDto = (
 };
 
 export const transactionBdArrayToArrayDto = (
-  tbdArray: TransactionBreakDownMinimal[],
+  tbdArray: TransactionBreakDown[],
 ): TransactionBreakDownResponseDto[] => {
   return tbdArray ? tbdArray.map(transactionBdToResponseDto) : [];
 };

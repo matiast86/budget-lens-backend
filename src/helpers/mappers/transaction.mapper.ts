@@ -1,12 +1,12 @@
 import { TransactionResponseDto } from 'src/modules/transactions/dto/transaction-response.dto';
-import { TransactionWithRelations } from 'src/types/entities/entities-with-relations';
+import { TransactionDetailView } from 'src/types/entities/transaction.types';
 import { categoryToResponseDto } from './category.mapper';
 import { debtOwnerToResponseDto } from './debt-owner.mapper';
 import { paymentMethodToResponseDto } from './payment-method.mapper';
 import { transactionBdArrayToArrayDto } from './transaction-bd.mapper';
 
 export const transactionToResponseDto = (
-  transaction: TransactionWithRelations,
+  transaction: TransactionDetailView,
 ): TransactionResponseDto => {
   const {
     id,
@@ -45,7 +45,7 @@ export const transactionToResponseDto = (
 };
 
 export const transactionArrayToArrayDto = (
-  transactionArray: TransactionWithRelations[],
+  transactionArray: TransactionDetailView[],
 ): TransactionResponseDto[] => {
   return transactionArray ? transactionArray.map(transactionToResponseDto) : [];
 };

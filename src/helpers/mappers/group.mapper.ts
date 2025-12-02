@@ -1,7 +1,7 @@
+import { Group } from '@prisma/client';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
-import { GroupMinimal } from 'src/types/entities/entities-with-relations';
 
-export const groupToResponseDto = (group: GroupMinimal): GroupResponseDto => {
+export const groupToResponseDto = (group: Group): GroupResponseDto => {
   const { id, name, ledgerId, userId, isGlobal } = group;
   return new GroupResponseDto({
     id,
@@ -13,7 +13,7 @@ export const groupToResponseDto = (group: GroupMinimal): GroupResponseDto => {
 };
 
 export const groupArrayToArrayDto = (
-  groupArray: GroupMinimal[],
+  groupArray: Group[],
 ): GroupResponseDto[] => {
   return groupArray.map(groupToResponseDto);
 };

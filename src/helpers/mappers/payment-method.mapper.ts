@@ -1,8 +1,8 @@
+import { PaymentMethod } from '@prisma/client';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
-import { PaymentMethodMinimal } from 'src/types/entities/entities-with-relations';
 
 export const paymentMethodToResponseDto = (
-  paymentMethod: PaymentMethodMinimal,
+  paymentMethod: PaymentMethod,
 ): PaymentMethodResponseDto => {
   const { id, name, type, brand, color, icon, currency, isActive, userId } =
     paymentMethod;
@@ -19,7 +19,7 @@ export const paymentMethodToResponseDto = (
   });
 };
 export const paymentMethodArrayToArrayDto = (
-  entityArray: PaymentMethodMinimal[],
+  entityArray: PaymentMethod[],
 ): PaymentMethodResponseDto[] => {
   return entityArray ? entityArray.map(paymentMethodToResponseDto) : [];
 };

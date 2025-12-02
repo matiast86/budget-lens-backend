@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender, Role } from '@prisma/client';
-import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
-import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
-import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
-import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
+import { LedgerDashboardResponseDto } from 'src/modules/ledgers/dto/ledger-dashboard-response.dto';
 
 export class UserResponseDto {
   @ApiProperty({ example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133' })
@@ -38,32 +35,11 @@ export class UserResponseDto {
   updatedAt: string;
 
   @ApiProperty({
-    type: () => LedgerResponseDto,
+    type: () => LedgerDashboardResponseDto,
     isArray: true,
     description: 'Ledgers owned by the user.',
   })
-  ledgers: LedgerResponseDto[];
-
-  @ApiProperty({
-    type: () => CollaborationResponseDto,
-    isArray: true,
-    description: 'Collaborations of the user.',
-  })
-  collaborations: CollaborationResponseDto[];
-
-  @ApiProperty({
-    type: () => PaymentMethodResponseDto,
-    isArray: true,
-    description: 'Payment methods of the user.',
-  })
-  paymentMethods: PaymentMethodResponseDto[];
-
-  @ApiProperty({
-    type: () => GroupResponseDto,
-    isArray: true,
-    description: 'Groups of the user.',
-  })
-  groups: GroupResponseDto[];
+  ledgers: LedgerDashboardResponseDto[];
 
   isActive: boolean;
 

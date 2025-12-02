@@ -1,12 +1,16 @@
+import { LedgerDashboardResponseDto } from 'src/modules/ledgers/dto/ledger-dashboard-response.dto';
 import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
-import { LedgerWithRelations } from 'src/types/entities/entities-with-relations';
+import {
+  LedgerDashboardView,
+  LedgerDetailView,
+} from 'src/types/entities/ledger.types';
 import { collaborationArrayToArrayDto } from './collaboration.mapper';
 import { groupArrayToArrayDto } from './group.mapper';
 import { paymentMethodArrayToArrayDto } from './payment-method.mapper';
 import { transactionArrayToArrayDto } from './transaction.mapper';
 
-export const ledgerToResponseDto = (
-  ledger: LedgerWithRelations,
+export const ledgerToDetailsResponseDto = (
+  ledger: LedgerDetailView,
 ): LedgerResponseDto => {
   const {
     id,
@@ -35,7 +39,26 @@ export const ledgerToResponseDto = (
 };
 
 export const ledgerArrayToArrayDto = (
-  entityArray: LedgerWithRelations[],
+  entityArray: LedgerDetailView[],
 ): LedgerResponseDto[] => {
-  return entityArray ? entityArray.map(ledgerToResponseDto) : [];
+  return entityArray ? entityArray.map(ledgerToDetailsResponseDto) : [];
+};
+
+export const ledgerToDashboardView = (
+  ledger: LedgerDashboardView,
+): LedgerDashboardResponseDto => {
+  const { id, name, description, createdAt, updatedAt } = ledger;
+  return new LedgerDashboardResponseDto({
+    id,
+    name,
+    description: description ?? undefined,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+  });
+};
+
+export const ledgerDashboardArrayToArrayDto = (
+  entityArray: LedgerDashboardView[],
+): LedgerDashboardResponseDto[] => {
+  return entityArray ? entityArray.map(ledgerToDashboardView) : [];
 };

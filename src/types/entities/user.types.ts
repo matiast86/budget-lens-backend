@@ -15,6 +15,5 @@ export type UserDashboardView = Prisma.UserGetPayload<{
         updatedAt: true;
       };
     };
-    paymentMethods: true;
   };
 }>;
