@@ -5,13 +5,11 @@ import {
   ledgerToDashboardView,
   ledgerToDetailsResponseDto,
 } from 'src/helpers/mappers/ledger.mapper';
-import {
-  LedgerDashboardView,
-  LedgerDetailView,
-} from 'src/types/entities/ledger.types';
+import { LedgerDashboardView } from 'src/types/entities/ledger.types';
 import { UsersService } from '../users/users.service';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
+import { LedgerResponseDto } from './dto/ledger-response.dto';
 import { UpdateLedgerDto } from './dto/update-ledger.dto';
 import { LedgersRepository } from './ledgers.repository';
 
@@ -25,7 +23,7 @@ export class LedgersService {
   async create(
     ownerId: string,
     dto: CreateLedgerDto,
-  ): Promise<LedgerDashboardView> {
+  ): Promise<LedgerDashboardResponseDto> {
     await this.usersService.findOne(ownerId);
 
     const data: Prisma.LedgerCreateInput = {
@@ -58,7 +56,7 @@ export class LedgersService {
     return ledgerDashboardArrayToArrayDto(ledgers);
   }
 
-  async findOne(id: number): Promise<LedgerDetailView> {
+  async findOne(id: number): Promise<LedgerResponseDto> {
     const ledger = await this.ledgersRepository.findLedgerById(id);
     return ledgerToDetailsResponseDto(ledger);
   }

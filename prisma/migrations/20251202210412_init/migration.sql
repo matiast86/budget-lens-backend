@@ -68,23 +68,28 @@ CREATE TABLE "collaborations" (
 );
 
 -- CreateTable
-CREATE TABLE "credit_cards" (
+CREATE TABLE "payment_methods" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "type" "CreditBrand" NOT NULL,
+    "type" "PaymentType" NOT NULL,
+    "brand" "CreditBrand",
+    "color" TEXT,
+    "icon" TEXT,
+    "currency" "Currency",
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "userId" UUID NOT NULL,
 
-    CONSTRAINT "credit_cards_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "payment_methods_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ledgers_credit_cards" (
-    "creditCardId" INTEGER NOT NULL,
+CREATE TABLE "ledgers_payment_methods" (
+    "paymentMethodId" INTEGER NOT NULL,
     "ledgerId" INTEGER NOT NULL,
     "assignedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "assignedBy" TEXT NOT NULL,
 
-    CONSTRAINT "ledgers_credit_cards_pkey" PRIMARY KEY ("creditCardId","ledgerId")
+    CONSTRAINT "ledgers_payment_methods_pkey" PRIMARY KEY ("paymentMethodId","ledgerId")
 );
 
 -- CreateTable
@@ -102,6 +107,7 @@ CREATE TABLE "debts" (
 CREATE TABLE "debt_owners" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "ledgerId" INTEGER NOT NULL,
 
     CONSTRAINT "debt_owners_pkey" PRIMARY KEY ("id")
 );
@@ -136,7 +142,6 @@ CREATE TABLE "transactions" (
     "groupId" INTEGER,
     "transactionDate" TIMESTAMP(3) NOT NULL,
     "paymentMonth" TIMESTAMP(3) NOT NULL,
-    "paymentType" "PaymentType" NOT NULL,
     "installments" INTEGER NOT NULL DEFAULT 1,
     "installment" INTEGER NOT NULL DEFAULT 1,
     "comment" TEXT,
@@ -145,6 +150,7 @@ CREATE TABLE "transactions" (
     "monthlyAmount" DECIMAL(65,30) NOT NULL,
     "type" "TransactionType" NOT NULL DEFAULT 'VARIABLE',
     "debtOwnerId" INTEGER,
+    "paymentMethodId" INTEGER NOT NULL,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
@@ -163,6 +169,12 @@ CREATE TABLE "transactions_break_down" (
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "payment_methods_userId_name_key" ON "payment_methods"("userId", "name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payment_methods_id_userId_key" ON "payment_methods"("id", "userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- AddForeignKey
@@ -175,16 +187,19 @@ ALTER TABLE "collaborations" ADD CONSTRAINT "collaborations_userId_fkey" FOREIGN
 ALTER TABLE "collaborations" ADD CONSTRAINT "collaborations_ledgerId_fkey" FOREIGN KEY ("ledgerId") REFERENCES "ledgers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "credit_cards" ADD CONSTRAINT "credit_cards_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "payment_methods" ADD CONSTRAINT "payment_methods_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ledgers_credit_cards" ADD CONSTRAINT "ledgers_credit_cards_creditCardId_fkey" FOREIGN KEY ("creditCardId") REFERENCES "credit_cards"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ledgers_payment_methods" ADD CONSTRAINT "ledgers_payment_methods_paymentMethodId_fkey" FOREIGN KEY ("paymentMethodId") REFERENCES "payment_methods"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ledgers_credit_cards" ADD CONSTRAINT "ledgers_credit_cards_ledgerId_fkey" FOREIGN KEY ("ledgerId") REFERENCES "ledgers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ledgers_payment_methods" ADD CONSTRAINT "ledgers_payment_methods_ledgerId_fkey" FOREIGN KEY ("ledgerId") REFERENCES "ledgers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "debts" ADD CONSTRAINT "debts_debtOwnerId_fkey" FOREIGN KEY ("debtOwnerId") REFERENCES "debt_owners"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "debt_owners" ADD CONSTRAINT "debt_owners_ledgerId_fkey" FOREIGN KEY ("ledgerId") REFERENCES "ledgers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "groups" ADD CONSTRAINT "groups_ledgerId_fkey" FOREIGN KEY ("ledgerId") REFERENCES "ledgers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -200,6 +215,12 @@ ALTER TABLE "transactions" ADD CONSTRAINT "transactions_categoryId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "groups"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_paymentMethodId_fkey" FOREIGN KEY ("paymentMethodId") REFERENCES "payment_methods"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_debtOwnerId_fkey" FOREIGN KEY ("debtOwnerId") REFERENCES "debt_owners"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "transactions_break_down" ADD CONSTRAINT "transactions_break_down_transactionId_fkey" FOREIGN KEY ("transactionId") REFERENCES "transactions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

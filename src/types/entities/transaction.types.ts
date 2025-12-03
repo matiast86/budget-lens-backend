@@ -11,6 +11,7 @@ export const TransactionIncludes = {
       paymentMethod: true,
       debtOwner: true,
       transactionsBreakDown: true,
+      group: true,
     },
   },
 } as const;

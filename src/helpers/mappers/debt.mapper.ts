@@ -1,3 +1,4 @@
+import { Debt } from '@prisma/client';
 import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
 
 export const debtToResponseDto = (debt: Debt): DebtResponseDto => {

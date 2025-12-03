@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Currency, EntryType, Status } from '@prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
-import { DebtOwnerResponseDto } from 'src/modules/debt-owners/dto/debt-owner-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
@@ -88,8 +87,8 @@ export class TransactionResponseDto {
   })
   monthlyAmount: number;
 
-  @ApiProperty({ type: () => DebtOwnerResponseDto })
-  debtOwner: DebtOwnerResponseDto;
+  @ApiProperty({ type: String })
+  debtOwner: string;
 
   @ApiProperty({ type: () => CategoryResponseDto })
   category: CategoryResponseDto;

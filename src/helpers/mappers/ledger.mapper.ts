@@ -32,7 +32,9 @@ export const ledgerToDetailsResponseDto = (
     collaborations: collaborationArrayToArrayDto(collaborations),
     groups: groupArrayToArrayDto(groups),
     transactions: transactionArrayToArrayDto(transactions),
-    paymentMethods: paymentMethodArrayToArrayDto(paymentMethods),
+    paymentMethods: paymentMethodArrayToArrayDto(
+      paymentMethods.map((pm) => pm.paymentMethod),
+    ),
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   });

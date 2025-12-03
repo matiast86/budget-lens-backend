@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Ledger, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { LedgerDetailView } from 'src/types/entities/ledger.types';
 
 @Injectable()
 export class LedgersRepository {
@@ -24,14 +25,20 @@ export class LedgersRepository {
     });
   }
 
-  async findLedgerById(id: number): Promise<Ledger> {
+  async findLedgerById(id: number): Promise<LedgerDetailView> {
     try {
       return await this.prisma.ledger.findFirstOrThrow({
         where: { id },
         include: {
           collaborations: true,
           transactions: {
-            include: { category: true, paymentMethod: true, debtOwner: true },
+            include: {
+              category: true,
+              paymentMethod: true,
+              debtOwner: true,
+              group: true,
+              transactionsBreakDown: true,
+            },
           },
           paymentMethods: { include: { paymentMethod: true } },
           groups: true,

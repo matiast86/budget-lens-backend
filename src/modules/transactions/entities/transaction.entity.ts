@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionType } from '@prisma/client';
-import { Currency, EntryType, Status } from 'generated/prisma/enums';
+import { Currency, EntryType, Status, TransactionType } from '@prisma/client';
 import { CategoryEntity } from 'src/modules/categories/entities/category.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';

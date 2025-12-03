@@ -13,7 +13,7 @@ export class DebtOwnerResponseDto {
     example: 'Ana Pérez',
   })
   name: string;
-  ledgerId: string;
+  ledgerId: number;
   debts: DebtResponseDto[];
   constructor(partial: Partial<DebtOwnerResponseDto>) {
     Object.assign(this, partial);

@@ -1,7 +1,7 @@
 import { TransactionResponseDto } from 'src/modules/transactions/dto/transaction-response.dto';
 import { TransactionDetailView } from 'src/types/entities/transaction.types';
 import { categoryToResponseDto } from './category.mapper';
-import { debtOwnerToResponseDto } from './debt-owner.mapper';
+import { groupToResponseDto } from './group.mapper';
 import { paymentMethodToResponseDto } from './payment-method.mapper';
 import { transactionBdArrayToArrayDto } from './transaction-bd.mapper';
 
@@ -20,9 +20,11 @@ export const transactionToResponseDto = (
     installment,
     comment,
     currency,
+    totalAmount,
     paymentMethod,
     monthlyAmount,
     debtOwner,
+    group,
     transactionsBreakDown,
   } = transaction;
   return new TransactionResponseDto({
@@ -37,9 +39,11 @@ export const transactionToResponseDto = (
     installment,
     comment: comment ?? undefined,
     currency,
+    totalAmount: Number(totalAmount),
     paymentMethod: paymentMethodToResponseDto(paymentMethod),
     monthlyAmount: Number(monthlyAmount),
-    debtOwner: debtOwner ? debtOwnerToResponseDto(debtOwner) : undefined,
+    debtOwner: debtOwner?.name,
+    group: group ? groupToResponseDto(group) : undefined,
     transactionsBreakDown: transactionBdArrayToArrayDto(transactionsBreakDown),
   });
 };

@@ -113,7 +113,7 @@ export class LedgersController {
     description: 'Ledger found',
   })
   @ApiResponse({ status: 404, description: 'Ledger not found' })
-  async findOne(@Param('id') id: string): Promise<LedgerDetailView> {
+  async findOne(@Param('id') id: string): Promise<LedgerDashboardResponseDto> {
     return await this.ledgersService.findOne(+id);
   }
 

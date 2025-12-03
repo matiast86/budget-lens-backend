@@ -27,7 +27,7 @@ export const userToDashboardResponseDto = (
     birthDate: birthDate.toISOString(),
     gender,
     role,
-    ledgers: ledgers ? ledgers.map(ledgerDashboardArrayToArrayDto) : [],
+    ledgers: ledgers ? ledgerDashboardArrayToArrayDto(ledgers) : [],
     isActive,
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
@@ -54,7 +54,7 @@ export const userToResponseDto = (user: User): UserResponseDto => {
     gender,
     role,
     isActive,
-    createdAt,
-    updatedAt,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
   });
 };

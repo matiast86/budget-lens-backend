@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CollaborationRole } from 'generated/prisma/enums';
+import { CollaborationRole } from '@prisma/client';
+
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 
