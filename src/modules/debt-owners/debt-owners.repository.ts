@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { DebtOwnerWithDebts } from 'src/types/entities/debt.types';
 
 @Injectable()
-export class DebtOnwersRepository {
+export class DebtOwnersRepository {
   constructor(private readonly prisma: PrismaService) {}
   async findAllByLedgerId(
     skip: number,
@@ -15,13 +15,14 @@ export class DebtOnwersRepository {
       where: { ledgerId },
       skip,
       take,
+      orderBy: { name: 'asc' },
       include: { debts: true },
     });
   }
 
   async findById(id: number): Promise<DebtOwnerWithDebts> {
     try {
-      return await this.prisma.debtOwner.findFirstOrThrow({
+      return await this.prisma.debtOwner.findUniqueOrThrow({
         where: { id },
         include: { debts: true },
       });
@@ -30,10 +31,13 @@ export class DebtOnwersRepository {
     }
   }
 
-  async findByName(name: string): Promise<DebtOwnerWithDebts> {
+  async findByNameInLedger(
+    ledgerId: number,
+    name: string,
+  ): Promise<DebtOwnerWithDebts> {
     try {
       return await this.prisma.debtOwner.findFirstOrThrow({
-        where: { name },
+        where: { ledgerId, name },
         include: { debts: true },
       });
     } catch {

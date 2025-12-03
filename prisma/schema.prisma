@@ -58,6 +58,8 @@ model Collaboration {
   user      User               @relation("UserCollaborations", fields: [userId], references: [id])
   ledger    Ledger             @relation("LedgerCollaborations", fields: [ledgerId], references: [id])
 
+  @@unique([userId, ledgerId])
+
   @@map("collaborations")
 }
 

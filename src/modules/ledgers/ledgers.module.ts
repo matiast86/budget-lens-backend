@@ -8,5 +8,6 @@ import { LedgersService } from './ledgers.service';
   imports: [UsersModule],
   controllers: [LedgersController],
   providers: [LedgersService, LedgersRepository],
+  exports: [LedgersService],
 })
 export class LedgersModule {}
