@@ -16,5 +16,5 @@ export class CreateDebtDto {
     description: 'Period (YYYY-MM) when this debt should be recorded',
   })
   @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, { message: 'month must be YYYY-MM' })
-  period: string;
+  periodString: string;
 }

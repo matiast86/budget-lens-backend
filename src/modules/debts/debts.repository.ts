@@ -7,9 +7,9 @@ export class DebtsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAllByOwnerId(
+    debtOwnerId: number,
     skip: number,
     take: number,
-    debtOwnerId: number,
     orderBy?: Prisma.DebtOrderByWithRelationInput,
   ): Promise<Debt[]> {
     return await this.prisma.debt.findMany({
