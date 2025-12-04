@@ -27,7 +27,7 @@ export class LedgersRepository {
 
   async findLedgerById(id: number): Promise<LedgerDetailView> {
     try {
-      return await this.prisma.ledger.findFirstOrThrow({
+      return await this.prisma.ledger.findUniqueOrThrow({
         where: { id },
         include: {
           collaborations: true,

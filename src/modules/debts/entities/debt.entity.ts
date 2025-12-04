@@ -24,10 +24,10 @@ export class DebtEntity {
 
   @ApiProperty({
     description:
-      'Month the debt corresponds to (used for monthly reconciliation).',
+      'Period the debt corresponds to (used for monthly reconciliation).',
     example: '2025-03-01T00:00:00.000Z',
   })
-  month: Date;
+  period: Date;
 
   @ApiProperty({ type: () => DebtOwnerEntity })
   owner: DebtOwnerEntity;

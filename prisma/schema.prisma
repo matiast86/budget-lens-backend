@@ -102,7 +102,7 @@ model Debt {
   debtOwnerId  Int
   direction    DebtDirection
   amount       Float
-  month        DateTime
+  period       DateTime
 
   @@map("debts")
 }
