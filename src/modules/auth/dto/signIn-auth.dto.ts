@@ -34,4 +34,7 @@ export class SignInAuthDto {
   })
   @IsNotEmpty()
   password: string;
+  constructor(partial: Partial<SignInAuthDto>) {
+    Object.assign(this, partial);
+  }
 }

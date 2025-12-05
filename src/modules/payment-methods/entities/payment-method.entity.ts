@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreditBrand, Currency, PaymentType } from '@prisma/client';
+import {
+  CreditBrand,
+  Currency,
+  PaymentType,
+} from 'prisma/generated/prisma/client';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';

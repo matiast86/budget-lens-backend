@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Currency, EntryType, Status } from '@prisma/client';
+import { Currency, EntryType, Status } from 'prisma/generated/prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';

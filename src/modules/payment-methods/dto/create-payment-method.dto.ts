@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreditBrand, Currency, PaymentType } from '@prisma/client';
+import {
+  CreditBrand,
+  Currency,
+  PaymentType,
+} from 'prisma/generated/prisma/client';
 
 export class CreatePaymentMethodDto {
   @ApiProperty({

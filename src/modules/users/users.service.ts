@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
 import { hash } from 'bcrypt';
+import { Prisma, User } from 'prisma/generated/prisma/client';
 import { userToResponseDto } from 'src/helpers/mappers/user.mapper';
 import { UserDashboardView } from 'src/types/entities/user.types';
 import { CreateUserDto } from './dto/create-user.dto';

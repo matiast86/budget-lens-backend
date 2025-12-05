@@ -1,4 +1,4 @@
-import { Category } from '@prisma/client';
+import { Category } from 'prisma/generated/prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
 
 export const categoryToResponseDto = (

@@ -21,7 +21,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
+import { Prisma } from 'prisma/generated/prisma/client';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { DebtsService } from './debts.service';
 import { CreateDebtDto } from './dto/create-debt.dto';

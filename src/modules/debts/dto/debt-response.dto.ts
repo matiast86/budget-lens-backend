@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DebtDirection } from '@prisma/client';
+import { DebtDirection } from 'prisma/generated/prisma/client';
 
 export class DebtResponseDto {
   @ApiProperty({

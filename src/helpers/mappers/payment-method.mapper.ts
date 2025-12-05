@@ -1,4 +1,4 @@
-import { PaymentMethod } from '@prisma/client';
+import { PaymentMethod } from 'prisma/generated/prisma/client';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
 
 export const paymentMethodToResponseDto = (

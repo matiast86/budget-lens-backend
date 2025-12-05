@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Debt, Prisma } from '@prisma/client';
+import { Debt, Prisma } from 'prisma/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

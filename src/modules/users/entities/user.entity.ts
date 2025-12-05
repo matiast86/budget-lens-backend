@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, Role } from '@prisma/client';
+import { Gender, Role } from 'prisma/generated/prisma/client';
 import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';

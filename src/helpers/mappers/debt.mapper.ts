@@ -1,4 +1,4 @@
-import { Debt } from '@prisma/client';
+import { Debt } from 'prisma/generated/prisma/client';
 import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
 import { periodMapper } from '../dates';
 

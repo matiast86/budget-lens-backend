@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, Role } from '@prisma/client';
+import { Gender, Role } from 'prisma/generated/prisma/client';
 import { LedgerDashboardResponseDto } from 'src/modules/ledgers/dto/ledger-dashboard-response.dto';
 
 export class UserDashboardViewDto {

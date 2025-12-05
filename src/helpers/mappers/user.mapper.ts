@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User } from 'prisma/generated/prisma/client';
 import { UserDashboardViewDto } from 'src/modules/users/dto/user-dashboard-view.dto';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { UserDashboardView } from 'src/types/entities/user.types';

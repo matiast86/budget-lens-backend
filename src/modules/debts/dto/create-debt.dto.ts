@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DebtDirection } from '@prisma/client';
 import { IsEnum, IsNumber, Matches } from 'class-validator';
+import { DebtDirection } from 'prisma/generated/prisma/client';
 
 export class CreateDebtDto {
   @ApiProperty({ enum: DebtDirection })
