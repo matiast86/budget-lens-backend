@@ -41,7 +41,6 @@ export type GroupMinAggregateOutputType = {
   name: string | null
   ledgerId: number | null
   userId: string | null
-  isGlobal: boolean | null
 }
 
 export type GroupMaxAggregateOutputType = {
@@ -49,7 +48,6 @@ export type GroupMaxAggregateOutputType = {
   name: string | null
   ledgerId: number | null
   userId: string | null
-  isGlobal: boolean | null
 }
 
 export type GroupCountAggregateOutputType = {
@@ -57,7 +55,6 @@ export type GroupCountAggregateOutputType = {
   name: number
   ledgerId: number
   userId: number
-  isGlobal: number
   _all: number
 }
 
@@ -77,7 +74,6 @@ export type GroupMinAggregateInputType = {
   name?: true
   ledgerId?: true
   userId?: true
-  isGlobal?: true
 }
 
 export type GroupMaxAggregateInputType = {
@@ -85,7 +81,6 @@ export type GroupMaxAggregateInputType = {
   name?: true
   ledgerId?: true
   userId?: true
-  isGlobal?: true
 }
 
 export type GroupCountAggregateInputType = {
@@ -93,7 +88,6 @@ export type GroupCountAggregateInputType = {
   name?: true
   ledgerId?: true
   userId?: true
-  isGlobal?: true
   _all?: true
 }
 
@@ -186,9 +180,8 @@ export type GroupGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type GroupGroupByOutputType = {
   id: number
   name: string
-  ledgerId: number | null
+  ledgerId: number
   userId: string
-  isGlobal: boolean
   _count: GroupCountAggregateOutputType | null
   _avg: GroupAvgAggregateOutputType | null
   _sum: GroupSumAggregateOutputType | null
@@ -217,10 +210,9 @@ export type GroupWhereInput = {
   NOT?: Prisma.GroupWhereInput | Prisma.GroupWhereInput[]
   id?: Prisma.IntFilter<"Group"> | number
   name?: Prisma.StringFilter<"Group"> | string
-  ledgerId?: Prisma.IntNullableFilter<"Group"> | number | null
+  ledgerId?: Prisma.IntFilter<"Group"> | number
   userId?: Prisma.UuidFilter<"Group"> | string
-  isGlobal?: Prisma.BoolFilter<"Group"> | boolean
-  ledger?: Prisma.XOR<Prisma.LedgerNullableScalarRelationFilter, Prisma.LedgerWhereInput> | null
+  ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -228,9 +220,8 @@ export type GroupWhereInput = {
 export type GroupOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  ledgerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  isGlobal?: Prisma.SortOrder
   ledger?: Prisma.LedgerOrderByWithRelationInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
@@ -238,24 +229,23 @@ export type GroupOrderByWithRelationInput = {
 
 export type GroupWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  ledgerId_name?: Prisma.GroupLedgerIdNameCompoundUniqueInput
   AND?: Prisma.GroupWhereInput | Prisma.GroupWhereInput[]
   OR?: Prisma.GroupWhereInput[]
   NOT?: Prisma.GroupWhereInput | Prisma.GroupWhereInput[]
   name?: Prisma.StringFilter<"Group"> | string
-  ledgerId?: Prisma.IntNullableFilter<"Group"> | number | null
+  ledgerId?: Prisma.IntFilter<"Group"> | number
   userId?: Prisma.UuidFilter<"Group"> | string
-  isGlobal?: Prisma.BoolFilter<"Group"> | boolean
-  ledger?: Prisma.XOR<Prisma.LedgerNullableScalarRelationFilter, Prisma.LedgerWhereInput> | null
+  ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id">
+}, "id" | "ledgerId_name">
 
 export type GroupOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  ledgerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  isGlobal?: Prisma.SortOrder
   _count?: Prisma.GroupCountOrderByAggregateInput
   _avg?: Prisma.GroupAvgOrderByAggregateInput
   _max?: Prisma.GroupMaxOrderByAggregateInput
@@ -269,15 +259,13 @@ export type GroupScalarWhereWithAggregatesInput = {
   NOT?: Prisma.GroupScalarWhereWithAggregatesInput | Prisma.GroupScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Group"> | number
   name?: Prisma.StringWithAggregatesFilter<"Group"> | string
-  ledgerId?: Prisma.IntNullableWithAggregatesFilter<"Group"> | number | null
+  ledgerId?: Prisma.IntWithAggregatesFilter<"Group"> | number
   userId?: Prisma.UuidWithAggregatesFilter<"Group"> | string
-  isGlobal?: Prisma.BoolWithAggregatesFilter<"Group"> | boolean
 }
 
 export type GroupCreateInput = {
   name: string
-  isGlobal?: boolean
-  ledger?: Prisma.LedgerCreateNestedOneWithoutGroupsInput
+  ledger: Prisma.LedgerCreateNestedOneWithoutGroupsInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutGroupInput
   user: Prisma.UserCreateNestedOneWithoutGroupsInput
 }
@@ -285,16 +273,14 @@ export type GroupCreateInput = {
 export type GroupUncheckedCreateInput = {
   id?: number
   name: string
-  ledgerId?: number | null
+  ledgerId: number
   userId: string
-  isGlobal?: boolean
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ledger?: Prisma.LedgerUpdateOneWithoutGroupsNestedInput
+  ledger?: Prisma.LedgerUpdateOneRequiredWithoutGroupsNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutGroupNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutGroupsNestedInput
 }
@@ -302,31 +288,27 @@ export type GroupUpdateInput = {
 export type GroupUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledgerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupCreateManyInput = {
   id?: number
   name: string
-  ledgerId?: number | null
+  ledgerId: number
   userId: string
-  isGlobal?: boolean
 }
 
 export type GroupUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GroupUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledgerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GroupListRelationFilter = {
@@ -339,12 +321,16 @@ export type GroupOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type GroupLedgerIdNameCompoundUniqueInput = {
+  ledgerId: number
+  name: string
+}
+
 export type GroupCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  isGlobal?: Prisma.SortOrder
 }
 
 export type GroupAvgOrderByAggregateInput = {
@@ -357,7 +343,6 @@ export type GroupMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  isGlobal?: Prisma.SortOrder
 }
 
 export type GroupMinOrderByAggregateInput = {
@@ -365,7 +350,6 @@ export type GroupMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  isGlobal?: Prisma.SortOrder
 }
 
 export type GroupSumOrderByAggregateInput = {
@@ -462,14 +446,6 @@ export type GroupUncheckedUpdateManyWithoutLedgerNestedInput = {
   deleteMany?: Prisma.GroupScalarWhereInput | Prisma.GroupScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type GroupCreateNestedOneWithoutTransactionsInput = {
   create?: Prisma.XOR<Prisma.GroupCreateWithoutTransactionsInput, Prisma.GroupUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.GroupCreateOrConnectWithoutTransactionsInput
@@ -488,16 +464,14 @@ export type GroupUpdateOneWithoutTransactionsNestedInput = {
 
 export type GroupCreateWithoutUserInput = {
   name: string
-  isGlobal?: boolean
-  ledger?: Prisma.LedgerCreateNestedOneWithoutGroupsInput
+  ledger: Prisma.LedgerCreateNestedOneWithoutGroupsInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutGroupInput
 }
 
 export type GroupUncheckedCreateWithoutUserInput = {
   id?: number
   name: string
-  ledgerId?: number | null
-  isGlobal?: boolean
+  ledgerId: number
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutGroupInput
 }
 
@@ -533,14 +507,12 @@ export type GroupScalarWhereInput = {
   NOT?: Prisma.GroupScalarWhereInput | Prisma.GroupScalarWhereInput[]
   id?: Prisma.IntFilter<"Group"> | number
   name?: Prisma.StringFilter<"Group"> | string
-  ledgerId?: Prisma.IntNullableFilter<"Group"> | number | null
+  ledgerId?: Prisma.IntFilter<"Group"> | number
   userId?: Prisma.UuidFilter<"Group"> | string
-  isGlobal?: Prisma.BoolFilter<"Group"> | boolean
 }
 
 export type GroupCreateWithoutLedgerInput = {
   name: string
-  isGlobal?: boolean
   transactions?: Prisma.TransactionCreateNestedManyWithoutGroupInput
   user: Prisma.UserCreateNestedOneWithoutGroupsInput
 }
@@ -549,7 +521,6 @@ export type GroupUncheckedCreateWithoutLedgerInput = {
   id?: number
   name: string
   userId: string
-  isGlobal?: boolean
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutGroupInput
 }
 
@@ -581,17 +552,15 @@ export type GroupUpdateManyWithWhereWithoutLedgerInput = {
 
 export type GroupCreateWithoutTransactionsInput = {
   name: string
-  isGlobal?: boolean
-  ledger?: Prisma.LedgerCreateNestedOneWithoutGroupsInput
+  ledger: Prisma.LedgerCreateNestedOneWithoutGroupsInput
   user: Prisma.UserCreateNestedOneWithoutGroupsInput
 }
 
 export type GroupUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
-  ledgerId?: number | null
+  ledgerId: number
   userId: string
-  isGlobal?: boolean
 }
 
 export type GroupCreateOrConnectWithoutTransactionsInput = {
@@ -612,58 +581,50 @@ export type GroupUpdateToOneWithWhereWithoutTransactionsInput = {
 
 export type GroupUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ledger?: Prisma.LedgerUpdateOneWithoutGroupsNestedInput
+  ledger?: Prisma.LedgerUpdateOneRequiredWithoutGroupsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutGroupsNestedInput
 }
 
 export type GroupUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledgerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type GroupCreateManyUserInput = {
   id?: number
   name: string
-  ledgerId?: number | null
-  isGlobal?: boolean
+  ledgerId: number
 }
 
 export type GroupUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  ledger?: Prisma.LedgerUpdateOneWithoutGroupsNestedInput
+  ledger?: Prisma.LedgerUpdateOneRequiredWithoutGroupsNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledgerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 export type GroupUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledgerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type GroupCreateManyLedgerInput = {
   id?: number
   name: string
   userId: string
-  isGlobal?: boolean
 }
 
 export type GroupUpdateWithoutLedgerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUpdateManyWithoutGroupNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutGroupsNestedInput
 }
@@ -672,7 +633,6 @@ export type GroupUncheckedUpdateWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutGroupNestedInput
 }
 
@@ -680,7 +640,6 @@ export type GroupUncheckedUpdateManyWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  isGlobal?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -719,8 +678,7 @@ export type GroupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name?: boolean
   ledgerId?: boolean
   userId?: boolean
-  isGlobal?: boolean
-  ledger?: boolean | Prisma.Group$ledgerArgs<ExtArgs>
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Group$transactionsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.GroupCountOutputTypeDefaultArgs<ExtArgs>
@@ -731,8 +689,7 @@ export type GroupSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   ledgerId?: boolean
   userId?: boolean
-  isGlobal?: boolean
-  ledger?: boolean | Prisma.Group$ledgerArgs<ExtArgs>
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["group"]>
 
@@ -741,8 +698,7 @@ export type GroupSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   ledgerId?: boolean
   userId?: boolean
-  isGlobal?: boolean
-  ledger?: boolean | Prisma.Group$ledgerArgs<ExtArgs>
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["group"]>
 
@@ -751,38 +707,36 @@ export type GroupSelectScalar = {
   name?: boolean
   ledgerId?: boolean
   userId?: boolean
-  isGlobal?: boolean
 }
 
-export type GroupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "ledgerId" | "userId" | "isGlobal", ExtArgs["result"]["group"]>
+export type GroupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "ledgerId" | "userId", ExtArgs["result"]["group"]>
 export type GroupInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ledger?: boolean | Prisma.Group$ledgerArgs<ExtArgs>
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Group$transactionsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.GroupCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GroupIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ledger?: boolean | Prisma.Group$ledgerArgs<ExtArgs>
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type GroupIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  ledger?: boolean | Prisma.Group$ledgerArgs<ExtArgs>
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $GroupPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Group"
   objects: {
-    ledger: Prisma.$LedgerPayload<ExtArgs> | null
+    ledger: Prisma.$LedgerPayload<ExtArgs>
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
     user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
-    ledgerId: number | null
+    ledgerId: number
     userId: string
-    isGlobal: boolean
   }, ExtArgs["result"]["group"]>
   composites: {}
 }
@@ -1177,7 +1131,7 @@ readonly fields: GroupFieldRefs;
  */
 export interface Prisma__GroupClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  ledger<T extends Prisma.Group$ledgerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Group$ledgerArgs<ExtArgs>>): Prisma.Prisma__LedgerClient<runtime.Types.Result.GetResult<Prisma.$LedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ledger<T extends Prisma.LedgerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LedgerDefaultArgs<ExtArgs>>): Prisma.Prisma__LedgerClient<runtime.Types.Result.GetResult<Prisma.$LedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   transactions<T extends Prisma.Group$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Group$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1213,7 +1167,6 @@ export interface GroupFieldRefs {
   readonly name: Prisma.FieldRef<"Group", 'String'>
   readonly ledgerId: Prisma.FieldRef<"Group", 'Int'>
   readonly userId: Prisma.FieldRef<"Group", 'String'>
-  readonly isGlobal: Prisma.FieldRef<"Group", 'Boolean'>
 }
     
 
@@ -1607,25 +1560,6 @@ export type GroupDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Groups to delete.
    */
   limit?: number
-}
-
-/**
- * Group.ledger
- */
-export type Group$ledgerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Ledger
-   */
-  select?: Prisma.LedgerSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Ledger
-   */
-  omit?: Prisma.LedgerOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.LedgerInclude<ExtArgs> | null
-  where?: Prisma.LedgerWhereInput
 }
 
 /**

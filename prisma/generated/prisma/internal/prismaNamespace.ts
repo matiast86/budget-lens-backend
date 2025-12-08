@@ -1365,8 +1365,7 @@ export const GroupScalarFieldEnum = {
   id: 'id',
   name: 'name',
   ledgerId: 'ledgerId',
-  userId: 'userId',
-  isGlobal: 'isGlobal'
+  userId: 'userId'
 } as const
 
 export type GroupScalarFieldEnum = (typeof GroupScalarFieldEnum)[keyof typeof GroupScalarFieldEnum]

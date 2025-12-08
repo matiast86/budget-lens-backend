@@ -19,9 +19,9 @@ export class GroupEntity {
   @ApiProperty({
     description: 'Optional reference to the ledger this group belongs to.',
     example: 101,
-    required: false,
+    required: true,
   })
-  ledgerId?: number;
+  ledgerId: number;
 
   @ApiProperty({
     description: 'UUID of the user who owns or created this group.',
@@ -30,19 +30,11 @@ export class GroupEntity {
   userId: string;
 
   @ApiProperty({
-    description:
-      'Indicates if this group is global (shared across ledgers) or specific to one ledger.',
-    example: false,
-    default: false,
-  })
-  isGlobal: boolean;
-
-  @ApiProperty({
     type: () => LedgerEntity,
-    required: false,
+    required: true,
     description: 'Ledger associated with this group.',
   })
-  ledger?: LedgerEntity;
+  ledger: LedgerEntity;
 
   @ApiProperty({
     type: () => [TransactionEntity],

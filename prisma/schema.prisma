@@ -135,13 +135,14 @@ model Category {
 model Group {
   id            Int             @id @default(autoincrement())
   name          String
-  ledgerId      Int?
+  ledgerId      Int
   userId        String           @db.Uuid
-  isGlobal      Boolean          @default(false)
-
-  ledger        Ledger?          @relation("LedgerGroups", fields: [ledgerId], references: [id])
+  ledger        Ledger          @relation("LedgerGroups", fields: [ledgerId], references: [id])
   transactions  Transaction[]    @relation("TransactionGroup")
   user          User             @relation("UserGroups", fields: [userId], references: [id])
+
+
+  @@unique([ledgerId, name])
 
   @@map("groups")
 }

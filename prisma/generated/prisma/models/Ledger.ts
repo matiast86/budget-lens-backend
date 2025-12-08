@@ -442,11 +442,6 @@ export type LedgerScalarRelationFilter = {
   isNot?: Prisma.LedgerWhereInput
 }
 
-export type LedgerNullableScalarRelationFilter = {
-  is?: Prisma.LedgerWhereInput | null
-  isNot?: Prisma.LedgerWhereInput | null
-}
-
 export type LedgerCreateNestedManyWithoutOwnerInput = {
   create?: Prisma.XOR<Prisma.LedgerCreateWithoutOwnerInput, Prisma.LedgerUncheckedCreateWithoutOwnerInput> | Prisma.LedgerCreateWithoutOwnerInput[] | Prisma.LedgerUncheckedCreateWithoutOwnerInput[]
   connectOrCreate?: Prisma.LedgerCreateOrConnectWithoutOwnerInput | Prisma.LedgerCreateOrConnectWithoutOwnerInput[]
@@ -549,12 +544,10 @@ export type LedgerCreateNestedOneWithoutGroupsInput = {
   connect?: Prisma.LedgerWhereUniqueInput
 }
 
-export type LedgerUpdateOneWithoutGroupsNestedInput = {
+export type LedgerUpdateOneRequiredWithoutGroupsNestedInput = {
   create?: Prisma.XOR<Prisma.LedgerCreateWithoutGroupsInput, Prisma.LedgerUncheckedCreateWithoutGroupsInput>
   connectOrCreate?: Prisma.LedgerCreateOrConnectWithoutGroupsInput
   upsert?: Prisma.LedgerUpsertWithoutGroupsInput
-  disconnect?: Prisma.LedgerWhereInput | boolean
-  delete?: Prisma.LedgerWhereInput | boolean
   connect?: Prisma.LedgerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.LedgerUpdateToOneWithWhereWithoutGroupsInput, Prisma.LedgerUpdateWithoutGroupsInput>, Prisma.LedgerUncheckedUpdateWithoutGroupsInput>
 }
