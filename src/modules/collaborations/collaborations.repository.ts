@@ -26,20 +26,19 @@ export class CollaborationsRepository {
     }
   }
 
-  async findByName(name: string): Promise<Collaboration> {
-    try {
-      return await this.prisma.collaboration.findFirstOrThrow({
-        where: { name },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Collaboration with name: ${name} not found.`,
-      );
-    }
+  async findUniqueNullable(
+    ledgerId: number,
+    userId: string,
+  ): Promise<Collaboration | null> {
+    return this.prisma.collaboration.findUnique({
+      where: { userId_ledgerId: { userId, ledgerId } },
+    });
   }
 
   async findAllByUserId(userId: string): Promise<Collaboration[]> {
-    return await this.prisma.collaboration.findMany({ where: { userId } });
+    return await this.prisma.collaboration.findMany({
+      where: { userId, isActive: true },
+    });
   }
 
   async findAllByLedgerId(ledgerId: number): Promise<Collaboration[]> {

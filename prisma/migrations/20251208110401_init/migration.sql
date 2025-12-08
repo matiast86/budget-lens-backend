@@ -5,9 +5,6 @@ CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
 
 -- CreateEnum
-CREATE TYPE "CollaborationRole" AS ENUM ('COLLABORATOR');
-
--- CreateEnum
 CREATE TYPE "EntryType" AS ENUM ('INCOME', 'EXPENSE');
 
 -- CreateEnum
@@ -60,7 +57,8 @@ CREATE TABLE "ledgers" (
 -- CreateTable
 CREATE TABLE "collaborations" (
     "id" SERIAL NOT NULL,
-    "role" "CollaborationRole" NOT NULL DEFAULT 'COLLABORATOR',
+    "name" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "userId" UUID NOT NULL,
     "ledgerId" INTEGER NOT NULL,
 
@@ -98,7 +96,7 @@ CREATE TABLE "debts" (
     "debtOwnerId" INTEGER NOT NULL,
     "direction" "DebtDirection" NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
-    "month" TIMESTAMP(3) NOT NULL,
+    "period" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "debts_pkey" PRIMARY KEY ("id")
 );
@@ -167,6 +165,9 @@ CREATE TABLE "transactions_break_down" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "collaborations_userId_ledgerId_key" ON "collaborations"("userId", "ledgerId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "payment_methods_userId_name_key" ON "payment_methods"("userId", "name");

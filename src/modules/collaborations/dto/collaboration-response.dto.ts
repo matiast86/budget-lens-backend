@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CollaborationRole } from 'prisma/generated/prisma/client';
 
 export class CollaborationResponseDto {
   @ApiProperty({
@@ -9,13 +8,17 @@ export class CollaborationResponseDto {
   id: number;
 
   @ApiProperty({
-    enum: CollaborationRole,
-    description:
-      'Defines the collaborator’s role in the shared ledger (e.g., ADMIN can edit, COLLABORATOR can view).',
-    example: CollaborationRole.COLLABORATOR,
-    default: CollaborationRole.COLLABORATOR,
+    description: 'Human-friendly name for this collaboration entry.',
+    example: 'User Name - Household budget partners',
   })
-  role: CollaborationRole;
+  name: string;
+
+  @ApiProperty({
+    description: 'Indicates whether the collaboration is active.',
+    example: true,
+    default: true,
+  })
+  isActive: boolean;
 
   @ApiProperty({
     description: 'UUID of the user participating in the collaboration.',

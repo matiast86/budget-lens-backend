@@ -34,7 +34,7 @@ export class DebtsService {
       direction,
       amount,
       period,
-      owner: { connect: { id: ownerId } },
+      debtOwner: { connect: { id: ownerId } },
     });
     return debtToResponseDto(debt);
   }
