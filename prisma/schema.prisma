@@ -53,7 +53,8 @@ model Ledger {
 
 model Collaboration {
   id        Int               @id @default(autoincrement())
-  role      CollaborationRole @default(COLLABORATOR)
+  name      String
+  isActive  Boolean            @default(true)
   userId    String             @db.Uuid
   ledgerId  Int
   user      User               @relation("UserCollaborations", fields: [userId], references: [id])
@@ -99,7 +100,7 @@ model LedgerPaymentMethod {
 
 model Debt {
   id           Int         @id @default(autoincrement())
-  owner        DebtOwner   @relation("DebtOwner", fields: [debtOwnerId], references: [id])
+  debtOwner    DebtOwner   @relation("DebtOwner", fields: [debtOwnerId], references: [id])
   debtOwnerId  Int
   direction    DebtDirection
   amount       Float
@@ -199,9 +200,6 @@ enum Role {
   USER
 }
 
-enum CollaborationRole {
-  COLLABORATOR
-}
 
 enum EntryType {
   INCOME

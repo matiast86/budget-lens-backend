@@ -111,7 +111,8 @@ export type LedgerScalarFieldEnum = (typeof LedgerScalarFieldEnum)[keyof typeof 
 
 export const CollaborationScalarFieldEnum = {
   id: 'id',
-  role: 'role',
+  name: 'name',
+  isActive: 'isActive',
   userId: 'userId',
   ledgerId: 'ledgerId'
 } as const

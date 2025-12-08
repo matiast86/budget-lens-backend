@@ -1298,7 +1298,8 @@ export type LedgerScalarFieldEnum = (typeof LedgerScalarFieldEnum)[keyof typeof 
 
 export const CollaborationScalarFieldEnum = {
   id: 'id',
-  role: 'role',
+  name: 'name',
+  isActive: 'isActive',
   userId: 'userId',
   ledgerId: 'ledgerId'
 } as const
@@ -1508,20 +1509,6 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
- * Reference to a field of type 'CollaborationRole'
- */
-export type EnumCollaborationRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CollaborationRole'>
-    
-
-
-/**
- * Reference to a field of type 'CollaborationRole[]'
- */
-export type ListEnumCollaborationRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CollaborationRole[]'>
     
 
 

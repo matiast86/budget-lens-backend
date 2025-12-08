@@ -38,21 +38,24 @@ export type CollaborationSumAggregateOutputType = {
 
 export type CollaborationMinAggregateOutputType = {
   id: number | null
-  role: $Enums.CollaborationRole | null
+  name: string | null
+  isActive: boolean | null
   userId: string | null
   ledgerId: number | null
 }
 
 export type CollaborationMaxAggregateOutputType = {
   id: number | null
-  role: $Enums.CollaborationRole | null
+  name: string | null
+  isActive: boolean | null
   userId: string | null
   ledgerId: number | null
 }
 
 export type CollaborationCountAggregateOutputType = {
   id: number
-  role: number
+  name: number
+  isActive: number
   userId: number
   ledgerId: number
   _all: number
@@ -71,21 +74,24 @@ export type CollaborationSumAggregateInputType = {
 
 export type CollaborationMinAggregateInputType = {
   id?: true
-  role?: true
+  name?: true
+  isActive?: true
   userId?: true
   ledgerId?: true
 }
 
 export type CollaborationMaxAggregateInputType = {
   id?: true
-  role?: true
+  name?: true
+  isActive?: true
   userId?: true
   ledgerId?: true
 }
 
 export type CollaborationCountAggregateInputType = {
   id?: true
-  role?: true
+  name?: true
+  isActive?: true
   userId?: true
   ledgerId?: true
   _all?: true
@@ -179,7 +185,8 @@ export type CollaborationGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 
 export type CollaborationGroupByOutputType = {
   id: number
-  role: $Enums.CollaborationRole
+  name: string
+  isActive: boolean
   userId: string
   ledgerId: number
   _count: CollaborationCountAggregateOutputType | null
@@ -209,7 +216,8 @@ export type CollaborationWhereInput = {
   OR?: Prisma.CollaborationWhereInput[]
   NOT?: Prisma.CollaborationWhereInput | Prisma.CollaborationWhereInput[]
   id?: Prisma.IntFilter<"Collaboration"> | number
-  role?: Prisma.EnumCollaborationRoleFilter<"Collaboration"> | $Enums.CollaborationRole
+  name?: Prisma.StringFilter<"Collaboration"> | string
+  isActive?: Prisma.BoolFilter<"Collaboration"> | boolean
   userId?: Prisma.UuidFilter<"Collaboration"> | string
   ledgerId?: Prisma.IntFilter<"Collaboration"> | number
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -218,7 +226,8 @@ export type CollaborationWhereInput = {
 
 export type CollaborationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -231,7 +240,8 @@ export type CollaborationWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.CollaborationWhereInput | Prisma.CollaborationWhereInput[]
   OR?: Prisma.CollaborationWhereInput[]
   NOT?: Prisma.CollaborationWhereInput | Prisma.CollaborationWhereInput[]
-  role?: Prisma.EnumCollaborationRoleFilter<"Collaboration"> | $Enums.CollaborationRole
+  name?: Prisma.StringFilter<"Collaboration"> | string
+  isActive?: Prisma.BoolFilter<"Collaboration"> | boolean
   userId?: Prisma.UuidFilter<"Collaboration"> | string
   ledgerId?: Prisma.IntFilter<"Collaboration"> | number
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -240,7 +250,8 @@ export type CollaborationWhereUniqueInput = Prisma.AtLeast<{
 
 export type CollaborationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
   _count?: Prisma.CollaborationCountOrderByAggregateInput
@@ -255,51 +266,59 @@ export type CollaborationScalarWhereWithAggregatesInput = {
   OR?: Prisma.CollaborationScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CollaborationScalarWhereWithAggregatesInput | Prisma.CollaborationScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Collaboration"> | number
-  role?: Prisma.EnumCollaborationRoleWithAggregatesFilter<"Collaboration"> | $Enums.CollaborationRole
+  name?: Prisma.StringWithAggregatesFilter<"Collaboration"> | string
+  isActive?: Prisma.BoolWithAggregatesFilter<"Collaboration"> | boolean
   userId?: Prisma.UuidWithAggregatesFilter<"Collaboration"> | string
   ledgerId?: Prisma.IntWithAggregatesFilter<"Collaboration"> | number
 }
 
 export type CollaborationCreateInput = {
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   user: Prisma.UserCreateNestedOneWithoutCollaborationsInput
   ledger: Prisma.LedgerCreateNestedOneWithoutCollaborationsInput
 }
 
 export type CollaborationUncheckedCreateInput = {
   id?: number
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   userId: string
   ledgerId: number
 }
 
 export type CollaborationUpdateInput = {
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutCollaborationsNestedInput
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutCollaborationsNestedInput
 }
 
 export type CollaborationUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type CollaborationCreateManyInput = {
   id?: number
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   userId: string
   ledgerId: number
 }
 
 export type CollaborationUpdateManyMutationInput = {
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type CollaborationUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -321,7 +340,8 @@ export type CollaborationUserIdLedgerIdCompoundUniqueInput = {
 
 export type CollaborationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
 }
@@ -333,14 +353,16 @@ export type CollaborationAvgOrderByAggregateInput = {
 
 export type CollaborationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
 }
 
 export type CollaborationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
 }
@@ -434,18 +456,16 @@ export type CollaborationUncheckedUpdateManyWithoutLedgerNestedInput = {
   deleteMany?: Prisma.CollaborationScalarWhereInput | Prisma.CollaborationScalarWhereInput[]
 }
 
-export type EnumCollaborationRoleFieldUpdateOperationsInput = {
-  set?: $Enums.CollaborationRole
-}
-
 export type CollaborationCreateWithoutUserInput = {
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   ledger: Prisma.LedgerCreateNestedOneWithoutCollaborationsInput
 }
 
 export type CollaborationUncheckedCreateWithoutUserInput = {
   id?: number
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   ledgerId: number
 }
 
@@ -480,19 +500,22 @@ export type CollaborationScalarWhereInput = {
   OR?: Prisma.CollaborationScalarWhereInput[]
   NOT?: Prisma.CollaborationScalarWhereInput | Prisma.CollaborationScalarWhereInput[]
   id?: Prisma.IntFilter<"Collaboration"> | number
-  role?: Prisma.EnumCollaborationRoleFilter<"Collaboration"> | $Enums.CollaborationRole
+  name?: Prisma.StringFilter<"Collaboration"> | string
+  isActive?: Prisma.BoolFilter<"Collaboration"> | boolean
   userId?: Prisma.UuidFilter<"Collaboration"> | string
   ledgerId?: Prisma.IntFilter<"Collaboration"> | number
 }
 
 export type CollaborationCreateWithoutLedgerInput = {
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   user: Prisma.UserCreateNestedOneWithoutCollaborationsInput
 }
 
 export type CollaborationUncheckedCreateWithoutLedgerInput = {
   id?: number
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   userId: string
 }
 
@@ -524,47 +547,55 @@ export type CollaborationUpdateManyWithWhereWithoutLedgerInput = {
 
 export type CollaborationCreateManyUserInput = {
   id?: number
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   ledgerId: number
 }
 
 export type CollaborationUpdateWithoutUserInput = {
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutCollaborationsNestedInput
 }
 
 export type CollaborationUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type CollaborationUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type CollaborationCreateManyLedgerInput = {
   id?: number
-  role?: $Enums.CollaborationRole
+  name: string
+  isActive?: boolean
   userId: string
 }
 
 export type CollaborationUpdateWithoutLedgerInput = {
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutCollaborationsNestedInput
 }
 
 export type CollaborationUncheckedUpdateWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CollaborationUncheckedUpdateManyWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.EnumCollaborationRoleFieldUpdateOperationsInput | $Enums.CollaborationRole
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -572,7 +603,8 @@ export type CollaborationUncheckedUpdateManyWithoutLedgerInput = {
 
 export type CollaborationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  role?: boolean
+  name?: boolean
+  isActive?: boolean
   userId?: boolean
   ledgerId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -581,7 +613,8 @@ export type CollaborationSelect<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type CollaborationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  role?: boolean
+  name?: boolean
+  isActive?: boolean
   userId?: boolean
   ledgerId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -590,7 +623,8 @@ export type CollaborationSelectCreateManyAndReturn<ExtArgs extends runtime.Types
 
 export type CollaborationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  role?: boolean
+  name?: boolean
+  isActive?: boolean
   userId?: boolean
   ledgerId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -599,12 +633,13 @@ export type CollaborationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
 
 export type CollaborationSelectScalar = {
   id?: boolean
-  role?: boolean
+  name?: boolean
+  isActive?: boolean
   userId?: boolean
   ledgerId?: boolean
 }
 
-export type CollaborationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "role" | "userId" | "ledgerId", ExtArgs["result"]["collaboration"]>
+export type CollaborationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "isActive" | "userId" | "ledgerId", ExtArgs["result"]["collaboration"]>
 export type CollaborationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
@@ -626,7 +661,8 @@ export type $CollaborationPayload<ExtArgs extends runtime.Types.Extensions.Inter
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    role: $Enums.CollaborationRole
+    name: string
+    isActive: boolean
     userId: string
     ledgerId: number
   }, ExtArgs["result"]["collaboration"]>
@@ -1055,7 +1091,8 @@ export interface Prisma__CollaborationClient<T, Null = never, ExtArgs extends ru
  */
 export interface CollaborationFieldRefs {
   readonly id: Prisma.FieldRef<"Collaboration", 'Int'>
-  readonly role: Prisma.FieldRef<"Collaboration", 'CollaborationRole'>
+  readonly name: Prisma.FieldRef<"Collaboration", 'String'>
+  readonly isActive: Prisma.FieldRef<"Collaboration", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Collaboration", 'String'>
   readonly ledgerId: Prisma.FieldRef<"Collaboration", 'Int'>
 }

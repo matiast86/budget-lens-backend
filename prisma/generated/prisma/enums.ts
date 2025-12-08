@@ -25,13 +25,6 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
-export const CollaborationRole = {
-  COLLABORATOR: 'COLLABORATOR'
-} as const
-
-export type CollaborationRole = (typeof CollaborationRole)[keyof typeof CollaborationRole]
-
-
 export const EntryType = {
   INCOME: 'INCOME',
   EXPENSE: 'EXPENSE'

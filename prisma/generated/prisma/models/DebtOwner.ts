@@ -253,7 +253,7 @@ export type DebtOwnerScalarWhereWithAggregatesInput = {
 export type DebtOwnerCreateInput = {
   name: string
   ledger: Prisma.LedgerCreateNestedOneWithoutDebtOwnersInput
-  debts?: Prisma.DebtCreateNestedManyWithoutOwnerInput
+  debts?: Prisma.DebtCreateNestedManyWithoutDebtOwnerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutDebtOwnerInput
 }
 
@@ -261,14 +261,14 @@ export type DebtOwnerUncheckedCreateInput = {
   id?: number
   name: string
   ledgerId: number
-  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutOwnerInput
+  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutDebtOwnerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutDebtOwnersNestedInput
-  debts?: Prisma.DebtUpdateManyWithoutOwnerNestedInput
+  debts?: Prisma.DebtUpdateManyWithoutDebtOwnerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutDebtOwnerNestedInput
 }
 
@@ -276,7 +276,7 @@ export type DebtOwnerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
-  debts?: Prisma.DebtUncheckedUpdateManyWithoutOwnerNestedInput
+  debts?: Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutDebtOwnerNestedInput
 }
 
@@ -418,14 +418,14 @@ export type DebtOwnerUpdateOneWithoutTransactionsNestedInput = {
 
 export type DebtOwnerCreateWithoutLedgerInput = {
   name: string
-  debts?: Prisma.DebtCreateNestedManyWithoutOwnerInput
+  debts?: Prisma.DebtCreateNestedManyWithoutDebtOwnerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUncheckedCreateWithoutLedgerInput = {
   id?: number
   name: string
-  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutOwnerInput
+  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutDebtOwnerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutDebtOwnerInput
 }
 
@@ -509,14 +509,14 @@ export type DebtOwnerUncheckedUpdateWithoutDebtsInput = {
 export type DebtOwnerCreateWithoutTransactionsInput = {
   name: string
   ledger: Prisma.LedgerCreateNestedOneWithoutDebtOwnersInput
-  debts?: Prisma.DebtCreateNestedManyWithoutOwnerInput
+  debts?: Prisma.DebtCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
   ledgerId: number
-  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutOwnerInput
+  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerCreateOrConnectWithoutTransactionsInput = {
@@ -538,14 +538,14 @@ export type DebtOwnerUpdateToOneWithWhereWithoutTransactionsInput = {
 export type DebtOwnerUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutDebtOwnersNestedInput
-  debts?: Prisma.DebtUpdateManyWithoutOwnerNestedInput
+  debts?: Prisma.DebtUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
-  debts?: Prisma.DebtUncheckedUpdateManyWithoutOwnerNestedInput
+  debts?: Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerCreateManyLedgerInput = {
@@ -555,14 +555,14 @@ export type DebtOwnerCreateManyLedgerInput = {
 
 export type DebtOwnerUpdateWithoutLedgerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  debts?: Prisma.DebtUpdateManyWithoutOwnerNestedInput
+  debts?: Prisma.DebtUpdateManyWithoutDebtOwnerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerUncheckedUpdateWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  debts?: Prisma.DebtUncheckedUpdateManyWithoutOwnerNestedInput
+  debts?: Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutDebtOwnerNestedInput
 }
 

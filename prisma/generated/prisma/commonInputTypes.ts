@@ -211,23 +211,6 @@ export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedStringNullableFilter<$PrismaModel>
 }
 
-export type EnumCollaborationRoleFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollaborationRole | Prisma.EnumCollaborationRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollaborationRoleFilter<$PrismaModel> | $Enums.CollaborationRole
-}
-
-export type EnumCollaborationRoleWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollaborationRole | Prisma.EnumCollaborationRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollaborationRoleWithAggregatesFilter<$PrismaModel> | $Enums.CollaborationRole
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCollaborationRoleFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCollaborationRoleFilter<$PrismaModel>
-}
-
 export type EnumPaymentTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.PaymentType | Prisma.EnumPaymentTypeFieldRefInput<$PrismaModel>
   in?: $Enums.PaymentType[] | Prisma.ListEnumPaymentTypeFieldRefInput<$PrismaModel>
@@ -651,23 +634,6 @@ export type NestedIntNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
   gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
   not?: Prisma.NestedIntNullableFilter<$PrismaModel> | number | null
-}
-
-export type NestedEnumCollaborationRoleFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollaborationRole | Prisma.EnumCollaborationRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollaborationRoleFilter<$PrismaModel> | $Enums.CollaborationRole
-}
-
-export type NestedEnumCollaborationRoleWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CollaborationRole | Prisma.EnumCollaborationRoleFieldRefInput<$PrismaModel>
-  in?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CollaborationRole[] | Prisma.ListEnumCollaborationRoleFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCollaborationRoleWithAggregatesFilter<$PrismaModel> | $Enums.CollaborationRole
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCollaborationRoleFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCollaborationRoleFilter<$PrismaModel>
 }
 
 export type NestedEnumPaymentTypeFilter<$PrismaModel = never> = {

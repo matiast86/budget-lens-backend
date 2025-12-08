@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CollaborationRole } from 'prisma/generated/prisma/client';
 
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
@@ -12,13 +11,10 @@ export class CollaborationEntity {
   id: number;
 
   @ApiProperty({
-    enum: CollaborationRole,
-    description:
-      'Defines the collaborator’s role in the shared ledger (e.g., ADMIN can edit, COLLABORATOR can view).',
-    example: CollaborationRole.COLLABORATOR,
-    default: CollaborationRole.COLLABORATOR,
+    description: 'Name assigned to this collaboration access.',
+    example: 'Shared Budget with Alex',
   })
-  role: CollaborationRole;
+  name: string;
 
   @ApiProperty({
     description: 'UUID of the user participating in the collaboration.',

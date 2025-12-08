@@ -224,7 +224,7 @@ export type DebtWhereInput = {
   direction?: Prisma.EnumDebtDirectionFilter<"Debt"> | $Enums.DebtDirection
   amount?: Prisma.FloatFilter<"Debt"> | number
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  owner?: Prisma.XOR<Prisma.DebtOwnerScalarRelationFilter, Prisma.DebtOwnerWhereInput>
+  debtOwner?: Prisma.XOR<Prisma.DebtOwnerScalarRelationFilter, Prisma.DebtOwnerWhereInput>
 }
 
 export type DebtOrderByWithRelationInput = {
@@ -233,7 +233,7 @@ export type DebtOrderByWithRelationInput = {
   direction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   period?: Prisma.SortOrder
-  owner?: Prisma.DebtOwnerOrderByWithRelationInput
+  debtOwner?: Prisma.DebtOwnerOrderByWithRelationInput
 }
 
 export type DebtWhereUniqueInput = Prisma.AtLeast<{
@@ -245,7 +245,7 @@ export type DebtWhereUniqueInput = Prisma.AtLeast<{
   direction?: Prisma.EnumDebtDirectionFilter<"Debt"> | $Enums.DebtDirection
   amount?: Prisma.FloatFilter<"Debt"> | number
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  owner?: Prisma.XOR<Prisma.DebtOwnerScalarRelationFilter, Prisma.DebtOwnerWhereInput>
+  debtOwner?: Prisma.XOR<Prisma.DebtOwnerScalarRelationFilter, Prisma.DebtOwnerWhereInput>
 }, "id">
 
 export type DebtOrderByWithAggregationInput = {
@@ -276,7 +276,7 @@ export type DebtCreateInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
-  owner: Prisma.DebtOwnerCreateNestedOneWithoutDebtsInput
+  debtOwner: Prisma.DebtOwnerCreateNestedOneWithoutDebtsInput
 }
 
 export type DebtUncheckedCreateInput = {
@@ -291,7 +291,7 @@ export type DebtUpdateInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owner?: Prisma.DebtOwnerUpdateOneRequiredWithoutDebtsNestedInput
+  debtOwner?: Prisma.DebtOwnerUpdateOneRequiredWithoutDebtsNestedInput
 }
 
 export type DebtUncheckedUpdateInput = {
@@ -382,85 +382,85 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type DebtCreateNestedManyWithoutOwnerInput = {
-  create?: Prisma.XOR<Prisma.DebtCreateWithoutOwnerInput, Prisma.DebtUncheckedCreateWithoutOwnerInput> | Prisma.DebtCreateWithoutOwnerInput[] | Prisma.DebtUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutOwnerInput | Prisma.DebtCreateOrConnectWithoutOwnerInput[]
-  createMany?: Prisma.DebtCreateManyOwnerInputEnvelope
+export type DebtCreateNestedManyWithoutDebtOwnerInput = {
+  create?: Prisma.XOR<Prisma.DebtCreateWithoutDebtOwnerInput, Prisma.DebtUncheckedCreateWithoutDebtOwnerInput> | Prisma.DebtCreateWithoutDebtOwnerInput[] | Prisma.DebtUncheckedCreateWithoutDebtOwnerInput[]
+  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutDebtOwnerInput | Prisma.DebtCreateOrConnectWithoutDebtOwnerInput[]
+  createMany?: Prisma.DebtCreateManyDebtOwnerInputEnvelope
   connect?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
 }
 
-export type DebtUncheckedCreateNestedManyWithoutOwnerInput = {
-  create?: Prisma.XOR<Prisma.DebtCreateWithoutOwnerInput, Prisma.DebtUncheckedCreateWithoutOwnerInput> | Prisma.DebtCreateWithoutOwnerInput[] | Prisma.DebtUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutOwnerInput | Prisma.DebtCreateOrConnectWithoutOwnerInput[]
-  createMany?: Prisma.DebtCreateManyOwnerInputEnvelope
+export type DebtUncheckedCreateNestedManyWithoutDebtOwnerInput = {
+  create?: Prisma.XOR<Prisma.DebtCreateWithoutDebtOwnerInput, Prisma.DebtUncheckedCreateWithoutDebtOwnerInput> | Prisma.DebtCreateWithoutDebtOwnerInput[] | Prisma.DebtUncheckedCreateWithoutDebtOwnerInput[]
+  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutDebtOwnerInput | Prisma.DebtCreateOrConnectWithoutDebtOwnerInput[]
+  createMany?: Prisma.DebtCreateManyDebtOwnerInputEnvelope
   connect?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
 }
 
-export type DebtUpdateManyWithoutOwnerNestedInput = {
-  create?: Prisma.XOR<Prisma.DebtCreateWithoutOwnerInput, Prisma.DebtUncheckedCreateWithoutOwnerInput> | Prisma.DebtCreateWithoutOwnerInput[] | Prisma.DebtUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutOwnerInput | Prisma.DebtCreateOrConnectWithoutOwnerInput[]
-  upsert?: Prisma.DebtUpsertWithWhereUniqueWithoutOwnerInput | Prisma.DebtUpsertWithWhereUniqueWithoutOwnerInput[]
-  createMany?: Prisma.DebtCreateManyOwnerInputEnvelope
+export type DebtUpdateManyWithoutDebtOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.DebtCreateWithoutDebtOwnerInput, Prisma.DebtUncheckedCreateWithoutDebtOwnerInput> | Prisma.DebtCreateWithoutDebtOwnerInput[] | Prisma.DebtUncheckedCreateWithoutDebtOwnerInput[]
+  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutDebtOwnerInput | Prisma.DebtCreateOrConnectWithoutDebtOwnerInput[]
+  upsert?: Prisma.DebtUpsertWithWhereUniqueWithoutDebtOwnerInput | Prisma.DebtUpsertWithWhereUniqueWithoutDebtOwnerInput[]
+  createMany?: Prisma.DebtCreateManyDebtOwnerInputEnvelope
   set?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
   disconnect?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
   delete?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
   connect?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
-  update?: Prisma.DebtUpdateWithWhereUniqueWithoutOwnerInput | Prisma.DebtUpdateWithWhereUniqueWithoutOwnerInput[]
-  updateMany?: Prisma.DebtUpdateManyWithWhereWithoutOwnerInput | Prisma.DebtUpdateManyWithWhereWithoutOwnerInput[]
+  update?: Prisma.DebtUpdateWithWhereUniqueWithoutDebtOwnerInput | Prisma.DebtUpdateWithWhereUniqueWithoutDebtOwnerInput[]
+  updateMany?: Prisma.DebtUpdateManyWithWhereWithoutDebtOwnerInput | Prisma.DebtUpdateManyWithWhereWithoutDebtOwnerInput[]
   deleteMany?: Prisma.DebtScalarWhereInput | Prisma.DebtScalarWhereInput[]
 }
 
-export type DebtUncheckedUpdateManyWithoutOwnerNestedInput = {
-  create?: Prisma.XOR<Prisma.DebtCreateWithoutOwnerInput, Prisma.DebtUncheckedCreateWithoutOwnerInput> | Prisma.DebtCreateWithoutOwnerInput[] | Prisma.DebtUncheckedCreateWithoutOwnerInput[]
-  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutOwnerInput | Prisma.DebtCreateOrConnectWithoutOwnerInput[]
-  upsert?: Prisma.DebtUpsertWithWhereUniqueWithoutOwnerInput | Prisma.DebtUpsertWithWhereUniqueWithoutOwnerInput[]
-  createMany?: Prisma.DebtCreateManyOwnerInputEnvelope
+export type DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.DebtCreateWithoutDebtOwnerInput, Prisma.DebtUncheckedCreateWithoutDebtOwnerInput> | Prisma.DebtCreateWithoutDebtOwnerInput[] | Prisma.DebtUncheckedCreateWithoutDebtOwnerInput[]
+  connectOrCreate?: Prisma.DebtCreateOrConnectWithoutDebtOwnerInput | Prisma.DebtCreateOrConnectWithoutDebtOwnerInput[]
+  upsert?: Prisma.DebtUpsertWithWhereUniqueWithoutDebtOwnerInput | Prisma.DebtUpsertWithWhereUniqueWithoutDebtOwnerInput[]
+  createMany?: Prisma.DebtCreateManyDebtOwnerInputEnvelope
   set?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
   disconnect?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
   delete?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
   connect?: Prisma.DebtWhereUniqueInput | Prisma.DebtWhereUniqueInput[]
-  update?: Prisma.DebtUpdateWithWhereUniqueWithoutOwnerInput | Prisma.DebtUpdateWithWhereUniqueWithoutOwnerInput[]
-  updateMany?: Prisma.DebtUpdateManyWithWhereWithoutOwnerInput | Prisma.DebtUpdateManyWithWhereWithoutOwnerInput[]
+  update?: Prisma.DebtUpdateWithWhereUniqueWithoutDebtOwnerInput | Prisma.DebtUpdateWithWhereUniqueWithoutDebtOwnerInput[]
+  updateMany?: Prisma.DebtUpdateManyWithWhereWithoutDebtOwnerInput | Prisma.DebtUpdateManyWithWhereWithoutDebtOwnerInput[]
   deleteMany?: Prisma.DebtScalarWhereInput | Prisma.DebtScalarWhereInput[]
 }
 
-export type DebtCreateWithoutOwnerInput = {
+export type DebtCreateWithoutDebtOwnerInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
 }
 
-export type DebtUncheckedCreateWithoutOwnerInput = {
+export type DebtUncheckedCreateWithoutDebtOwnerInput = {
   id?: number
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
 }
 
-export type DebtCreateOrConnectWithoutOwnerInput = {
+export type DebtCreateOrConnectWithoutDebtOwnerInput = {
   where: Prisma.DebtWhereUniqueInput
-  create: Prisma.XOR<Prisma.DebtCreateWithoutOwnerInput, Prisma.DebtUncheckedCreateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.DebtCreateWithoutDebtOwnerInput, Prisma.DebtUncheckedCreateWithoutDebtOwnerInput>
 }
 
-export type DebtCreateManyOwnerInputEnvelope = {
-  data: Prisma.DebtCreateManyOwnerInput | Prisma.DebtCreateManyOwnerInput[]
+export type DebtCreateManyDebtOwnerInputEnvelope = {
+  data: Prisma.DebtCreateManyDebtOwnerInput | Prisma.DebtCreateManyDebtOwnerInput[]
   skipDuplicates?: boolean
 }
 
-export type DebtUpsertWithWhereUniqueWithoutOwnerInput = {
+export type DebtUpsertWithWhereUniqueWithoutDebtOwnerInput = {
   where: Prisma.DebtWhereUniqueInput
-  update: Prisma.XOR<Prisma.DebtUpdateWithoutOwnerInput, Prisma.DebtUncheckedUpdateWithoutOwnerInput>
-  create: Prisma.XOR<Prisma.DebtCreateWithoutOwnerInput, Prisma.DebtUncheckedCreateWithoutOwnerInput>
+  update: Prisma.XOR<Prisma.DebtUpdateWithoutDebtOwnerInput, Prisma.DebtUncheckedUpdateWithoutDebtOwnerInput>
+  create: Prisma.XOR<Prisma.DebtCreateWithoutDebtOwnerInput, Prisma.DebtUncheckedCreateWithoutDebtOwnerInput>
 }
 
-export type DebtUpdateWithWhereUniqueWithoutOwnerInput = {
+export type DebtUpdateWithWhereUniqueWithoutDebtOwnerInput = {
   where: Prisma.DebtWhereUniqueInput
-  data: Prisma.XOR<Prisma.DebtUpdateWithoutOwnerInput, Prisma.DebtUncheckedUpdateWithoutOwnerInput>
+  data: Prisma.XOR<Prisma.DebtUpdateWithoutDebtOwnerInput, Prisma.DebtUncheckedUpdateWithoutDebtOwnerInput>
 }
 
-export type DebtUpdateManyWithWhereWithoutOwnerInput = {
+export type DebtUpdateManyWithWhereWithoutDebtOwnerInput = {
   where: Prisma.DebtScalarWhereInput
-  data: Prisma.XOR<Prisma.DebtUpdateManyMutationInput, Prisma.DebtUncheckedUpdateManyWithoutOwnerInput>
+  data: Prisma.XOR<Prisma.DebtUpdateManyMutationInput, Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerInput>
 }
 
 export type DebtScalarWhereInput = {
@@ -474,27 +474,27 @@ export type DebtScalarWhereInput = {
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
 }
 
-export type DebtCreateManyOwnerInput = {
+export type DebtCreateManyDebtOwnerInput = {
   id?: number
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
 }
 
-export type DebtUpdateWithoutOwnerInput = {
+export type DebtUpdateWithoutDebtOwnerInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type DebtUncheckedUpdateWithoutOwnerInput = {
+export type DebtUncheckedUpdateWithoutDebtOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type DebtUncheckedUpdateManyWithoutOwnerInput = {
+export type DebtUncheckedUpdateManyWithoutDebtOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -509,7 +509,7 @@ export type DebtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   direction?: boolean
   amount?: boolean
   period?: boolean
-  owner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
+  debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
 export type DebtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -518,7 +518,7 @@ export type DebtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   direction?: boolean
   amount?: boolean
   period?: boolean
-  owner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
+  debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
 export type DebtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -527,7 +527,7 @@ export type DebtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   direction?: boolean
   amount?: boolean
   period?: boolean
-  owner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
+  debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
 export type DebtSelectScalar = {
@@ -540,19 +540,19 @@ export type DebtSelectScalar = {
 
 export type DebtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "debtOwnerId" | "direction" | "amount" | "period", ExtArgs["result"]["debt"]>
 export type DebtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  owner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
+  debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }
 export type DebtIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  owner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
+  debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }
 export type DebtIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  owner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
+  debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }
 
 export type $DebtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Debt"
   objects: {
-    owner: Prisma.$DebtOwnerPayload<ExtArgs>
+    debtOwner: Prisma.$DebtOwnerPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -954,7 +954,7 @@ readonly fields: DebtFieldRefs;
  */
 export interface Prisma__DebtClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  owner<T extends Prisma.DebtOwnerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DebtOwnerDefaultArgs<ExtArgs>>): Prisma.Prisma__DebtOwnerClient<runtime.Types.Result.GetResult<Prisma.$DebtOwnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  debtOwner<T extends Prisma.DebtOwnerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DebtOwnerDefaultArgs<ExtArgs>>): Prisma.Prisma__DebtOwnerClient<runtime.Types.Result.GetResult<Prisma.$DebtOwnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
