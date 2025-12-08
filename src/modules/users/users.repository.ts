@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma, User } from 'prisma/generated/prisma/client';
+import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDashboardView } from 'src/types/entities/user.types';
 
@@ -18,53 +19,47 @@ export class UsersRepository {
     });
   }
 
-  async getUserById(id: string): Promise<UserDashboardView> {
-    try {
-      return await this.prisma.user.findUniqueOrThrow({
-        where: { id },
-        include: {
-          ledgers: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              createdAt: true,
-              updatedAt: true,
-            },
+  async getUserById(id: string): Promise<UserDashboardView | null> {
+    return await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        ledgers: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
           },
         },
-      });
-    } catch {
-      throw new NotFoundException(`User with id: ${id} not found`);
-    }
+      },
+    });
   }
 
-  async findByEmail(email: string): Promise<UserDashboardView> {
-    try {
-      return await this.prisma.user.findUniqueOrThrow({
-        where: { email },
-        include: {
-          ledgers: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              createdAt: true,
-              updatedAt: true,
-            },
+  async findByEmail(email: string): Promise<UserDashboardView | null> {
+    return await this.prisma.user.findUnique({
+      where: { email },
+      include: {
+        ledgers: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
           },
         },
-      });
-    } catch {
-      throw new NotFoundException(`User with email: ${email} not found`);
-    }
+      },
+    });
   }
 
   async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
-    return await this.prisma.user.update({
-      where: { id },
-      data,
-    });
+    return await this.prisma.user
+      .update({
+        where: { id },
+        data,
+      })
+      .catch(handleP2025(`User with id: ${id} not found.`));
   }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {

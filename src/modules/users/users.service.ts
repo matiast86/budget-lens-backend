@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { Prisma, User } from 'prisma/generated/prisma/client';
 import { userToResponseDto } from 'src/helpers/mappers/user.mapper';
@@ -40,13 +44,18 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
-    const user: User = await this.usersRepository.getUserById(id);
+    const user: User | null = await this.usersRepository.getUserById(id);
+    if (!user) throw new NotFoundException(`User with id: ${id} not found.`);
 
     return userToResponseDto(user);
   }
 
   async findOneByEmail(email: string): Promise<UserDashboardView> {
-    return await this.usersRepository.findByEmail(email);
+    const user = await this.usersRepository.findByEmail(email);
+    if (!user)
+      throw new NotFoundException(`User with email: ${email} not found.`);
+
+    return user;
   }
 
   async update(
@@ -59,7 +68,6 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.usersRepository.getUserById(id);
     const data: Prisma.UserUpdateInput = { isActive: false };
     await this.usersRepository.update(id, data);
   }
