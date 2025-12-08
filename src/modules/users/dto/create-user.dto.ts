@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender } from '@prisma/client';
 import {
   IsDate,
   IsEmail,
@@ -7,6 +6,7 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
+import { Gender } from 'prisma/generated/prisma/client';
 
 export class CreateUserDto {
   @ApiProperty({

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentType } from '@prisma/client';
+import { PaymentType } from 'prisma/generated/prisma/client';
 
 import {
   paymentMethodArrayToArrayDto,

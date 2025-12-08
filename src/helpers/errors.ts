@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from 'prisma/generated/prisma/client';
 
 export const handleP2025 = (message: string) => {
   return (error: any) => {

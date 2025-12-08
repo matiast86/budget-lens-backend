@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Ledger, Prisma } from '@prisma/client';
+import { Ledger, Prisma } from 'prisma/generated/prisma/client';
 import {
   ledgerDashboardArrayToArrayDto,
   ledgerToDashboardView,

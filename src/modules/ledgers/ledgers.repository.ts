@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Ledger, Prisma } from '@prisma/client';
+import { Ledger, Prisma } from 'prisma/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LedgerDetailView } from 'src/types/entities/ledger.types';
 

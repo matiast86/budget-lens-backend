@@ -1,4 +1,4 @@
-import { TransactionBreakDown } from '@prisma/client';
+import { TransactionBreakDown } from 'prisma/generated/prisma/client';
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
 
 export const transactionBdToResponseDto = (

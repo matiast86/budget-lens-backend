@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CollaborationRole } from '@prisma/client';
+import { CollaborationRole } from 'prisma/generated/prisma/client';
 
 export class CollaborationResponseDto {
   @ApiProperty({

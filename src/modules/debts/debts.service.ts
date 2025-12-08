@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from 'prisma/generated/prisma/client';
 import { parsePeriod } from 'src/helpers/dates';
 import { handleP2025 } from 'src/helpers/errors';
 import {
