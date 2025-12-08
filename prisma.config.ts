@@ -8,7 +8,7 @@ export default defineConfig({
   // what script to run for "prisma db seed"
   migrations: {
     path: 'prisma/migrations',
-    seed: 'tsx prisma/seed.ts',
+    seed: 'tsx ./src/seed/index.ts',
   },
   // The database URL
   datasource: {
