@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DebtOwner, Prisma } from 'prisma/generated/prisma/client';
+import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DebtOwnerWithDebts } from 'src/types/entities/debt.types';
 
@@ -20,29 +21,21 @@ export class DebtOwnersRepository {
     });
   }
 
-  async findById(id: number): Promise<DebtOwnerWithDebts> {
-    try {
-      return await this.prisma.debtOwner.findUniqueOrThrow({
-        where: { id },
-        include: { debts: true },
-      });
-    } catch {
-      throw new NotFoundException(`Debt owner with id: ${id} not found.`);
-    }
+  async findById(id: number): Promise<DebtOwnerWithDebts | null> {
+    return await this.prisma.debtOwner.findUnique({
+      where: { id },
+      include: { debts: true },
+    });
   }
 
   async findByNameInLedger(
     ledgerId: number,
     name: string,
-  ): Promise<DebtOwnerWithDebts> {
-    try {
-      return await this.prisma.debtOwner.findFirstOrThrow({
-        where: { ledgerId, name },
-        include: { debts: true },
-      });
-    } catch {
-      throw new NotFoundException(`Debt owner with name: ${name} not found.`);
-    }
+  ): Promise<DebtOwnerWithDebts | null> {
+    return await this.prisma.debtOwner.findUnique({
+      where: { ledgerId_name: { ledgerId, name } },
+      include: { debts: true },
+    });
   }
 
   async create(data: Prisma.DebtOwnerCreateInput): Promise<DebtOwner> {
@@ -53,10 +46,14 @@ export class DebtOwnersRepository {
     id: number,
     data: Prisma.DebtOwnerUpdateInput,
   ): Promise<DebtOwner> {
-    return await this.prisma.debtOwner.update({ where: { id }, data });
+    return await this.prisma.debtOwner
+      .update({ where: { id }, data })
+      .catch(handleP2025(`Debt Owner with id: ${id} not found.`));
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.debtOwner.delete({ where: { id } });
+    await this.prisma.debtOwner
+      .delete({ where: { id } })
+      .catch(handleP2025(`Debt Owner with id: ${id} not found.`));
   }
 }

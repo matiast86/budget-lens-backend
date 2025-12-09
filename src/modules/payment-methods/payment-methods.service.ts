@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentType } from 'prisma/generated/prisma/client';
 
 import {
@@ -38,6 +38,7 @@ export class PaymentMethodsService {
   }
 
   async findAllByUser(userId: string): Promise<PaymentMethodResponseDto[]> {
+    await this.usersService.findOne(userId);
     const methods = await this.paymentMethodsRepository.findAllByUser(userId);
     return paymentMethodArrayToArrayDto(methods);
   }
@@ -48,6 +49,8 @@ export class PaymentMethodsService {
       id,
       userId,
     );
+    if (!paymentMethod)
+      throw new NotFoundException(`Payment method with id: ${id} not found`);
     return paymentMethodToResponseDto(paymentMethod);
   }
 
@@ -55,7 +58,12 @@ export class PaymentMethodsService {
     userId: string,
     name: string,
   ): Promise<PaymentMethodResponseDto> {
+    await this.usersService.findOne(userId);
     const method = await this.paymentMethodsRepository.findByName(userId, name);
+    if (!method)
+      throw new NotFoundException(
+        `Payment method with name: ${name} not found`,
+      );
     return paymentMethodToResponseDto(method);
   }
 
@@ -63,6 +71,7 @@ export class PaymentMethodsService {
     userId: string,
     type: PaymentType,
   ): Promise<PaymentMethodResponseDto[]> {
+    await this.usersService.findOne(userId);
     const methods = await this.paymentMethodsRepository.findByType(
       userId,
       type,
@@ -75,6 +84,7 @@ export class PaymentMethodsService {
     id: number,
     updatePaymentMethodDto: UpdatePaymentMethodDto,
   ): Promise<PaymentMethodResponseDto> {
+    await this.usersService.findOne(userId);
     const updatedPM = await this.paymentMethodsRepository.update(
       id,
       userId,
@@ -85,6 +95,7 @@ export class PaymentMethodsService {
   }
 
   async remove(userId: string, id: number): Promise<void> {
+    await this.usersService.findOne(userId);
     await this.paymentMethodsRepository.delete(id, userId);
   }
 }

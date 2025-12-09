@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   CreditBrand,
   Currency,
@@ -25,31 +25,27 @@ export class PaymentMethodResponseDto {
   })
   type: PaymentType;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     enum: CreditBrand,
     description: 'Brand for credit cards. Null otherwise.',
     example: CreditBrand.MASTER,
   })
   brand?: CreditBrand;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     example: '#4CAF50',
     description: 'UI display color.',
   })
   color?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     example: 'mdi-wallet-outline',
     description: 'Icon identifier.',
   })
   icon?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: Currency,
-    required: false,
     description: 'Currency linked to this method.',
     example: Currency.ARS,
   })

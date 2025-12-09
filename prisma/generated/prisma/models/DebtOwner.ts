@@ -220,6 +220,7 @@ export type DebtOwnerOrderByWithRelationInput = {
 
 export type DebtOwnerWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  ledgerId_name?: Prisma.DebtOwnerLedgerIdNameCompoundUniqueInput
   AND?: Prisma.DebtOwnerWhereInput | Prisma.DebtOwnerWhereInput[]
   OR?: Prisma.DebtOwnerWhereInput[]
   NOT?: Prisma.DebtOwnerWhereInput | Prisma.DebtOwnerWhereInput[]
@@ -228,7 +229,7 @@ export type DebtOwnerWhereUniqueInput = Prisma.AtLeast<{
   ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
   debts?: Prisma.DebtListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
-}, "id">
+}, "id" | "ledgerId_name">
 
 export type DebtOwnerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -309,6 +310,11 @@ export type DebtOwnerOrderByRelationAggregateInput = {
 export type DebtOwnerScalarRelationFilter = {
   is?: Prisma.DebtOwnerWhereInput
   isNot?: Prisma.DebtOwnerWhereInput
+}
+
+export type DebtOwnerLedgerIdNameCompoundUniqueInput = {
+  ledgerId: number
+  name: string
 }
 
 export type DebtOwnerCountOrderByAggregateInput = {

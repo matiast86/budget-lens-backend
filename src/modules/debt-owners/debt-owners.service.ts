@@ -45,6 +45,8 @@ export class DebtOwnersService {
 
   async findById(id: number): Promise<DebtOwnerResponseDto> {
     const owner = await this.debtOwnersRepository.findById(id);
+    if (!owner)
+      throw new NotFoundException(`Debt Owner with id: ${id} not found.`);
     return debtOwnerToResponseDto(owner);
   }
 
@@ -56,40 +58,22 @@ export class DebtOwnersService {
       ledgerId,
       name,
     );
+    if (!owner)
+      throw new NotFoundException(`Debt Owner with name: ${name} not found.`);
     return debtOwnerToResponseDto(owner);
   }
 
   async update(id: number, updateDebtOwnerDto: UpdateDebtOwnerDto) {
-    try {
-      const data: Prisma.DebtOwnerUpdateInput = { ...updateDebtOwnerDto };
-      const updated = await this.debtOwnersRepository.update(id, data);
-      return new DebtOwnerResponseDto({
-        id: updated.id,
-        name: updated.name,
-        ledgerId: updated.ledgerId,
-      });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException(`Debt owner with id: ${id} not found.`);
-      }
-      throw error;
-    }
+    const data: Prisma.DebtOwnerUpdateInput = { ...updateDebtOwnerDto };
+    const updated = await this.debtOwnersRepository.update(id, data);
+    return new DebtOwnerResponseDto({
+      id: updated.id,
+      name: updated.name,
+      ledgerId: updated.ledgerId,
+    });
   }
 
   async remove(id: number): Promise<void> {
-    try {
-      await this.debtOwnersRepository.delete(id);
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException(`Debt owner with id: ${id} not found.`);
-      }
-      throw error;
-    }
+    await this.debtOwnersRepository.delete(id);
   }
 }

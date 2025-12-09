@@ -29,7 +29,7 @@ export class GroupsService {
   ): Promise<GroupResponseDto> {
     const { name } = createGroupDto;
     const user = await this.usersService.findOne(userId);
-    const ledger = await this.ledgersService.findOne(ledgerId);
+    const ledger = await this.ledgersService.findOne(userId, ledgerId);
     if (!user || !ledger)
       throw new NotFoundException(`User or ledger not found.`);
     const collaborations = ledger.collaborations;
@@ -79,7 +79,7 @@ export class GroupsService {
   ): Promise<GroupResponseDto> {
     const group = await this.groupsRepository.findById(id);
     if (!group) throw new NotFoundException(`Group with id: ${id} not found`);
-    const ledger = await this.ledgersService.findOne(group.ledgerId);
+    const ledger = await this.ledgersService.findOne(userId, group.ledgerId);
     if (!ledger) throw new NotFoundException(`Ledger not found.`);
     const collaborations = ledger.collaborations;
     const collaboration = collaborations.some((c) => c.userId === userId);
@@ -96,7 +96,7 @@ export class GroupsService {
   async remove(userId: string, id: number): Promise<void> {
     const group = await this.groupsRepository.findById(id);
     if (!group) throw new NotFoundException(`Group with id: ${id} not found`);
-    const ledger = await this.ledgersService.findOne(group.ledgerId);
+    const ledger = await this.ledgersService.findOne(userId, group.ledgerId);
     if (!ledger) throw new NotFoundException(`Ledger not found.`);
     const collaborations = ledger.collaborations;
     const collaboration = collaborations.some((c) => c.userId === userId);

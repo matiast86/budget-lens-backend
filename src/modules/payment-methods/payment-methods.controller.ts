@@ -6,11 +6,23 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseEnumPipe,
+  ParseIntPipe,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PaymentType } from 'prisma/generated/prisma/client';
 import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
@@ -21,12 +33,16 @@ import { PaymentMethodsService } from './payment-methods.service';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
+@ApiTags('Payment Methods')
 @Controller('payment-methods')
 export class PaymentMethodsController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {}
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @ApiOperation({ summary: 'Create a new payment method' })
+  @ApiCreatedResponse({ type: PaymentMethodResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid payload' })
   async create(
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
     @GetUser('id') userId: string,
@@ -44,18 +60,38 @@ export class PaymentMethodsController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@GetUser('id') userId: string) {
+  @ApiOperation({
+    summary: 'List all payment methods for the authenticated user',
+  })
+  @ApiOkResponse({ type: PaymentMethodResponseDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  async findAll(
+    @GetUser('id') userId: string,
+  ): Promise<PaymentMethodResponseDto[]> {
     return await this.paymentMethodsService.findAllByUser(userId);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findOne(@Param('id') id: string, @GetUser('id') userId: string) {
-    return await this.paymentMethodsService.findOne(userId, +id);
+  @ApiOperation({ summary: 'Get a payment method by id' })
+  @ApiParam({ name: 'id', type: Number, description: 'Payment method id' })
+  @ApiOkResponse({ type: PaymentMethodResponseDto })
+  @ApiNotFoundResponse({ description: 'Payment method or user not found' })
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('id') userId: string,
+  ): Promise<PaymentMethodResponseDto> {
+    return await this.paymentMethodsService.findOne(userId, id);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('/get-by-name/:name')
+  @Get('name/:name')
+  @ApiOperation({
+    summary: 'Get a payment method by name for the authenticated user',
+  })
+  @ApiParam({ name: 'name', type: String, description: 'Payment method name' })
+  @ApiOkResponse({ type: PaymentMethodResponseDto })
+  @ApiNotFoundResponse({ description: 'Payment method or user not found' })
   async findByName(
     @GetUser('id') userId: string,
     @Param('name') name: string,
@@ -64,31 +100,53 @@ export class PaymentMethodsController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('/get-by-type/:type')
+  @Get('type/:type')
+  @ApiOperation({
+    summary: 'List payment methods by type for the authenticated user',
+  })
+  @ApiParam({
+    name: 'type',
+    enum: PaymentType,
+    description: 'Payment method type',
+  })
+  @ApiOkResponse({ type: PaymentMethodResponseDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'User not found' })
   async findByType(
     @GetUser('id') userId: string,
-    @Param('type') type: PaymentType,
+    @Param('type', new ParseEnumPipe(PaymentType)) type: PaymentType,
   ): Promise<PaymentMethodResponseDto[]> {
     return await this.paymentMethodsService.findByType(userId, type);
   }
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a payment method' })
+  @ApiParam({ name: 'id', type: Number, description: 'Payment method id' })
+  @ApiOkResponse({ type: PaymentMethodResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid payload' })
+  @ApiNotFoundResponse({ description: 'Payment method or user not found' })
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @GetUser('id') userId: string,
     @Body() updatePaymentMethodDto: UpdatePaymentMethodDto,
-  ) {
+  ): Promise<PaymentMethodResponseDto> {
     return await this.paymentMethodsService.update(
       userId,
-      +id,
+      id,
       updatePaymentMethodDto,
     );
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async remove(@Param('id') id: string, @GetUser('id') userId: string) {
-    return await this.paymentMethodsService.remove(userId, +id);
+  @ApiOperation({ summary: 'Delete a payment method' })
+  @ApiParam({ name: 'id', type: Number, description: 'Payment method id' })
+  @ApiNoContentResponse({ description: 'Payment method deleted' })
+  @ApiNotFoundResponse({ description: 'Payment method or user not found' })
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('id') userId: string,
+  ): Promise<void> {
+    return await this.paymentMethodsService.remove(userId, id);
   }
 }

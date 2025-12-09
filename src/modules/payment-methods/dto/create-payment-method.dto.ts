@@ -1,4 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEnum,
+  IsHexColor,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import {
   CreditBrand,
   Currency,
@@ -10,6 +17,8 @@ export class CreatePaymentMethodDto {
     description: 'Display name of the payment method.',
     example: 'Visa Galicia',
   })
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
   @ApiProperty({
@@ -17,37 +26,42 @@ export class CreatePaymentMethodDto {
     description: 'Type of payment method.',
     example: PaymentType.CREDIT_CARD,
   })
+  @IsEnum(PaymentType)
   type: PaymentType;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: CreditBrand,
-    required: false,
     description:
       'Only required when type is CREDIT_CARD. Null for cash, bank, wallet.',
     example: CreditBrand.VISA,
   })
+  @IsOptional()
+  @IsEnum(CreditBrand)
   brand?: CreditBrand;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Color assigned to this payment method (UI only).',
     example: '#E53935',
   })
+  @IsOptional()
+  @IsHexColor()
   color?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Icon identifier used in UI.',
     example: 'mdi-bank-transfer',
   })
+  @IsOptional()
+  @IsString()
   icon?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     enum: Currency,
-    required: false,
     description: 'Associated currency (useful for cash or bank-based methods).',
     example: Currency.USD,
   })
+  @IsOptional()
+  @IsEnum(Currency)
   currency?: Currency;
 
   constructor(partial: Partial<CreatePaymentMethodDto>) {

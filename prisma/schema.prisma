@@ -118,6 +118,7 @@ model DebtOwner {
   debts  Debt[]  @relation("DebtOwner")
   transactions Transaction[] @relation("TransactionDebtOwner")
 
+  @@unique([ledgerId, name])
 
   @@map("debt_owners")
 }
