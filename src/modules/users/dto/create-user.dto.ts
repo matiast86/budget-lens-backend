@@ -37,12 +37,19 @@ export class CreateUserDto {
     description:
       'User password: it must be at least 8 characters long, include one uppercase letter and one number.',
   })
+  @IsString()
+  @IsNotEmpty()
   @Matches(/^(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*]{8,}$/, {
     message:
       'Password must be at least 8 characters long, include one uppercase letter and one number.',
   })
   rawPassword: string;
+  @ApiProperty({
+    description: 'Repeat of the password to confirm user input.',
+    example: 'Password123',
+  })
   @IsNotEmpty()
+  @IsString()
   repeatPassword: string;
 
   @ApiProperty({

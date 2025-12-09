@@ -41,6 +41,10 @@ export class UserDashboardViewDto {
   })
   ledgers: LedgerDashboardResponseDto[];
 
+  @ApiProperty({
+    description: 'Indicates whether the user account is active.',
+    example: true,
+  })
   isActive: boolean;
 
   constructor(partial: Partial<UserDashboardViewDto>) {

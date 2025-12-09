@@ -33,6 +33,10 @@ export class UserResponseDto {
   @ApiProperty({ example: '2025-01-01T12:00:00.000Z' })
   updatedAt: string;
 
+  @ApiProperty({
+    description: 'Indicates whether the user account is active.',
+    example: true,
+  })
   isActive: boolean;
 
   constructor(partial: Partial<UserResponseDto>) {

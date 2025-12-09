@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Ledger, Prisma } from 'prisma/generated/prisma/client';
+import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LedgerDetailView } from 'src/types/entities/ledger.types';
 
@@ -25,55 +26,52 @@ export class LedgersRepository {
     });
   }
 
-  async findLedgerById(id: number): Promise<LedgerDetailView> {
-    try {
-      return await this.prisma.ledger.findUniqueOrThrow({
-        where: { id },
-        include: {
-          collaborations: true,
-          transactions: {
-            include: {
-              category: true,
-              paymentMethod: true,
-              debtOwner: true,
-              group: true,
-              transactionsBreakDown: true,
-            },
+  async findLedgerById(id: number): Promise<LedgerDetailView | null> {
+    return await this.prisma.ledger.findUnique({
+      where: { id },
+      include: {
+        collaborations: true,
+        transactions: {
+          include: {
+            category: true,
+            paymentMethod: true,
+            debtOwner: true,
+            group: true,
+            transactionsBreakDown: true,
           },
-          paymentMethods: { include: { paymentMethod: true } },
-          groups: true,
-          debtOwners: true,
         },
-      });
-    } catch {
-      throw new NotFoundException(`Ledger with id: ${id} not found`);
-    }
+        paymentMethods: { include: { paymentMethod: true } },
+        groups: true,
+        debtOwners: true,
+      },
+    });
   }
 
-  async findLedgerByName(name: string): Promise<Ledger> {
-    try {
-      return await this.prisma.ledger.findFirstOrThrow({
-        where: { name },
-        include: {
-          collaborations: true,
-          transactions: {
-            include: { category: true, paymentMethod: true, debtOwner: true },
-          },
-          paymentMethods: { include: { paymentMethod: true } },
-          groups: true,
-          debtOwners: true,
+  async findLedgerByName(
+    name: string,
+    ownerId: string,
+  ): Promise<Ledger | null> {
+    return await this.prisma.ledger.findFirst({
+      where: { name, ownerId },
+      include: {
+        collaborations: true,
+        transactions: {
+          include: { category: true, paymentMethod: true, debtOwner: true },
         },
-      });
-    } catch {
-      throw new NotFoundException(`Ledger with id: ${name} not found`);
-    }
+        paymentMethods: { include: { paymentMethod: true } },
+        groups: true,
+        debtOwners: true,
+      },
+    });
   }
 
   async update(id: number, data: Prisma.LedgerUpdateInput): Promise<Ledger> {
-    return await this.prisma.ledger.update({
-      where: { id },
-      data,
-    });
+    return await this.prisma.ledger
+      .update({
+        where: { id },
+        data,
+      })
+      .catch(handleP2025(`Ledger with id: ${id} not found.`));
   }
 
   async create(data: Prisma.LedgerCreateInput): Promise<Ledger> {
@@ -83,6 +81,8 @@ export class LedgersRepository {
   }
 
   async remove(id: number): Promise<void> {
-    await this.prisma.ledger.delete({ where: { id } });
+    await this.prisma.ledger
+      .delete({ where: { id } })
+      .catch(handleP2025(`Ledger with id: ${id} not found.`));
   }
 }

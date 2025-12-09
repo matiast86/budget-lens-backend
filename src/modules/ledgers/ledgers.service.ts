@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Ledger, Prisma } from 'prisma/generated/prisma/client';
 import {
   ledgerDashboardArrayToArrayDto,
@@ -49,23 +49,41 @@ export class LedgersService {
     skip: number,
     take: number,
   ): Promise<LedgerDashboardResponseDto[]> {
-    const where: Prisma.LedgerWhereInput = { ownerId };
+    await this.usersService.findOne(ownerId);
+    const where: Prisma.LedgerWhereInput = { ownerId, isActive: true };
     const ledgers: LedgerDashboardView[] =
       await this.ledgersRepository.findAllPaginated(skip, take, where);
 
     return ledgerDashboardArrayToArrayDto(ledgers);
   }
 
-  async findOne(id: number): Promise<LedgerResponseDto> {
+  async findOne(userId: string, id: number): Promise<LedgerResponseDto> {
     const ledger = await this.ledgersRepository.findLedgerById(id);
+    if (!ledger)
+      throw new NotFoundException(`Ledger with id: ${id} not found.`);
+    const collaborations = ledger.collaborations ?? [];
+    const collaboration = collaborations.some((c) => c.userId === userId);
+    if (ledger.ownerId != userId && !collaboration)
+      throw new NotFoundException(
+        `Only owners and collaborators may access this ledger.`,
+      );
     return ledgerToDetailsResponseDto(ledger);
   }
 
   async update(
     id: number,
+    userId: string,
     updateLedgerDto: UpdateLedgerDto,
   ): Promise<LedgerDashboardResponseDto> {
-    await this.ledgersRepository.findLedgerById(id);
+    const ledger = await this.ledgersRepository.findLedgerById(id);
+    if (!ledger)
+      throw new NotFoundException(`Ledger with id: ${id} not found.`);
+    const collaborations = ledger.collaborations ?? [];
+    const collaboration = collaborations.some((c) => c.userId === userId);
+    if (ledger.ownerId != userId && !collaboration)
+      throw new NotFoundException(
+        `Only owners and collaborators may modify this ledger.`,
+      );
 
     const data: Prisma.LedgerUpdateInput = { ...updateLedgerDto };
     const updated = await this.ledgersRepository.update(id, data);
@@ -73,14 +91,30 @@ export class LedgersService {
     return ledgerToDashboardView(updated);
   }
 
-  async deactivate(id: number): Promise<void> {
-    await this.ledgersRepository.findLedgerById(id);
+  async deactivate(id: number, userId: string): Promise<void> {
+    const ledger = await this.ledgersRepository.findLedgerById(id);
+    if (!ledger)
+      throw new NotFoundException(`Ledger with id: ${id} not found.`);
+    const collaborations = ledger.collaborations ?? [];
+    const collaboration = collaborations.some((c) => c.userId === userId);
+    if (ledger.ownerId != userId && !collaboration)
+      throw new NotFoundException(
+        `Only owners and collaborators may modify this ledger.`,
+      );
     const data: Partial<Ledger> = { isActive: false };
     await this.ledgersRepository.update(id, data);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.ledgersRepository.findLedgerById(id);
+  async remove(userId: string, id: number): Promise<void> {
+    const ledger = await this.ledgersRepository.findLedgerById(id);
+    if (!ledger)
+      throw new NotFoundException(`Ledger with id: ${id} not found.`);
+    const collaborations = ledger.collaborations ?? [];
+    const collaboration = collaborations.some((c) => c.userId === userId);
+    if (ledger.ownerId != userId && !collaboration)
+      throw new NotFoundException(
+        `Only owners and collaborators may modify this ledger.`,
+      );
     await this.ledgersRepository.remove(id);
   }
 }
