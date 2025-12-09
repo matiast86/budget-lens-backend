@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateLedgerDto {
@@ -15,9 +15,9 @@ export class CreateLedgerDto {
     description:
       'Short description to help identify the purpose of this ledger.',
     example: 'Tracks monthly family expenses and shared utilities.',
-    required: false,
   })
   @IsOptional()
   @IsString()
-  description: string;
+  @ApiPropertyOptional()
+  description?: string;
 }
