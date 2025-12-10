@@ -8,6 +8,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { DebtOwnersService } from 'src/modules/debt-owners/debt-owners.service';
+import { GroupsService } from 'src/modules/groups/groups.service';
 import { LedgerRequest } from 'src/modules/ledgers/entities/ledger-request';
 import { LedgersService } from 'src/modules/ledgers/ledgers.service';
 import { JwtPayload } from 'src/types/payload/payload';
@@ -17,11 +19,41 @@ export class LedgerAccessGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly ledgersService: LedgersService,
+    private readonly groupsService: GroupsService,
+    private readonly debtOwnersService: DebtOwnersService,
   ) {}
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<LedgerRequest>();
-    const user: JwtPayload | undefined = request.user;
-    if (!user) throw new UnauthorizedException('Token not found.');
+
+  private async resolveLedgerId(
+    meta: { type: 'group' | 'debtOwner'; param: string } | undefined,
+    request: LedgerRequest,
+    context: ExecutionContext,
+  ): Promise<number> {
+    if (meta) {
+      const rawId = request.params?.[meta.param];
+      const entityId = Number(rawId);
+      if (!Number.isInteger(entityId)) {
+        throw new BadRequestException(`${meta.param} is missing or invalid`);
+      }
+
+      if (meta.type === 'group') {
+        const group = await this.groupsService.findEntityById(entityId);
+        if (!group) throw new NotFoundException('Group not found');
+
+        (request as LedgerRequest & { group?: typeof group }).group = group;
+        return group.ledgerId;
+      }
+
+      if (meta.type === 'debtOwner') {
+        const owner = await this.debtOwnersService.findEntityById(entityId);
+        if (!owner) throw new NotFoundException('Debt owner not found');
+        // optional reuse:
+        (request as LedgerRequest & { debtOwner?: typeof owner }).debtOwner =
+          owner;
+        return owner.ledgerId;
+      }
+
+      throw new BadRequestException('Unsupported ledger source');
+    }
 
     const rawLedgerId =
       this.reflector.getAllAndOverride<string | number>('ledgerId', [
@@ -29,11 +61,25 @@ export class LedgerAccessGuard implements CanActivate {
         context.getClass(),
       ]) ?? request.params?.ledgerId;
     const ledgerId = Number(rawLedgerId);
-
-    if (!Number.isInteger(ledgerId))
+    if (!Number.isInteger(ledgerId)) {
       throw new BadRequestException('ledgerId is missing or invalid');
+    }
+    return ledgerId;
+  }
 
-    const ledger = await this.ledgersService.findOne(user.id, ledgerId);
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<LedgerRequest>();
+    const user: JwtPayload | undefined = request.user;
+    if (!user) throw new UnauthorizedException('Token not found.');
+
+    const meta = this.reflector.getAllAndOverride<{
+      type: 'group' | 'debtOwner';
+      param: string;
+    }>('ledgerFrom', [context.getHandler(), context.getClass()]);
+
+    const ledgerId = await this.resolveLedgerId(meta, request, context);
+
+    const ledger = await this.ledgersService.getEntityById(ledgerId);
     if (!ledger) throw new NotFoundException('Ledger not found');
 
     const collaboration = ledger.collaborations.some(

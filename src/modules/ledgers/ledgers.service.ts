@@ -117,4 +117,10 @@ export class LedgersService {
       );
     await this.ledgersRepository.remove(id);
   }
+
+  async getEntityById(id: number): Promise<LedgerResponseDto | undefined> {
+    const ledger = await this.ledgersRepository.findLedgerById(id);
+
+    return ledger ? ledgerToDetailsResponseDto(ledger) : undefined;
+  }
 }

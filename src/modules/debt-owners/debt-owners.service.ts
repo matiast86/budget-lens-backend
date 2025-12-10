@@ -76,4 +76,10 @@ export class DebtOwnersService {
   async remove(id: number): Promise<void> {
     await this.debtOwnersRepository.delete(id);
   }
+
+  async findEntityById(id: number): Promise<DebtOwnerResponseDto | undefined> {
+    const owner = await this.debtOwnersRepository.findById(id);
+
+    return owner ? debtOwnerToResponseDto(owner) : undefined;
+  }
 }

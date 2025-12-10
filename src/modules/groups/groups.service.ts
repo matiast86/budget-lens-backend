@@ -2,14 +2,11 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   groupArrayToArrayDto,
   groupToResponseDto,
 } from 'src/helpers/mappers/group.mapper';
-import { LedgersService } from '../ledgers/ledgers.service';
-import { UsersService } from '../users/users.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { GroupResponseDto } from './dto/group-response.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -17,28 +14,14 @@ import { GroupsRepository } from './groups.repositories';
 
 @Injectable()
 export class GroupsService {
-  constructor(
-    private readonly groupsRepository: GroupsRepository,
-    private readonly ledgersService: LedgersService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly groupsRepository: GroupsRepository) {}
   async create(
     userId: string,
     ledgerId: number,
     createGroupDto: CreateGroupDto,
   ): Promise<GroupResponseDto> {
     const { name } = createGroupDto;
-    const user = await this.usersService.findOne(userId);
-    const ledger = await this.ledgersService.findOne(userId, ledgerId);
-    if (!user || !ledger)
-      throw new NotFoundException(`User or ledger not found.`);
-    const collaborations = ledger.collaborations;
-    const collaboration = collaborations.some((c) => c.userId === userId);
-    if (ledger.ownerId !== userId && !collaboration) {
-      throw new UnauthorizedException(
-        `Only ledger owners or collaborators can add groups.`,
-      );
-    }
+
     if (await this.groupsRepository.findByName(ledgerId, name)) {
       throw new BadRequestException(`Group named ${name} is already in use`);
     }
@@ -73,37 +56,28 @@ export class GroupsService {
   }
 
   async update(
-    userId: string,
     id: number,
     updateGroupDto: UpdateGroupDto,
   ): Promise<GroupResponseDto> {
     const group = await this.groupsRepository.findById(id);
     if (!group) throw new NotFoundException(`Group with id: ${id} not found`);
-    const ledger = await this.ledgersService.findOne(userId, group.ledgerId);
-    if (!ledger) throw new NotFoundException(`Ledger not found.`);
-    const collaborations = ledger.collaborations;
-    const collaboration = collaborations.some((c) => c.userId === userId);
-    if (ledger.ownerId !== userId && group.userId !== userId && !collaboration)
-      throw new UnauthorizedException(
-        `Only ledger owners or collaborators can update groups.`,
-      );
+
     const updated = await this.groupsRepository.update(id, {
       ...updateGroupDto,
     });
     return groupToResponseDto(updated);
   }
 
-  async remove(userId: string, id: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     const group = await this.groupsRepository.findById(id);
     if (!group) throw new NotFoundException(`Group with id: ${id} not found`);
-    const ledger = await this.ledgersService.findOne(userId, group.ledgerId);
-    if (!ledger) throw new NotFoundException(`Ledger not found.`);
-    const collaborations = ledger.collaborations;
-    const collaboration = collaborations.some((c) => c.userId === userId);
-    if (ledger.ownerId !== userId && group.userId !== userId && !collaboration)
-      throw new UnauthorizedException(
-        `Only ledger owners or collaborators can update groups.`,
-      );
+
     await this.groupsRepository.delete(id);
+  }
+
+  async findEntityById(id: number): Promise<GroupResponseDto | undefined> {
+    const group = await this.groupsRepository.findById(id);
+
+    return group ? groupToResponseDto(group) : undefined;
   }
 }

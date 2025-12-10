@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -18,7 +19,10 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
+import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
+import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { DebtOwnersService } from './debt-owners.service';
 import { CreateDebtOwnerDto } from './dto/create-debt-owner.dto';
 import { DebtOwnerResponseDto } from './dto/debt-owner-response.dto';
@@ -30,6 +34,7 @@ import { UpdateDebtOwnerDto } from './dto/update-debt-owner.dto';
 export class DebtOwnersController {
   constructor(private readonly debtOwnersService: DebtOwnersService) {}
 
+  @UseGuards(LedgerAccessGuard)
   @Post('ledgers/:ledgerId')
   @ApiOperation({ summary: 'Create a debt owner for a ledger' })
   @ApiParam({
@@ -50,6 +55,7 @@ export class DebtOwnersController {
     return await this.debtOwnersService.create(ledgerId, createDebtOwnerDto);
   }
 
+  @UseGuards(LedgerAccessGuard)
   @Get('ledgers/:ledgerId')
   @ApiOperation({
     summary: 'List debt owners for a ledger (paginated)',
@@ -87,6 +93,8 @@ export class DebtOwnersController {
     return await this.debtOwnersService.findAll(skip, take, ledgerId);
   }
 
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('debtOwner', 'id')
   @Get(':id')
   @ApiOperation({ summary: 'Get a debt owner by its ID' })
   @ApiParam({
@@ -104,12 +112,14 @@ export class DebtOwnersController {
     status: 404,
     description: 'Debt owner not found',
   })
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<DebtOwnerResponseDto> {
-    return await this.debtOwnersService.findById(id);
+  async findOne(@Req() req: LedgerRequest): Promise<DebtOwnerResponseDto> {
+    return (
+      req.debtOwner ??
+      (await this.debtOwnersService.findById(Number(req.params.id)))
+    );
   }
 
+  @UseGuards(LedgerAccessGuard)
   @Get('ledgers/:ledgerId/by-name/:name')
   @ApiOperation({ summary: 'Get a debt owner by name within a ledger' })
   @ApiParam({
@@ -140,6 +150,8 @@ export class DebtOwnersController {
     return this.debtOwnersService.findByNameInLedger(ledgerId, name);
   }
 
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('debtOwner', 'id')
   @Patch(':id')
   @ApiOperation({ summary: 'Update a debt owner by its ID' })
   @ApiParam({
@@ -158,12 +170,17 @@ export class DebtOwnersController {
     description: 'Debt owner not found',
   })
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Req() req: LedgerRequest,
     @Body() updateDebtOwnerDto: UpdateDebtOwnerDto,
   ): Promise<DebtOwnerResponseDto> {
-    return await this.debtOwnersService.update(id, updateDebtOwnerDto);
+    return await this.debtOwnersService.update(
+      Number(req.params.id),
+      updateDebtOwnerDto,
+    );
   }
 
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('debtOwner', 'id')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a debt owner by its ID' })
   @ApiParam({
@@ -180,7 +197,7 @@ export class DebtOwnersController {
     status: 404,
     description: 'Debt owner not found',
   })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return await this.debtOwnersService.remove(id);
+  async remove(@Req() req: LedgerRequest): Promise<void> {
+    return await this.debtOwnersService.remove(Number(req.params.id));
   }
 }
