@@ -8,9 +8,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
+import { LedgerRequest } from 'src/modules/ledgers/entities/ledger-request';
 import { LedgersService } from 'src/modules/ledgers/ledgers.service';
-import { UserDashboardView } from 'src/types/entities/user.types';
+import { JwtPayload } from 'src/types/payload/payload';
 
 @Injectable()
 export class LedgerAccessGuard implements CanActivate {
@@ -19,15 +19,16 @@ export class LedgerAccessGuard implements CanActivate {
     private readonly ledgersService: LedgersService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
-    const user: UserDashboardView = request.user;
+    const request = context.switchToHttp().getRequest<LedgerRequest>();
+    const user: JwtPayload | undefined = request.user;
     if (!user) throw new UnauthorizedException('Token not found.');
 
-    const ledgerId =
-      this.reflector.getAllAndOverride<number>('ledgerId', [
+    const rawLedgerId =
+      this.reflector.getAllAndOverride<string | number>('ledgerId', [
         context.getHandler(),
         context.getClass(),
-      ]) ?? Number(request.params?.ledgerId);
+      ]) ?? request.params?.ledgerId;
+    const ledgerId = Number(rawLedgerId);
 
     if (!Number.isInteger(ledgerId))
       throw new BadRequestException('ledgerId is missing or invalid');
@@ -47,7 +48,7 @@ export class LedgerAccessGuard implements CanActivate {
       );
 
     // attach the loaded ledger for downstream handlers/controllers
-    (request as Request & { ledger?: typeof ledger }).ledger = ledger;
+    request.ledger = ledger;
 
     return true;
   }
