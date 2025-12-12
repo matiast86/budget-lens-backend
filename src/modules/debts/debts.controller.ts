@@ -11,6 +11,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -21,8 +22,11 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Prisma } from 'prisma/generated/prisma/client';
+import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
+import { handleDebtOwnerFromRequest } from 'src/helpers/errors';
+import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { DebtsService } from './debts.service';
 import { CreateDebtDto } from './dto/create-debt.dto';
 import { DebtResponseDto } from './dto/debt-response.dto';
@@ -30,7 +34,7 @@ import { UpdateDebtDto } from './dto/update-debt.dto';
 
 @ApiBearerAuth()
 @ApiTags('Debts')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, LedgerAccessGuard)
 @Controller('debts')
 export class DebtsController {
   constructor(private readonly debtsService: DebtsService) {}
@@ -50,12 +54,16 @@ export class DebtsController {
     description: 'Debt created successfully',
     type: DebtResponseDto,
   })
+  @LedgerFrom('debtOwner', 'ownerId')
   @Post()
   async create(
-    @Param('ownerId', ParseIntPipe) ownerId: number,
+    @Req() req: LedgerRequest,
     @Body() createDebtDto: CreateDebtDto,
   ): Promise<DebtResponseDto> {
-    return await this.debtsService.create(ownerId, createDebtDto);
+    return await this.debtsService.create(
+      handleDebtOwnerFromRequest(req),
+      createDebtDto,
+    );
   }
 
   // ============================================================
@@ -96,27 +104,19 @@ export class DebtsController {
     description: 'List of debts',
     type: [DebtResponseDto],
   })
-  @Get()
+  @LedgerFrom('debtOwner', 'ownerId')
+  @Get('owner/:ownerId')
   async findAll(
     @Param('ownerId', ParseIntPipe) ownerId: number,
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
     @Query('orderBy') orderBy?: string,
   ): Promise<DebtResponseDto[]> {
-    let parsedOrderBy: Prisma.DebtOrderByWithRelationInput = {};
-
-    if (orderBy) {
-      const [field, direction] = orderBy.split(':');
-      parsedOrderBy = {
-        [field]: direction === 'desc' ? 'desc' : 'asc',
-      } as Prisma.DebtOrderByWithRelationInput;
-    }
-
     return await this.debtsService.findAllByOwnerId(
       ownerId,
       skip,
       take,
-      parsedOrderBy,
+      orderBy,
     );
   }
 
@@ -139,11 +139,12 @@ export class DebtsController {
     status: 404,
     description: 'Debt not found',
   })
+  @LedgerFrom('debt', 'id')
   @Get(':id')
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<DebtResponseDto> {
-    return await this.debtsService.findOneById(id);
+  async findOne(@Req() req: LedgerRequest): Promise<DebtResponseDto> {
+    return (
+      req.debt ?? (await this.debtsService.findOneById(Number(req.params.id)))
+    );
   }
 
   // ============================================================
@@ -161,12 +162,13 @@ export class DebtsController {
     description: 'Updated debt',
     type: DebtResponseDto,
   })
+  @LedgerFrom('debt', 'id')
   @Patch(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Req() req: LedgerRequest,
     @Body() updateDebtDto: UpdateDebtDto,
   ): Promise<DebtResponseDto> {
-    return await this.debtsService.update(id, updateDebtDto);
+    return await this.debtsService.update(Number(req.params.id), updateDebtDto);
   }
 
   // ============================================================
@@ -183,9 +185,10 @@ export class DebtsController {
     status: 204,
     description: 'Debt removed successfully',
   })
+  @LedgerFrom('debt', 'id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return await this.debtsService.remove(id);
+  async remove(@Req() req: LedgerRequest): Promise<void> {
+    return await this.debtsService.remove(Number(req.params.id));
   }
 }

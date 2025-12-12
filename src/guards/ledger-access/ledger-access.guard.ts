@@ -10,6 +10,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { CollaborationsService } from 'src/modules/collaborations/collaborations.service';
 import { DebtOwnersService } from 'src/modules/debt-owners/debt-owners.service';
+import { DebtsService } from 'src/modules/debts/debts.service';
 import { GroupsService } from 'src/modules/groups/groups.service';
 import { LedgerRequest } from 'src/modules/ledgers/entities/ledger-request';
 import { LedgersService } from 'src/modules/ledgers/ledgers.service';
@@ -23,12 +24,13 @@ export class LedgerAccessGuard implements CanActivate {
     private readonly groupsService: GroupsService,
     private readonly debtOwnersService: DebtOwnersService,
     private readonly collaborationsService: CollaborationsService,
+    private readonly debtsService: DebtsService,
   ) {}
 
   private async resolveLedgerId(
     meta:
       | {
-          type: 'group' | 'debtOwner' | 'ledger' | 'collaboration';
+          type: 'group' | 'debtOwner' | 'ledger' | 'collaboration' | 'debt';
           param: string;
         }
       | undefined,
@@ -77,6 +79,18 @@ export class LedgerAccessGuard implements CanActivate {
           request as LedgerRequest & { collaboration?: typeof collaboration }
         ).collaboration = collaboration;
         return collaboration.ledgerId;
+      }
+
+      if (meta.type === 'debt') {
+        const debt = await this.debtsService.findEntityById(entityId);
+        if (!debt) throw new NotFoundException('Collaboration not found');
+        const debtOwner = await this.debtOwnersService.findEntityById(
+          debt.debtOwnerId,
+        );
+        if (!debtOwner) throw new NotFoundException('Debt owner not found');
+        // optional reuse:
+        (request as LedgerRequest & { debt?: typeof debt }).debt = debt;
+        return debtOwner.ledgerId;
       }
 
       throw new BadRequestException('Unsupported ledger source');

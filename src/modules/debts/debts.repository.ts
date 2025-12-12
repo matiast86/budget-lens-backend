@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Debt, Prisma } from 'prisma/generated/prisma/client';
+import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -20,12 +21,8 @@ export class DebtsRepository {
     });
   }
 
-  async findById(id: number): Promise<Debt> {
-    try {
-      return await this.prisma.debt.findUniqueOrThrow({ where: { id } });
-    } catch {
-      throw new NotFoundException(`Debt with id: ${id} not found`);
-    }
+  async findById(id: number): Promise<Debt | null> {
+    return await this.prisma.debt.findUnique({ where: { id } });
   }
 
   async create(data: Prisma.DebtCreateInput): Promise<Debt> {
@@ -33,10 +30,14 @@ export class DebtsRepository {
   }
 
   async update(id: number, data: Prisma.DebtUpdateInput): Promise<Debt> {
-    return await this.prisma.debt.update({ where: { id }, data });
+    return await this.prisma.debt
+      .update({ where: { id }, data })
+      .catch(handleP2025(`Debt with id: ${id} not found`));
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.debt.delete({ where: { id } });
+    await this.prisma.debt
+      .delete({ where: { id } })
+      .catch(handleP2025(`Debt with id: ${id} not found`));
   }
 }

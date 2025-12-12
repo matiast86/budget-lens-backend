@@ -10,10 +10,24 @@ export class DebtOwnerResponseDto {
 
   @ApiProperty({
     description: 'Name identifying the person or entity associated with debts.',
-    example: 'Ana Pérez',
+    example: 'Ana PAcrez',
   })
   name: string;
+
+  @ApiProperty({
+    description: 'Numeric ID of the ledger this debt owner belongs to.',
+    example: 3,
+    readOnly: true,
+  })
   ledgerId: number;
+
+  @ApiProperty({
+    type: () => DebtResponseDto,
+    isArray: true,
+    required: false,
+    description:
+      'List of debts associated with this owner; empty when none exist.',
+  })
   debts: DebtResponseDto[];
   constructor(partial: Partial<DebtOwnerResponseDto>) {
     Object.assign(this, partial);
