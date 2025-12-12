@@ -168,7 +168,8 @@ export type DebtOwnerScalarFieldEnum = (typeof DebtOwnerScalarFieldEnum)[keyof t
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  description: 'description'
+  description: 'description',
+  ledgerId: 'ledgerId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]

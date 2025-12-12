@@ -4,6 +4,7 @@ import {
   LedgerDashboardView,
   LedgerDetailView,
 } from 'src/types/entities/ledger.types';
+import { categoryArraytoArrayDto } from './category.mapper';
 import { collaborationArrayToArrayDto } from './collaboration.mapper';
 import { groupArrayToArrayDto } from './group.mapper';
 import { paymentMethodArrayToArrayDto } from './payment-method.mapper';
@@ -21,6 +22,7 @@ export const ledgerToDetailsResponseDto = (
     groups,
     transactions,
     paymentMethods,
+    categories,
     createdAt,
     updatedAt,
   } = ledger;
@@ -35,6 +37,7 @@ export const ledgerToDetailsResponseDto = (
     paymentMethods: paymentMethodArrayToArrayDto(
       paymentMethods.map((pm) => pm.paymentMethod),
     ),
+    categories: categoryArraytoArrayDto(categories),
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   });

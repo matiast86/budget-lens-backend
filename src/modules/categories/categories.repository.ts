@@ -4,4 +4,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class CategoriesRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async create() {}
 }

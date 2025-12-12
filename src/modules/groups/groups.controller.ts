@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -24,6 +25,7 @@ import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
+import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { GroupResponseDto } from './dto/group-response.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -31,7 +33,7 @@ import { GroupsService } from './groups.service';
 
 @ApiBearerAuth()
 @ApiTags('Groups')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, LedgerAccessGuard)
 @Controller('groups')
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
@@ -51,7 +53,6 @@ export class GroupsController {
   @ApiResponse({ status: 400, description: 'Invalid data or duplicate name' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User or ledger not found' })
-  @UseGuards(LedgerAccessGuard)
   @Post('ledgers/:ledgerId')
   async create(
     @GetUser('id') userId: string,
@@ -95,13 +96,12 @@ export class GroupsController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Group not found' })
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('group', 'id')
   @Get(':id')
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<GroupResponseDto> {
-    return await this.groupsService.findOneById(id);
+  async findOne(@Req() req: LedgerRequest): Promise<GroupResponseDto> {
+    return (
+      req.group ?? (await this.groupsService.findOneById(Number(req.params.id)))
+    );
   }
 
   @ApiOperation({ summary: 'Find a group by name within a ledger' })
@@ -147,7 +147,6 @@ export class GroupsController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Group not found' })
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('group', 'id')
   @Patch(':id')
   async update(
@@ -167,7 +166,6 @@ export class GroupsController {
   @ApiResponse({ status: 204, description: 'Group deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Group not found' })
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('group', 'id')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

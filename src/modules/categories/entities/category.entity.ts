@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
 
 export class CategoryEntity {
@@ -20,6 +21,20 @@ export class CategoryEntity {
     required: false,
   })
   description?: string;
+
+  @ApiProperty({
+    description: 'Reference to the ledger this category belongs to.',
+    example: 101,
+    required: true,
+  })
+  ledgerId: number;
+
+  @ApiProperty({
+    type: () => LedgerEntity,
+    required: true,
+    description: 'Ledger associated with this category.',
+  })
+  ledger: LedgerEntity;
 
   @ApiProperty({
     type: () => TransactionEntity,

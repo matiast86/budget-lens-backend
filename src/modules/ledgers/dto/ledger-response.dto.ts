@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
 import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
@@ -33,6 +34,9 @@ export class LedgerResponseDto {
 
   @ApiProperty({ type: () => [PaymentMethodResponseDto] })
   paymentMethods: PaymentMethodResponseDto[];
+
+  @ApiProperty({ type: () => [CategoryResponseDto] })
+  categories: CategoryResponseDto[];
 
   @ApiProperty({
     description: 'ISO date string when the ledger was created',

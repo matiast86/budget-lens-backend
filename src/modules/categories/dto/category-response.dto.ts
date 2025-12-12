@@ -20,6 +20,13 @@ export class CategoryResponseDto {
   })
   description?: string;
 
+  @ApiProperty({
+    description: 'Reference to the ledger this category belongs to.',
+    example: 101,
+    required: true,
+  })
+  ledgerId: number;
+
   constructor(partial: Partial<CategoryResponseDto>) {
     Object.assign(this, partial);
   }

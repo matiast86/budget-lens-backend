@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { CategoryEntity } from 'src/modules/categories/entities/category.entity';
 import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
@@ -64,6 +65,13 @@ export class LedgerEntity {
     required: false,
   })
   paymentMethods: PaymentMethodEntity[];
+
+  @ApiProperty({
+    type: () => CategoryEntity,
+    isArray: true,
+    required: false,
+  })
+  categories: CategoryEntity[];
 
   @ApiProperty({ description: 'Creation timestamp.' })
   createdAt: Date;

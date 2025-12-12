@@ -27,6 +27,7 @@ export const LedgerIncludes = {
       collaborations: true,
       groups: true,
       debtOwners: true,
+      categories: true,
     },
   },
 } as const;

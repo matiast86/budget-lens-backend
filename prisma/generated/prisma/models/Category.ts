@@ -28,56 +28,66 @@ export type AggregateCategory = {
 
 export type CategoryAvgAggregateOutputType = {
   id: number | null
+  ledgerId: number | null
 }
 
 export type CategorySumAggregateOutputType = {
   id: number | null
+  ledgerId: number | null
 }
 
 export type CategoryMinAggregateOutputType = {
   id: number | null
   name: string | null
   description: string | null
+  ledgerId: number | null
 }
 
 export type CategoryMaxAggregateOutputType = {
   id: number | null
   name: string | null
   description: string | null
+  ledgerId: number | null
 }
 
 export type CategoryCountAggregateOutputType = {
   id: number
   name: number
   description: number
+  ledgerId: number
   _all: number
 }
 
 
 export type CategoryAvgAggregateInputType = {
   id?: true
+  ledgerId?: true
 }
 
 export type CategorySumAggregateInputType = {
   id?: true
+  ledgerId?: true
 }
 
 export type CategoryMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  ledgerId?: true
 }
 
 export type CategoryMaxAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  ledgerId?: true
 }
 
 export type CategoryCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  ledgerId?: true
   _all?: true
 }
 
@@ -171,6 +181,7 @@ export type CategoryGroupByOutputType = {
   id: number
   name: string
   description: string | null
+  ledgerId: number
   _count: CategoryCountAggregateOutputType | null
   _avg: CategoryAvgAggregateOutputType | null
   _sum: CategorySumAggregateOutputType | null
@@ -200,6 +211,8 @@ export type CategoryWhereInput = {
   id?: Prisma.IntFilter<"Category"> | number
   name?: Prisma.StringFilter<"Category"> | string
   description?: Prisma.StringNullableFilter<"Category"> | string | null
+  ledgerId?: Prisma.IntFilter<"Category"> | number
+  ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
 }
 
@@ -207,6 +220,8 @@ export type CategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
+  ledger?: Prisma.LedgerOrderByWithRelationInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
 }
 
@@ -217,6 +232,8 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CategoryWhereInput[]
   NOT?: Prisma.CategoryWhereInput | Prisma.CategoryWhereInput[]
   description?: Prisma.StringNullableFilter<"Category"> | string | null
+  ledgerId?: Prisma.IntFilter<"Category"> | number
+  ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
 }, "id" | "name">
 
@@ -224,6 +241,7 @@ export type CategoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   _count?: Prisma.CategoryCountOrderByAggregateInput
   _avg?: Prisma.CategoryAvgOrderByAggregateInput
   _max?: Prisma.CategoryMaxOrderByAggregateInput
@@ -238,11 +256,13 @@ export type CategoryScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Category"> | number
   name?: Prisma.StringWithAggregatesFilter<"Category"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
+  ledgerId?: Prisma.IntWithAggregatesFilter<"Category"> | number
 }
 
 export type CategoryCreateInput = {
   name: string
   description?: string | null
+  ledger: Prisma.LedgerCreateNestedOneWithoutCategoriesInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
 }
 
@@ -250,12 +270,14 @@ export type CategoryUncheckedCreateInput = {
   id?: number
   name: string
   description?: string | null
+  ledgerId: number
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledger?: Prisma.LedgerUpdateOneRequiredWithoutCategoriesNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
 }
 
@@ -263,6 +285,7 @@ export type CategoryUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
@@ -270,6 +293,7 @@ export type CategoryCreateManyInput = {
   id?: number
   name: string
   description?: string | null
+  ledgerId: number
 }
 
 export type CategoryUpdateManyMutationInput = {
@@ -281,37 +305,95 @@ export type CategoryUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type CategoryListRelationFilter = {
+  every?: Prisma.CategoryWhereInput
+  some?: Prisma.CategoryWhereInput
+  none?: Prisma.CategoryWhereInput
+}
+
+export type CategoryOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type CategoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
 }
 
 export type CategoryAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
 }
 
 export type CategoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
 }
 
 export type CategoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
 }
 
 export type CategorySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
 }
 
 export type CategoryScalarRelationFilter = {
   is?: Prisma.CategoryWhereInput
   isNot?: Prisma.CategoryWhereInput
+}
+
+export type CategoryCreateNestedManyWithoutLedgerInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutLedgerInput, Prisma.CategoryUncheckedCreateWithoutLedgerInput> | Prisma.CategoryCreateWithoutLedgerInput[] | Prisma.CategoryUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutLedgerInput | Prisma.CategoryCreateOrConnectWithoutLedgerInput[]
+  createMany?: Prisma.CategoryCreateManyLedgerInputEnvelope
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+}
+
+export type CategoryUncheckedCreateNestedManyWithoutLedgerInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutLedgerInput, Prisma.CategoryUncheckedCreateWithoutLedgerInput> | Prisma.CategoryCreateWithoutLedgerInput[] | Prisma.CategoryUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutLedgerInput | Prisma.CategoryCreateOrConnectWithoutLedgerInput[]
+  createMany?: Prisma.CategoryCreateManyLedgerInputEnvelope
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+}
+
+export type CategoryUpdateManyWithoutLedgerNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutLedgerInput, Prisma.CategoryUncheckedCreateWithoutLedgerInput> | Prisma.CategoryCreateWithoutLedgerInput[] | Prisma.CategoryUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutLedgerInput | Prisma.CategoryCreateOrConnectWithoutLedgerInput[]
+  upsert?: Prisma.CategoryUpsertWithWhereUniqueWithoutLedgerInput | Prisma.CategoryUpsertWithWhereUniqueWithoutLedgerInput[]
+  createMany?: Prisma.CategoryCreateManyLedgerInputEnvelope
+  set?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  disconnect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  delete?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  update?: Prisma.CategoryUpdateWithWhereUniqueWithoutLedgerInput | Prisma.CategoryUpdateWithWhereUniqueWithoutLedgerInput[]
+  updateMany?: Prisma.CategoryUpdateManyWithWhereWithoutLedgerInput | Prisma.CategoryUpdateManyWithWhereWithoutLedgerInput[]
+  deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+}
+
+export type CategoryUncheckedUpdateManyWithoutLedgerNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutLedgerInput, Prisma.CategoryUncheckedCreateWithoutLedgerInput> | Prisma.CategoryCreateWithoutLedgerInput[] | Prisma.CategoryUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutLedgerInput | Prisma.CategoryCreateOrConnectWithoutLedgerInput[]
+  upsert?: Prisma.CategoryUpsertWithWhereUniqueWithoutLedgerInput | Prisma.CategoryUpsertWithWhereUniqueWithoutLedgerInput[]
+  createMany?: Prisma.CategoryCreateManyLedgerInputEnvelope
+  set?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  disconnect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  delete?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  connect?: Prisma.CategoryWhereUniqueInput | Prisma.CategoryWhereUniqueInput[]
+  update?: Prisma.CategoryUpdateWithWhereUniqueWithoutLedgerInput | Prisma.CategoryUpdateWithWhereUniqueWithoutLedgerInput[]
+  updateMany?: Prisma.CategoryUpdateManyWithWhereWithoutLedgerInput | Prisma.CategoryUpdateManyWithWhereWithoutLedgerInput[]
+  deleteMany?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
 }
 
 export type CategoryCreateNestedOneWithoutTransactionsInput = {
@@ -328,15 +410,66 @@ export type CategoryUpdateOneRequiredWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutTransactionsInput, Prisma.CategoryUpdateWithoutTransactionsInput>, Prisma.CategoryUncheckedUpdateWithoutTransactionsInput>
 }
 
+export type CategoryCreateWithoutLedgerInput = {
+  name: string
+  description?: string | null
+  transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryUncheckedCreateWithoutLedgerInput = {
+  id?: number
+  name: string
+  description?: string | null
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryCreateOrConnectWithoutLedgerInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutLedgerInput, Prisma.CategoryUncheckedCreateWithoutLedgerInput>
+}
+
+export type CategoryCreateManyLedgerInputEnvelope = {
+  data: Prisma.CategoryCreateManyLedgerInput | Prisma.CategoryCreateManyLedgerInput[]
+  skipDuplicates?: boolean
+}
+
+export type CategoryUpsertWithWhereUniqueWithoutLedgerInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.CategoryUpdateWithoutLedgerInput, Prisma.CategoryUncheckedUpdateWithoutLedgerInput>
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutLedgerInput, Prisma.CategoryUncheckedCreateWithoutLedgerInput>
+}
+
+export type CategoryUpdateWithWhereUniqueWithoutLedgerInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.CategoryUpdateWithoutLedgerInput, Prisma.CategoryUncheckedUpdateWithoutLedgerInput>
+}
+
+export type CategoryUpdateManyWithWhereWithoutLedgerInput = {
+  where: Prisma.CategoryScalarWhereInput
+  data: Prisma.XOR<Prisma.CategoryUpdateManyMutationInput, Prisma.CategoryUncheckedUpdateManyWithoutLedgerInput>
+}
+
+export type CategoryScalarWhereInput = {
+  AND?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+  OR?: Prisma.CategoryScalarWhereInput[]
+  NOT?: Prisma.CategoryScalarWhereInput | Prisma.CategoryScalarWhereInput[]
+  id?: Prisma.IntFilter<"Category"> | number
+  name?: Prisma.StringFilter<"Category"> | string
+  description?: Prisma.StringNullableFilter<"Category"> | string | null
+  ledgerId?: Prisma.IntFilter<"Category"> | number
+}
+
 export type CategoryCreateWithoutTransactionsInput = {
   name: string
   description?: string | null
+  ledger: Prisma.LedgerCreateNestedOneWithoutCategoriesInput
 }
 
 export type CategoryUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
   description?: string | null
+  ledgerId: number
 }
 
 export type CategoryCreateOrConnectWithoutTransactionsInput = {
@@ -358,9 +491,36 @@ export type CategoryUpdateToOneWithWhereWithoutTransactionsInput = {
 export type CategoryUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledger?: Prisma.LedgerUpdateOneRequiredWithoutCategoriesNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutTransactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type CategoryCreateManyLedgerInput = {
+  id?: number
+  name: string
+  description?: string | null
+}
+
+export type CategoryUpdateWithoutLedgerInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryUncheckedUpdateWithoutLedgerInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryUncheckedUpdateManyWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -401,6 +561,8 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   description?: boolean
+  ledgerId?: boolean
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Category$transactionsArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["category"]>
@@ -409,37 +571,49 @@ export type CategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   description?: boolean
+  ledgerId?: boolean
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["category"]>
 
 export type CategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   description?: boolean
+  ledgerId?: boolean
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["category"]>
 
 export type CategorySelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
+  ledgerId?: boolean
 }
 
-export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description", ExtArgs["result"]["category"]>
+export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "ledgerId", ExtArgs["result"]["category"]>
 export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Category$transactionsArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type CategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type CategoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type CategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
+}
+export type CategoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
+}
 
 export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Category"
   objects: {
+    ledger: Prisma.$LedgerPayload<ExtArgs>
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
     description: string | null
+    ledgerId: number
   }, ExtArgs["result"]["category"]>
   composites: {}
 }
@@ -834,6 +1008,7 @@ readonly fields: CategoryFieldRefs;
  */
 export interface Prisma__CategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  ledger<T extends Prisma.LedgerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LedgerDefaultArgs<ExtArgs>>): Prisma.Prisma__LedgerClient<runtime.Types.Result.GetResult<Prisma.$LedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   transactions<T extends Prisma.Category$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -867,6 +1042,7 @@ export interface CategoryFieldRefs {
   readonly id: Prisma.FieldRef<"Category", 'Int'>
   readonly name: Prisma.FieldRef<"Category", 'String'>
   readonly description: Prisma.FieldRef<"Category", 'String'>
+  readonly ledgerId: Prisma.FieldRef<"Category", 'Int'>
 }
     
 
@@ -1116,6 +1292,10 @@ export type CategoryCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    */
   data: Prisma.CategoryCreateManyInput | Prisma.CategoryCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CategoryIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1186,6 +1366,10 @@ export type CategoryUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many Categories to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CategoryIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

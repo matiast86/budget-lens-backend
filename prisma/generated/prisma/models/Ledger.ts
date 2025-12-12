@@ -236,6 +236,7 @@ export type LedgerWhereInput = {
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   collaborations?: Prisma.CollaborationListRelationFilter
   groups?: Prisma.GroupListRelationFilter
+  categories?: Prisma.CategoryListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   paymentMethods?: Prisma.LedgerPaymentMethodListRelationFilter
 }
@@ -252,6 +253,7 @@ export type LedgerOrderByWithRelationInput = {
   owner?: Prisma.UserOrderByWithRelationInput
   collaborations?: Prisma.CollaborationOrderByRelationAggregateInput
   groups?: Prisma.GroupOrderByRelationAggregateInput
+  categories?: Prisma.CategoryOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   paymentMethods?: Prisma.LedgerPaymentMethodOrderByRelationAggregateInput
 }
@@ -271,6 +273,7 @@ export type LedgerWhereUniqueInput = Prisma.AtLeast<{
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   collaborations?: Prisma.CollaborationListRelationFilter
   groups?: Prisma.GroupListRelationFilter
+  categories?: Prisma.CategoryListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   paymentMethods?: Prisma.LedgerPaymentMethodListRelationFilter
 }, "id">
@@ -313,6 +316,7 @@ export type LedgerCreateInput = {
   owner: Prisma.UserCreateNestedOneWithoutLedgersInput
   collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
 }
@@ -328,6 +332,7 @@ export type LedgerUncheckedCreateInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
   collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
 }
@@ -342,6 +347,7 @@ export type LedgerUpdateInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
   collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
 }
@@ -357,6 +363,7 @@ export type LedgerUncheckedUpdateInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedUpdateManyWithoutLedgerNestedInput
 }
@@ -538,6 +545,20 @@ export type LedgerUpdateOneRequiredWithoutDebtOwnersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LedgerUpdateToOneWithWhereWithoutDebtOwnersInput, Prisma.LedgerUpdateWithoutDebtOwnersInput>, Prisma.LedgerUncheckedUpdateWithoutDebtOwnersInput>
 }
 
+export type LedgerCreateNestedOneWithoutCategoriesInput = {
+  create?: Prisma.XOR<Prisma.LedgerCreateWithoutCategoriesInput, Prisma.LedgerUncheckedCreateWithoutCategoriesInput>
+  connectOrCreate?: Prisma.LedgerCreateOrConnectWithoutCategoriesInput
+  connect?: Prisma.LedgerWhereUniqueInput
+}
+
+export type LedgerUpdateOneRequiredWithoutCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.LedgerCreateWithoutCategoriesInput, Prisma.LedgerUncheckedCreateWithoutCategoriesInput>
+  connectOrCreate?: Prisma.LedgerCreateOrConnectWithoutCategoriesInput
+  upsert?: Prisma.LedgerUpsertWithoutCategoriesInput
+  connect?: Prisma.LedgerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LedgerUpdateToOneWithWhereWithoutCategoriesInput, Prisma.LedgerUpdateWithoutCategoriesInput>, Prisma.LedgerUncheckedUpdateWithoutCategoriesInput>
+}
+
 export type LedgerCreateNestedOneWithoutGroupsInput = {
   create?: Prisma.XOR<Prisma.LedgerCreateWithoutGroupsInput, Prisma.LedgerUncheckedCreateWithoutGroupsInput>
   connectOrCreate?: Prisma.LedgerCreateOrConnectWithoutGroupsInput
@@ -575,6 +596,7 @@ export type LedgerCreateWithoutOwnerInput = {
   debtOwners?: Prisma.DebtOwnerCreateNestedManyWithoutLedgerInput
   collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
 }
@@ -589,6 +611,7 @@ export type LedgerUncheckedCreateWithoutOwnerInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
   collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
 }
@@ -641,6 +664,7 @@ export type LedgerCreateWithoutCollaborationsInput = {
   debtOwners?: Prisma.DebtOwnerCreateNestedManyWithoutLedgerInput
   owner: Prisma.UserCreateNestedOneWithoutLedgersInput
   groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
 }
@@ -655,6 +679,7 @@ export type LedgerUncheckedCreateWithoutCollaborationsInput = {
   updatedAt?: Date | string
   debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
 }
@@ -684,6 +709,7 @@ export type LedgerUpdateWithoutCollaborationsInput = {
   debtOwners?: Prisma.DebtOwnerUpdateManyWithoutLedgerNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
   groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
 }
@@ -698,6 +724,7 @@ export type LedgerUncheckedUpdateWithoutCollaborationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedUpdateManyWithoutLedgerNestedInput
 }
@@ -712,6 +739,7 @@ export type LedgerCreateWithoutPaymentMethodsInput = {
   owner: Prisma.UserCreateNestedOneWithoutLedgersInput
   collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
 }
 
@@ -726,6 +754,7 @@ export type LedgerUncheckedCreateWithoutPaymentMethodsInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
   collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
 }
 
@@ -755,6 +784,7 @@ export type LedgerUpdateWithoutPaymentMethodsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
   collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
 }
 
@@ -769,6 +799,7 @@ export type LedgerUncheckedUpdateWithoutPaymentMethodsInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
 }
 
@@ -781,6 +812,7 @@ export type LedgerCreateWithoutDebtOwnersInput = {
   owner: Prisma.UserCreateNestedOneWithoutLedgersInput
   collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
 }
@@ -795,6 +827,7 @@ export type LedgerUncheckedCreateWithoutDebtOwnersInput = {
   updatedAt?: Date | string
   collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
 }
@@ -824,6 +857,7 @@ export type LedgerUpdateWithoutDebtOwnersInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
   collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
 }
@@ -836,6 +870,81 @@ export type LedgerUncheckedUpdateWithoutDebtOwnersInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
+  groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
+  paymentMethods?: Prisma.LedgerPaymentMethodUncheckedUpdateManyWithoutLedgerNestedInput
+}
+
+export type LedgerCreateWithoutCategoriesInput = {
+  name: string
+  description?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  debtOwners?: Prisma.DebtOwnerCreateNestedManyWithoutLedgerInput
+  owner: Prisma.UserCreateNestedOneWithoutLedgersInput
+  collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
+  groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
+  paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
+}
+
+export type LedgerUncheckedCreateWithoutCategoriesInput = {
+  id?: number
+  name: string
+  description?: string | null
+  ownerId: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
+  collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
+  groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
+  paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
+}
+
+export type LedgerCreateOrConnectWithoutCategoriesInput = {
+  where: Prisma.LedgerWhereUniqueInput
+  create: Prisma.XOR<Prisma.LedgerCreateWithoutCategoriesInput, Prisma.LedgerUncheckedCreateWithoutCategoriesInput>
+}
+
+export type LedgerUpsertWithoutCategoriesInput = {
+  update: Prisma.XOR<Prisma.LedgerUpdateWithoutCategoriesInput, Prisma.LedgerUncheckedUpdateWithoutCategoriesInput>
+  create: Prisma.XOR<Prisma.LedgerCreateWithoutCategoriesInput, Prisma.LedgerUncheckedCreateWithoutCategoriesInput>
+  where?: Prisma.LedgerWhereInput
+}
+
+export type LedgerUpdateToOneWithWhereWithoutCategoriesInput = {
+  where?: Prisma.LedgerWhereInput
+  data: Prisma.XOR<Prisma.LedgerUpdateWithoutCategoriesInput, Prisma.LedgerUncheckedUpdateWithoutCategoriesInput>
+}
+
+export type LedgerUpdateWithoutCategoriesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  debtOwners?: Prisma.DebtOwnerUpdateManyWithoutLedgerNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
+  collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
+  groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
+  paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
+}
+
+export type LedgerUncheckedUpdateWithoutCategoriesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
@@ -851,6 +960,7 @@ export type LedgerCreateWithoutGroupsInput = {
   debtOwners?: Prisma.DebtOwnerCreateNestedManyWithoutLedgerInput
   owner: Prisma.UserCreateNestedOneWithoutLedgersInput
   collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
 }
@@ -865,6 +975,7 @@ export type LedgerUncheckedCreateWithoutGroupsInput = {
   updatedAt?: Date | string
   debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
   collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
 }
@@ -894,6 +1005,7 @@ export type LedgerUpdateWithoutGroupsInput = {
   debtOwners?: Prisma.DebtOwnerUpdateManyWithoutLedgerNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
   collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
 }
@@ -908,6 +1020,7 @@ export type LedgerUncheckedUpdateWithoutGroupsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedUpdateManyWithoutLedgerNestedInput
 }
@@ -922,6 +1035,7 @@ export type LedgerCreateWithoutTransactionsInput = {
   owner: Prisma.UserCreateNestedOneWithoutLedgersInput
   collaborations?: Prisma.CollaborationCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodCreateNestedManyWithoutLedgerInput
 }
 
@@ -936,6 +1050,7 @@ export type LedgerUncheckedCreateWithoutTransactionsInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedCreateNestedManyWithoutLedgerInput
   collaborations?: Prisma.CollaborationUncheckedCreateNestedManyWithoutLedgerInput
   groups?: Prisma.GroupUncheckedCreateNestedManyWithoutLedgerInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutLedgerInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedCreateNestedManyWithoutLedgerInput
 }
 
@@ -965,6 +1080,7 @@ export type LedgerUpdateWithoutTransactionsInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutLedgersNestedInput
   collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
 }
 
@@ -979,6 +1095,7 @@ export type LedgerUncheckedUpdateWithoutTransactionsInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedUpdateManyWithoutLedgerNestedInput
 }
 
@@ -1000,6 +1117,7 @@ export type LedgerUpdateWithoutOwnerInput = {
   debtOwners?: Prisma.DebtOwnerUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUpdateManyWithoutLedgerNestedInput
 }
@@ -1014,6 +1132,7 @@ export type LedgerUncheckedUpdateWithoutOwnerInput = {
   debtOwners?: Prisma.DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput
   collaborations?: Prisma.CollaborationUncheckedUpdateManyWithoutLedgerNestedInput
   groups?: Prisma.GroupUncheckedUpdateManyWithoutLedgerNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutLedgerNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutLedgerNestedInput
   paymentMethods?: Prisma.LedgerPaymentMethodUncheckedUpdateManyWithoutLedgerNestedInput
 }
@@ -1036,6 +1155,7 @@ export type LedgerCountOutputType = {
   debtOwners: number
   collaborations: number
   groups: number
+  categories: number
   transactions: number
   paymentMethods: number
 }
@@ -1044,6 +1164,7 @@ export type LedgerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   debtOwners?: boolean | LedgerCountOutputTypeCountDebtOwnersArgs
   collaborations?: boolean | LedgerCountOutputTypeCountCollaborationsArgs
   groups?: boolean | LedgerCountOutputTypeCountGroupsArgs
+  categories?: boolean | LedgerCountOutputTypeCountCategoriesArgs
   transactions?: boolean | LedgerCountOutputTypeCountTransactionsArgs
   paymentMethods?: boolean | LedgerCountOutputTypeCountPaymentMethodsArgs
 }
@@ -1082,6 +1203,13 @@ export type LedgerCountOutputTypeCountGroupsArgs<ExtArgs extends runtime.Types.E
 /**
  * LedgerCountOutputType without action
  */
+export type LedgerCountOutputTypeCountCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CategoryWhereInput
+}
+
+/**
+ * LedgerCountOutputType without action
+ */
 export type LedgerCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TransactionWhereInput
 }
@@ -1106,6 +1234,7 @@ export type LedgerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   collaborations?: boolean | Prisma.Ledger$collaborationsArgs<ExtArgs>
   groups?: boolean | Prisma.Ledger$groupsArgs<ExtArgs>
+  categories?: boolean | Prisma.Ledger$categoriesArgs<ExtArgs>
   transactions?: boolean | Prisma.Ledger$transactionsArgs<ExtArgs>
   paymentMethods?: boolean | Prisma.Ledger$paymentMethodsArgs<ExtArgs>
   _count?: boolean | Prisma.LedgerCountOutputTypeDefaultArgs<ExtArgs>
@@ -1149,6 +1278,7 @@ export type LedgerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   collaborations?: boolean | Prisma.Ledger$collaborationsArgs<ExtArgs>
   groups?: boolean | Prisma.Ledger$groupsArgs<ExtArgs>
+  categories?: boolean | Prisma.Ledger$categoriesArgs<ExtArgs>
   transactions?: boolean | Prisma.Ledger$transactionsArgs<ExtArgs>
   paymentMethods?: boolean | Prisma.Ledger$paymentMethodsArgs<ExtArgs>
   _count?: boolean | Prisma.LedgerCountOutputTypeDefaultArgs<ExtArgs>
@@ -1167,6 +1297,7 @@ export type $LedgerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     owner: Prisma.$UserPayload<ExtArgs>
     collaborations: Prisma.$CollaborationPayload<ExtArgs>[]
     groups: Prisma.$GroupPayload<ExtArgs>[]
+    categories: Prisma.$CategoryPayload<ExtArgs>[]
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
     paymentMethods: Prisma.$LedgerPaymentMethodPayload<ExtArgs>[]
   }
@@ -1576,6 +1707,7 @@ export interface Prisma__LedgerClient<T, Null = never, ExtArgs extends runtime.T
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   collaborations<T extends Prisma.Ledger$collaborationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ledger$collaborationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollaborationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   groups<T extends Prisma.Ledger$groupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ledger$groupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  categories<T extends Prisma.Ledger$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ledger$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Ledger$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ledger$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   paymentMethods<T extends Prisma.Ledger$paymentMethodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ledger$paymentMethodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LedgerPaymentMethodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2079,6 +2211,30 @@ export type Ledger$groupsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.GroupScalarFieldEnum | Prisma.GroupScalarFieldEnum[]
+}
+
+/**
+ * Ledger.categories
+ */
+export type Ledger$categoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Category
+   */
+  select?: Prisma.CategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Category
+   */
+  omit?: Prisma.CategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CategoryInclude<ExtArgs> | null
+  where?: Prisma.CategoryWhereInput
+  orderBy?: Prisma.CategoryOrderByWithRelationInput | Prisma.CategoryOrderByWithRelationInput[]
+  cursor?: Prisma.CategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CategoryScalarFieldEnum | Prisma.CategoryScalarFieldEnum[]
 }
 
 /**

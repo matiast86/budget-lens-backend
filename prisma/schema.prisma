@@ -42,6 +42,7 @@ model Ledger {
   owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])
   collaborations Collaboration[]  @relation("LedgerCollaborations")
   groups         Group[]          @relation("LedgerGroups")
+  categories     Category[]         @relation("LedgerCategories")
   transactions   Transaction[]    @relation("LedgerTransactions")
   paymentMethods LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
   isActive       Boolean         @default(true)
@@ -128,6 +129,9 @@ model Category {
   id            Int             @id @default(autoincrement())
   name          String          @unique
   description   String?
+  ledgerId      Int
+
+  ledger       Ledger           @relation("LedgerCategories", fields: [ledgerId], references: [id])
   transactions  Transaction[]   @relation("TransactionCategory")
 
   @@map("categories")
