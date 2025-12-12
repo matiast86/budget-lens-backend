@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
@@ -23,6 +22,7 @@ import {
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
+import { handleLedgerFromRequest } from 'src/helpers/errors';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CollaborationsService } from './collaborations.service';
 import { CollaborationResponseDto } from './dto/collaboration-response.dto';
@@ -55,8 +55,11 @@ export class CollaborationsController {
     @Body() createCollaborationDto: CreateCollaborationDto,
   ): Promise<CollaborationResponseDto> {
     const { email } = createCollaborationDto;
-    if (!req.ledger) throw new NotFoundException(`Ledger not found`);
-    return await this.collaborationsService.create(req.ledger, { email });
+
+    return await this.collaborationsService.create(
+      handleLedgerFromRequest(req),
+      { email },
+    );
   }
 
   @ApiOperation({ summary: 'List active collaborations for a user' })
@@ -132,7 +135,7 @@ export class CollaborationsController {
   })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
   @UseGuards(LedgerAccessGuard)
-  @LedgerFrom('collaboration')
+  @LedgerFrom('collaboration', 'id')
   @Patch(':id')
   async update(
     @Req() req: LedgerRequest,
@@ -154,7 +157,7 @@ export class CollaborationsController {
   @ApiResponse({ status: 204, description: 'Collaboration deactivated' })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
   @UseGuards(LedgerAccessGuard)
-  @LedgerFrom('collaboration')
+  @LedgerFrom('collaboration', 'id')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
@@ -170,6 +173,8 @@ export class CollaborationsController {
   })
   @ApiResponse({ status: 204, description: 'Collaboration reactivated' })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('collaboration', 'id')
   @Patch(':id/reactivate')
   @HttpCode(HttpStatus.NO_CONTENT)
   async reactivate(@Req() req: LedgerRequest): Promise<void> {
