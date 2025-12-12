@@ -1,41 +1,44 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Collaboration } from 'prisma/generated/prisma/client';
 import { CollaborationUpdateInput } from 'prisma/generated/prisma/models';
-import { handleP2025 } from 'src/helpers/errors';
 import {
   collaborationArrayToArrayDto,
   collaborationToResponseDto,
 } from 'src/helpers/mappers/collaboration.mapper';
-import { LedgersService } from '../ledgers/ledgers.service';
+import { LedgerResponseDto } from '../ledgers/dto/ledger-response.dto';
 import { UsersService } from '../users/users.service';
 import { CollaborationsRepository } from './collaborations.repository';
 import { CollaborationResponseDto } from './dto/collaboration-response.dto';
+import { CreateCollaborationDto } from './dto/create-collaboration.dto';
 import { UpdateCollaborationDto } from './dto/update-collaboration.dto';
 
 @Injectable()
 export class CollaborationsService {
   constructor(
     private readonly collaborationsRepository: CollaborationsRepository,
-    private readonly ledgersService: LedgersService,
     private readonly usersService: UsersService,
   ) {}
 
   async create(
-    ledgerId: number,
-    userId: string,
+    ledger: LedgerResponseDto,
+    createCollaborationDto: CreateCollaborationDto,
   ): Promise<CollaborationResponseDto> {
+    const { email } = createCollaborationDto;
+    const user = await this.usersService.findOneByEmail(email);
     const exists = await this.collaborationsRepository.findUniqueNullable(
-      ledgerId,
-      userId,
+      ledger.id,
+      user.id,
     );
     if (exists) throw new BadRequestException(`Collaboration exists.`);
-    const ledger = await this.ledgersService.findOne(ledgerId);
-    const user = await this.usersService.findOne(userId);
     const name = `${user.name} - ${ledger.name}`;
     const collaboration = await this.collaborationsRepository.addCollaboration({
       name,
-      user: { connect: { id: userId } },
-      ledger: { connect: { id: ledgerId } },
+      user: { connect: { id: user.id } },
+      ledger: { connect: { id: ledger.id } },
     });
     return collaborationToResponseDto(collaboration);
   }
@@ -55,8 +58,10 @@ export class CollaborationsService {
   }
 
   async findOne(id: number): Promise<CollaborationResponseDto> {
-    const collaboration: Collaboration =
+    const collaboration: Collaboration | null =
       await this.collaborationsRepository.findById(id);
+    if (!collaboration)
+      throw new NotFoundException(`Collaboration with id: ${id} not found.`);
     return collaborationToResponseDto(collaboration);
   }
 
@@ -64,27 +69,28 @@ export class CollaborationsService {
     id: number,
     updateCollaborationDto: UpdateCollaborationDto,
   ): Promise<CollaborationResponseDto> {
-    return await this.collaborationsRepository
-      .update(id, {
-        ...updateCollaborationDto,
-      })
-      .catch(handleP2025(`Collaboration with id: ${id} not found.`))
-      .then(collaborationToResponseDto);
+    const updated = await this.collaborationsRepository.update(id, {
+      ...updateCollaborationDto,
+    });
+
+    return collaborationToResponseDto(updated);
   }
 
   async remove(id: number): Promise<void> {
     const data: CollaborationUpdateInput = { isActive: false };
-    await this.collaborationsRepository
-      .update(id, data)
-      .catch(handleP2025(`Collaboration with id: ${id} not found.`));
+    await this.collaborationsRepository.update(id, data);
   }
 
   async reactivateCollaboration(id: number): Promise<void> {
     const collaboration = await this.collaborationsRepository.findById(id);
+    if (!collaboration)
+      throw new NotFoundException(`Collaboration with id: ${id} not found.`);
     if (collaboration.isActive)
       throw new BadRequestException(`Collaboration is already active`);
-    await this.collaborationsRepository
-      .update(id, { isActive: true })
-      .catch(handleP2025(`Collaboration with id: ${id} not found.`));
+    await this.collaborationsRepository.update(id, { isActive: true });
+  }
+
+  async findEntityById(id: number): Promise<Collaboration | null> {
+    return await this.collaborationsRepository.findById(id);
   }
 }

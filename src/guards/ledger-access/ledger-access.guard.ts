@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { CollaborationsService } from 'src/modules/collaborations/collaborations.service';
 import { DebtOwnersService } from 'src/modules/debt-owners/debt-owners.service';
 import { GroupsService } from 'src/modules/groups/groups.service';
 import { LedgerRequest } from 'src/modules/ledgers/entities/ledger-request';
@@ -21,10 +22,16 @@ export class LedgerAccessGuard implements CanActivate {
     private readonly ledgersService: LedgersService,
     private readonly groupsService: GroupsService,
     private readonly debtOwnersService: DebtOwnersService,
+    private readonly collaborationsService: CollaborationsService,
   ) {}
 
   private async resolveLedgerId(
-    meta: { type: 'group' | 'debtOwner'; param: string } | undefined,
+    meta:
+      | {
+          type: 'group' | 'debtOwner' | 'ledger' | 'collaboration';
+          param: string;
+        }
+      | undefined,
     request: LedgerRequest,
     context: ExecutionContext,
   ): Promise<number> {
@@ -52,6 +59,26 @@ export class LedgerAccessGuard implements CanActivate {
         return owner.ledgerId;
       }
 
+      if (meta.type === 'ledger') {
+        const ledger = await this.ledgersService.getEntityById(entityId);
+        if (!ledger) throw new NotFoundException('Ledger not found');
+        // optional reuse:
+        (request as LedgerRequest & { ledger?: typeof ledger }).ledger = ledger;
+        return ledger.id;
+      }
+
+      if (meta.type === 'collaboration') {
+        const collaboration =
+          await this.collaborationsService.findEntityById(entityId);
+        if (!collaboration)
+          throw new NotFoundException('Collaboration not found');
+        // optional reuse:
+        (
+          request as LedgerRequest & { collaboration?: typeof collaboration }
+        ).collaboration = collaboration;
+        return collaboration.ledgerId;
+      }
+
       throw new BadRequestException('Unsupported ledger source');
     }
 
@@ -73,7 +100,7 @@ export class LedgerAccessGuard implements CanActivate {
     if (!user) throw new UnauthorizedException('Token not found.');
 
     const meta = this.reflector.getAllAndOverride<{
-      type: 'group' | 'debtOwner';
+      type: 'group' | 'debtOwner' | 'ledger' | 'collaboration';
       param: string;
     }>('ledgerFrom', [context.getHandler(), context.getClass()]);
 

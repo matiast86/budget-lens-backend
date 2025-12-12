@@ -5,10 +5,12 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -18,9 +20,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
+import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CollaborationsService } from './collaborations.service';
 import { CollaborationResponseDto } from './dto/collaboration-response.dto';
+import { CreateCollaborationDto } from './dto/create-collaboration.dto';
 import { UpdateCollaborationDto } from './dto/update-collaboration.dto';
 
 @ApiBearerAuth()
@@ -37,23 +43,20 @@ export class CollaborationsController {
     description: 'ID of the ledger to share',
     example: 10,
   })
-  @ApiParam({
-    name: 'userId',
-    type: String,
-    description: 'UUID of the user to add as collaborator',
-    example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133',
-  })
   @ApiResponse({
     status: 201,
     description: 'Collaboration created successfully',
     type: CollaborationResponseDto,
   })
-  @Post('ledgers/:ledgerId/users/:userId')
+  @UseGuards(LedgerAccessGuard)
+  @Post('ledgers/:ledgerId')
   async create(
-    @Param('ledgerId', ParseIntPipe) ledgerId: number,
-    @Param('userId') userId: string,
+    @Req() req: LedgerRequest,
+    @Body() createCollaborationDto: CreateCollaborationDto,
   ): Promise<CollaborationResponseDto> {
-    return await this.collaborationsService.create(ledgerId, userId);
+    const { email } = createCollaborationDto;
+    if (!req.ledger) throw new NotFoundException(`Ledger not found`);
+    return await this.collaborationsService.create(req.ledger, { email });
   }
 
   @ApiOperation({ summary: 'List active collaborations for a user' })
@@ -87,6 +90,7 @@ export class CollaborationsController {
     description: 'Collaborations for the given ledger',
     type: [CollaborationResponseDto],
   })
+  @UseGuards(LedgerAccessGuard)
   @Get('ledgers/:ledgerId')
   async findAllByLedgerId(
     @Param('ledgerId', ParseIntPipe) ledgerId: number,
@@ -127,12 +131,17 @@ export class CollaborationsController {
     type: CollaborationResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('collaboration')
   @Patch(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Req() req: LedgerRequest,
     @Body() updateCollaborationDto: UpdateCollaborationDto,
   ): Promise<CollaborationResponseDto> {
-    return await this.collaborationsService.update(id, updateCollaborationDto);
+    return await this.collaborationsService.update(
+      Number(req.params.id),
+      updateCollaborationDto,
+    );
   }
 
   @ApiOperation({ summary: 'Soft-delete a collaboration' })
@@ -144,6 +153,8 @@ export class CollaborationsController {
   })
   @ApiResponse({ status: 204, description: 'Collaboration deactivated' })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('collaboration')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
@@ -161,7 +172,9 @@ export class CollaborationsController {
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
   @Patch(':id/reactivate')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async reactivate(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.collaborationsService.reactivateCollaboration(id);
+  async reactivate(@Req() req: LedgerRequest): Promise<void> {
+    await this.collaborationsService.reactivateCollaboration(
+      Number(req.params.id),
+    );
   }
 }

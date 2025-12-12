@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCollaborationDto {
   @ApiProperty({
@@ -12,6 +12,10 @@ export class CreateCollaborationDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
   constructor(partial: Partial<CreateCollaborationDto>) {
     Object.assign(this, partial);

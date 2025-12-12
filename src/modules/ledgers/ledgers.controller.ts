@@ -1,16 +1,16 @@
 import {
   Body,
   Controller,
-  Delete,
   DefaultValuePipe,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   ParseIntPipe,
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -26,10 +26,13 @@ import {
 import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 
+import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
+import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
 import { LedgerResponseDto } from './dto/ledger-response.dto';
 import { UpdateLedgerDto } from './dto/update-ledger.dto';
+import { LedgerRequest } from './entities/ledger-request';
 import { LedgersService } from './ledgers.service';
 
 @ApiTags('Ledgers')
@@ -91,6 +94,8 @@ export class LedgersController {
 
   // FIND ONE
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('ledger')
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a ledger by its ID' })
   @ApiResponse({
@@ -101,15 +106,16 @@ export class LedgersController {
   @ApiResponse({ status: 404, description: 'Ledger not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @GetUser('id') userId: string,
-  ): Promise<LedgerResponseDto> {
-    return await this.ledgersService.findOne(userId, id);
+  async findOne(@Req() req: LedgerRequest): Promise<LedgerResponseDto> {
+    return (
+      req.ledger ?? (await this.ledgersService.findOne(Number(req.params.id)))
+    );
   }
 
   // UPDATE
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('ledger')
   @Patch(':id')
   @ApiOperation({ summary: 'Update a ledger by ID' })
   @ApiResponse({
@@ -121,25 +127,26 @@ export class LedgersController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async update(
-    @Param('id', ParseIntPipe) id: number,
-    @GetUser('id') userId: string,
+    @Req() req: LedgerRequest,
     @Body() updateLedgerDto: UpdateLedgerDto,
   ): Promise<LedgerDashboardResponseDto> {
-    return await this.ledgersService.update(id, userId, updateLedgerDto);
+    return await this.ledgersService.update(
+      Number(req.params.id),
+      updateLedgerDto,
+    );
   }
 
   // DELETE
   @HttpCode(HttpStatus.OK)
+  @UseGuards(LedgerAccessGuard)
+  @LedgerFrom('ledger')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a ledger by ID' })
   @ApiResponse({ status: 200, description: 'Ledger successfully removed' })
   @ApiResponse({ status: 404, description: 'Ledger not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    @GetUser('id') userId: string,
-  ): Promise<void> {
-    return this.ledgersService.remove(userId, id);
+  async remove(@Req() req: LedgerRequest): Promise<void> {
+    return this.ledgersService.remove(Number(req.params.id));
   }
 }

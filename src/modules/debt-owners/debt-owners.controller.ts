@@ -29,12 +29,11 @@ import { DebtOwnerResponseDto } from './dto/debt-owner-response.dto';
 import { UpdateDebtOwnerDto } from './dto/update-debt-owner.dto';
 
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, LedgerAccessGuard)
 @Controller('debt-owners')
 export class DebtOwnersController {
   constructor(private readonly debtOwnersService: DebtOwnersService) {}
 
-  @UseGuards(LedgerAccessGuard)
   @Post('ledgers/:ledgerId')
   @ApiOperation({ summary: 'Create a debt owner for a ledger' })
   @ApiParam({
@@ -55,7 +54,6 @@ export class DebtOwnersController {
     return await this.debtOwnersService.create(ledgerId, createDebtOwnerDto);
   }
 
-  @UseGuards(LedgerAccessGuard)
   @Get('ledgers/:ledgerId')
   @ApiOperation({
     summary: 'List debt owners for a ledger (paginated)',
@@ -93,7 +91,6 @@ export class DebtOwnersController {
     return await this.debtOwnersService.findAll(skip, take, ledgerId);
   }
 
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('debtOwner', 'id')
   @Get(':id')
   @ApiOperation({ summary: 'Get a debt owner by its ID' })
@@ -119,7 +116,6 @@ export class DebtOwnersController {
     );
   }
 
-  @UseGuards(LedgerAccessGuard)
   @Get('ledgers/:ledgerId/by-name/:name')
   @ApiOperation({ summary: 'Get a debt owner by name within a ledger' })
   @ApiParam({
@@ -150,7 +146,6 @@ export class DebtOwnersController {
     return this.debtOwnersService.findByNameInLedger(ledgerId, name);
   }
 
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('debtOwner', 'id')
   @Patch(':id')
   @ApiOperation({ summary: 'Update a debt owner by its ID' })
@@ -179,7 +174,6 @@ export class DebtOwnersController {
     );
   }
 
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('debtOwner', 'id')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a debt owner by its ID' })
