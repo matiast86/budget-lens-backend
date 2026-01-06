@@ -12,6 +12,7 @@ import { TransactionsBreakDownModule } from './modules/transactions-break-down/t
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { CategoryTemplatesModule } from './modules/category-templates/category-templates.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TransactionsModule,
     TransactionsBreakDownModule,
     AuthModule,
+    CategoryTemplatesModule,
   ],
   controllers: [],
   providers: [],

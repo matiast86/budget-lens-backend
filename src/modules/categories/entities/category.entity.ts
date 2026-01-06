@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CategoryTemplatesEntity } from 'src/modules/category-templates/entities/category-templates.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
 
@@ -29,12 +30,25 @@ export class CategoryEntity {
   })
   ledgerId: number;
 
+  @ApiPropertyOptional({
+    description:
+      'Reference to the template this category was created from, if any.',
+    example: 4,
+  })
+  templateId?: number;
+
   @ApiProperty({
     type: () => LedgerEntity,
     required: true,
     description: 'Ledger associated with this category.',
   })
   ledger: LedgerEntity;
+
+  @ApiPropertyOptional({
+    type: () => CategoryTemplatesEntity,
+    description: 'Template this category is based on, if applicable.',
+  })
+  template?: CategoryTemplatesEntity;
 
   @ApiProperty({
     type: () => TransactionEntity,

@@ -53,6 +53,11 @@ export type Debt = Prisma.DebtModel
  */
 export type DebtOwner = Prisma.DebtOwnerModel
 /**
+ * Model CategoryTemplate
+ * 
+ */
+export type CategoryTemplate = Prisma.CategoryTemplateModel
+/**
  * Model Category
  * 
  */

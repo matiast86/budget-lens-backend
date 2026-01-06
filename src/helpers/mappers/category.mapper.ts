@@ -4,12 +4,13 @@ import { CategoryResponseDto } from 'src/modules/categories/dto/category-respons
 export const categoryToResponseDto = (
   category: Category,
 ): CategoryResponseDto => {
-  const { id, name, description, ledgerId } = category;
+  const { id, name, description, ledgerId, templateId } = category;
   return new CategoryResponseDto({
     id,
     name,
     description: description ?? undefined,
     ledgerId,
+    templateId: templateId ?? undefined,
   });
 };
 

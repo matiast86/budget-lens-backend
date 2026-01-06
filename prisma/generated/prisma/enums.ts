@@ -85,3 +85,10 @@ export const TransactionType = {
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
+
+
+export const CategoryScope = {
+  GLOBAL: 'GLOBAL'
+} as const
+
+export type CategoryScope = (typeof CategoryScope)[keyof typeof CategoryScope]

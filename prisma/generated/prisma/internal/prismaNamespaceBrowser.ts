@@ -58,6 +58,7 @@ export const ModelName = {
   LedgerPaymentMethod: 'LedgerPaymentMethod',
   Debt: 'Debt',
   DebtOwner: 'DebtOwner',
+  CategoryTemplate: 'CategoryTemplate',
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
@@ -165,11 +166,22 @@ export const DebtOwnerScalarFieldEnum = {
 export type DebtOwnerScalarFieldEnum = (typeof DebtOwnerScalarFieldEnum)[keyof typeof DebtOwnerScalarFieldEnum]
 
 
+export const CategoryTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  scope: 'scope'
+} as const
+
+export type CategoryTemplateScalarFieldEnum = (typeof CategoryTemplateScalarFieldEnum)[keyof typeof CategoryTemplateScalarFieldEnum]
+
+
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  ledgerId: 'ledgerId'
+  ledgerId: 'ledgerId',
+  templateId: 'templateId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]

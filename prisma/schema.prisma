@@ -124,15 +124,30 @@ model DebtOwner {
   @@map("debt_owners")
 }
 
+model CategoryTemplate {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  description  String? 
+  scope      CategoryScope
+
+  categories   Category[]     @relation("TemplateCategories")
+
+  @@map("categories_template")
+}
+
 
 model Category {
   id            Int             @id @default(autoincrement())
-  name          String          @unique
+  name          String          
   description   String?
   ledgerId      Int
+  templateId    Int?
 
   ledger       Ledger           @relation("LedgerCategories", fields: [ledgerId], references: [id])
+  template     CategoryTemplate? @relation("TemplateCategories", fields: [templateId], references: [id])
   transactions  Transaction[]   @relation("TransactionCategory")
+
+  @@unique([ledgerId, name])
 
   @@map("categories")
 }
@@ -246,5 +261,9 @@ enum Status {
 enum TransactionType {
   FIXED
   VARIABLE
+}
+
+enum CategoryScope {
+  GLOBAL
 }
 

@@ -1,26 +1,83 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  categoryArraytoArrayDto,
+  categoryToResponseDto,
+} from 'src/helpers/mappers/category.mapper';
+import { LedgersService } from '../ledgers/ledgers.service';
+import { CategoriesRepository } from './categories.repository';
+import { CategoryResponseDto } from './dto/category-response.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(
+    private readonly categoriesRepository: CategoriesRepository,
+    ledgerService: LedgersService,
+  ) {}
+
+  async create(
+    ledgerId: number,
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<CategoryResponseDto> {
+    const { name, description } = createCategoryDto;
+    const category = await this.categoriesRepository.create({
+      name,
+      description,
+      ledger: { connect: { id: ledgerId } },
+      template: undefined,
+    });
+
+    return categoryToResponseDto(category);
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll(ledgerId: number): Promise<CategoryResponseDto[]> {
+    const categories =
+      await this.categoriesRepository.findAllByLedgerId(ledgerId);
+    return categoryArraytoArrayDto(categories);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOneById(id: number): Promise<CategoryResponseDto> {
+    const category = await this.categoriesRepository.findById(id);
+    if (!category)
+      throw new NotFoundException(`Category with id: ${id} not found.`);
+    return categoryToResponseDto(category);
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async findOneByName(
+    ledgerId: number,
+    name: string,
+  ): Promise<CategoryResponseDto> {
+    const category = await this.categoriesRepository.findByName(ledgerId, name);
+    if (!category) throw new NotFoundException(`Category ${name} not found.`);
+    return categoryToResponseDto(category);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async update(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<CategoryResponseDto> {
+    const category = await this.categoriesRepository.findById(id);
+    if (!category)
+      throw new NotFoundException(`Category with id: ${id} not found.`);
+    // remove template and update category as a new one
+    if (category.templateId) {
+      const updated = await this.categoriesRepository.removeTemplate(
+        id,
+        category.templateId,
+        { ...updateCategoryDto },
+      );
+
+      return categoryToResponseDto(updated);
+    }
+
+    const updated = await this.categoriesRepository.update(id, {
+      ...updateCategoryDto,
+    });
+    return categoryToResponseDto(updated);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.categoriesRepository.delete(id);
   }
 }

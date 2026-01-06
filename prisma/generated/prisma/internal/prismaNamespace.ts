@@ -391,6 +391,7 @@ export const ModelName = {
   LedgerPaymentMethod: 'LedgerPaymentMethod',
   Debt: 'Debt',
   DebtOwner: 'DebtOwner',
+  CategoryTemplate: 'CategoryTemplate',
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "category" | "group" | "transaction" | "transactionBreakDown"
+    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionBreakDown"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -932,6 +933,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CategoryTemplate: {
+      payload: Prisma.$CategoryTemplatePayload<ExtArgs>
+      fields: Prisma.CategoryTemplateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CategoryTemplateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CategoryTemplateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>
+        }
+        findFirst: {
+          args: Prisma.CategoryTemplateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CategoryTemplateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>
+        }
+        findMany: {
+          args: Prisma.CategoryTemplateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>[]
+        }
+        create: {
+          args: Prisma.CategoryTemplateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>
+        }
+        createMany: {
+          args: Prisma.CategoryTemplateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CategoryTemplateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>[]
+        }
+        delete: {
+          args: Prisma.CategoryTemplateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>
+        }
+        update: {
+          args: Prisma.CategoryTemplateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>
+        }
+        deleteMany: {
+          args: Prisma.CategoryTemplateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CategoryTemplateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CategoryTemplateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>[]
+        }
+        upsert: {
+          args: Prisma.CategoryTemplateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTemplatePayload>
+        }
+        aggregate: {
+          args: Prisma.CategoryTemplateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCategoryTemplate>
+        }
+        groupBy: {
+          args: Prisma.CategoryTemplateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryTemplateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CategoryTemplateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryTemplateCountAggregateOutputType> | number
+        }
+      }
+    }
     Category: {
       payload: Prisma.$CategoryPayload<ExtArgs>
       fields: Prisma.CategoryFieldRefs
@@ -1352,11 +1427,22 @@ export const DebtOwnerScalarFieldEnum = {
 export type DebtOwnerScalarFieldEnum = (typeof DebtOwnerScalarFieldEnum)[keyof typeof DebtOwnerScalarFieldEnum]
 
 
+export const CategoryTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  scope: 'scope'
+} as const
+
+export type CategoryTemplateScalarFieldEnum = (typeof CategoryTemplateScalarFieldEnum)[keyof typeof CategoryTemplateScalarFieldEnum]
+
+
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  ledgerId: 'ledgerId'
+  ledgerId: 'ledgerId',
+  templateId: 'templateId'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -1583,6 +1669,20 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
+ * Reference to a field of type 'CategoryScope'
+ */
+export type EnumCategoryScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoryScope'>
+    
+
+
+/**
+ * Reference to a field of type 'CategoryScope[]'
+ */
+export type ListEnumCategoryScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoryScope[]'>
+    
+
+
+/**
  * Reference to a field of type 'Status'
  */
 export type EnumStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Status'>
@@ -1739,6 +1839,7 @@ export type GlobalOmitConfig = {
   ledgerPaymentMethod?: Prisma.LedgerPaymentMethodOmit
   debt?: Prisma.DebtOmit
   debtOwner?: Prisma.DebtOwnerOmit
+  categoryTemplate?: Prisma.CategoryTemplateOmit
   category?: Prisma.CategoryOmit
   group?: Prisma.GroupOmit
   transaction?: Prisma.TransactionOmit

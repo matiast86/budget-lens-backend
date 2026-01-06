@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CategoryResponseDto {
   @ApiProperty({
@@ -26,6 +26,13 @@ export class CategoryResponseDto {
     required: true,
   })
   ledgerId: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Reference to the template this category was created from, if any.',
+    example: 4,
+  })
+  templateId?: number;
 
   constructor(partial: Partial<CategoryResponseDto>) {
     Object.assign(this, partial);
