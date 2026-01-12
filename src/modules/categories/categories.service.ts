@@ -3,7 +3,6 @@ import {
   categoryArraytoArrayDto,
   categoryToResponseDto,
 } from 'src/helpers/mappers/category.mapper';
-import { LedgersService } from '../ledgers/ledgers.service';
 import { CategoriesRepository } from './categories.repository';
 import { CategoryResponseDto } from './dto/category-response.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -11,10 +10,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
-  constructor(
-    private readonly categoriesRepository: CategoriesRepository,
-    ledgerService: LedgersService,
-  ) {}
+  constructor(private readonly categoriesRepository: CategoriesRepository) {}
 
   async create(
     ledgerId: number,
@@ -25,7 +21,6 @@ export class CategoriesService {
       name,
       description,
       ledger: { connect: { id: ledgerId } },
-      template: undefined,
     });
 
     return categoryToResponseDto(category);
@@ -79,5 +74,11 @@ export class CategoriesService {
 
   async remove(id: number): Promise<void> {
     await this.categoriesRepository.delete(id);
+  }
+
+  async findEntityById(id: number): Promise<CategoryResponseDto | undefined> {
+    const category = await this.categoriesRepository.findById(id);
+
+    return category ? categoryToResponseDto(category) : undefined;
   }
 }

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CollaborationsService } from 'src/modules/collaborations/collaborations.service';
+import { CategoriesService } from 'src/modules/categories/categories.service';
 import { DebtOwnersService } from 'src/modules/debt-owners/debt-owners.service';
 import { DebtsService } from 'src/modules/debts/debts.service';
 import { GroupsService } from 'src/modules/groups/groups.service';
@@ -22,6 +23,7 @@ export class LedgerAccessGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly ledgersService: LedgersService,
     private readonly groupsService: GroupsService,
+    private readonly categoriesService: CategoriesService,
     private readonly debtOwnersService: DebtOwnersService,
     private readonly collaborationsService: CollaborationsService,
     private readonly debtsService: DebtsService,
@@ -30,7 +32,13 @@ export class LedgerAccessGuard implements CanActivate {
   private async resolveLedgerId(
     meta:
       | {
-          type: 'group' | 'debtOwner' | 'ledger' | 'collaboration' | 'debt';
+          type:
+            | 'group'
+            | 'category'
+            | 'debtOwner'
+            | 'ledger'
+            | 'collaboration'
+            | 'debt';
           param: string;
         }
       | undefined,
@@ -50,6 +58,15 @@ export class LedgerAccessGuard implements CanActivate {
 
         (request as LedgerRequest & { group?: typeof group }).group = group;
         return group.ledgerId;
+      }
+
+      if (meta.type === 'category') {
+        const category = await this.categoriesService.findEntityById(entityId);
+        if (!category) throw new NotFoundException('Category not found');
+
+        (request as LedgerRequest & { category?: typeof category }).category =
+          category;
+        return category.ledgerId;
       }
 
       if (meta.type === 'debtOwner') {
@@ -114,7 +131,13 @@ export class LedgerAccessGuard implements CanActivate {
     if (!user) throw new UnauthorizedException('Token not found.');
 
     const meta = this.reflector.getAllAndOverride<{
-      type: 'group' | 'debtOwner' | 'ledger' | 'collaboration';
+      type:
+        | 'group'
+        | 'category'
+        | 'debtOwner'
+        | 'ledger'
+        | 'collaboration'
+        | 'debt';
       param: string;
     }>('ledgerFrom', [context.getHandler(), context.getClass()]);
 

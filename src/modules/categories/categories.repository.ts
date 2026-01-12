@@ -18,21 +18,18 @@ export class CategoriesRepository {
   async findById(id: number): Promise<Category | null> {
     return await this.prisma.category.findUnique({
       where: { id },
-      include: { template: true },
     });
   }
 
   async findByName(ledgerId: number, name: string): Promise<Category | null> {
     return await this.prisma.category.findUnique({
       where: { ledgerId_name: { ledgerId, name } },
-      include: { template: true },
     });
   }
 
   async findAllByLedgerId(ledgerId: number): Promise<Category[]> {
     return await this.prisma.category.findMany({
       where: { ledgerId },
-      include: { template: true },
     });
   }
 
@@ -50,8 +47,7 @@ export class CategoriesRepository {
     return await this.prisma.category.update({
       where: { id },
       data: {
-        name: data.name,
-        description: data.description,
+        ...data,
         template: { disconnect: { id: templateId } },
       },
     });
