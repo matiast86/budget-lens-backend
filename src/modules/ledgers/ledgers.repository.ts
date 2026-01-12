@@ -43,6 +43,7 @@ export class LedgersRepository {
         paymentMethods: { include: { paymentMethod: true } },
         groups: true,
         debtOwners: true,
+        categories: true,
       },
     });
   }

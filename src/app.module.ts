@@ -13,6 +13,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoryTemplatesModule } from './modules/category-templates/category-templates.module';
+import { DataCollectionService } from './services/data-collection/data-collection.service';
 
 @Module({
   imports: [
@@ -32,6 +33,6 @@ import { CategoryTemplatesModule } from './modules/category-templates/category-t
     CategoryTemplatesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [DataCollectionService],
 })
 export class AppModule {}
