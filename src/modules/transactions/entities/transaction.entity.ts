@@ -8,6 +8,7 @@ import {
 import { CategoryEntity } from 'src/modules/categories/entities/category.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
+import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
 
 export class TransactionEntity {
@@ -63,7 +64,7 @@ export class TransactionEntity {
     example: '2025-02-01T00:00:00.000Z',
     required: false,
   })
-  paymentMonth?: Date;
+  paymentMonth: Date;
 
   @ApiProperty({
     description: 'Number of total installments.',
@@ -115,6 +116,12 @@ export class TransactionEntity {
   })
   debtOwnerId?: number;
 
+  @ApiProperty({
+    description: "The id of the transaction's payment method.",
+    example: 2,
+  })
+  paymentMethodId: number;
+
   @ApiProperty({ type: () => LedgerEntity })
   ledger: LedgerEntity;
 
@@ -123,6 +130,9 @@ export class TransactionEntity {
 
   @ApiProperty({ type: () => GroupEntity, required: false })
   group?: GroupEntity;
+
+  @ApiProperty({ type: () => PaymentMethodEntity })
+  paymentMethod: PaymentMethodEntity;
 
   @ApiProperty({
     type: () => TransactionsBreakDownEntity,
