@@ -13,7 +13,12 @@ export class LedgerDashboardResponseDto {
   })
   description?: string;
 
-  currency: Currency
+  @ApiProperty({
+    enum: Currency,
+    description: 'Default currency for this ledger.',
+    example: Currency.ARS,
+  })
+  currency: Currency;
 
   @ApiProperty({
     description: 'ISO date string when the ledger was created',

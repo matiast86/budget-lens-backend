@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Currency, EntryType, Status } from 'prisma/generated/prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
@@ -39,13 +39,12 @@ export class TransactionResponseDto {
   })
   transactionDate: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description:
       'Month this transaction belongs to, used for installment payments.',
     example: '2025-02-01T00:00:00.000Z',
-    required: false,
   })
-  paymentMonth?: string;
+  paymentMonth: string;
 
   @ApiProperty({
     description: 'Number of total installments.',
@@ -75,7 +74,11 @@ export class TransactionResponseDto {
   })
   currency: Currency;
 
-  exchangeRate: number;
+  @ApiPropertyOptional({
+    description: 'Exchange rate used when currency differs from ledger.',
+    example: 950.5,
+  })
+  exchangeRate?: number;
 
   @ApiProperty({
     description: 'Total transaction amount.',
@@ -89,14 +92,14 @@ export class TransactionResponseDto {
   })
   monthlyAmount: number;
 
-  @ApiProperty({ type: String })
-  debtOwner: string;
+  @ApiPropertyOptional({ type: String })
+  debtOwner?: string;
 
   @ApiProperty({ type: () => CategoryResponseDto })
   category: CategoryResponseDto;
 
-  @ApiProperty({ type: () => GroupResponseDto, required: false })
-  group: GroupResponseDto;
+  @ApiPropertyOptional({ type: () => GroupResponseDto })
+  group?: GroupResponseDto;
 
   @ApiProperty({ type: () => PaymentMethodResponseDto })
   paymentMethod: PaymentMethodResponseDto;
@@ -107,7 +110,7 @@ export class TransactionResponseDto {
     description: 'Weekly breakdowns of this transaction, if applicable.',
     required: false,
   })
-  transactionsBreakDown: TransactionBreakDownResponseDto[];
+  transactionsBreakDown?: TransactionBreakDownResponseDto[];
   constructor(partial: Partial<TransactionResponseDto>) {
     Object.assign(this, partial);
   }

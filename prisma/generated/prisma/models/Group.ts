@@ -357,9 +357,9 @@ export type GroupSumOrderByAggregateInput = {
   ledgerId?: Prisma.SortOrder
 }
 
-export type GroupNullableScalarRelationFilter = {
-  is?: Prisma.GroupWhereInput | null
-  isNot?: Prisma.GroupWhereInput | null
+export type GroupScalarRelationFilter = {
+  is?: Prisma.GroupWhereInput
+  isNot?: Prisma.GroupWhereInput
 }
 
 export type GroupCreateNestedManyWithoutUserInput = {
@@ -452,12 +452,10 @@ export type GroupCreateNestedOneWithoutTransactionsInput = {
   connect?: Prisma.GroupWhereUniqueInput
 }
 
-export type GroupUpdateOneWithoutTransactionsNestedInput = {
+export type GroupUpdateOneRequiredWithoutTransactionsNestedInput = {
   create?: Prisma.XOR<Prisma.GroupCreateWithoutTransactionsInput, Prisma.GroupUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.GroupCreateOrConnectWithoutTransactionsInput
   upsert?: Prisma.GroupUpsertWithoutTransactionsInput
-  disconnect?: Prisma.GroupWhereInput | boolean
-  delete?: Prisma.GroupWhereInput | boolean
   connect?: Prisma.GroupWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.GroupUpdateToOneWithWhereWithoutTransactionsInput, Prisma.GroupUpdateWithoutTransactionsInput>, Prisma.GroupUncheckedUpdateWithoutTransactionsInput>
 }

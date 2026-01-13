@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Currency } from 'prisma/generated/prisma/enums';
 import { CategoryEntity } from 'src/modules/categories/entities/category.entity';
 import { CollaborationEntity } from 'src/modules/collaborations/entities/collaboration.entity';
 import { GroupEntity } from 'src/modules/groups/entities/group.entity';
@@ -19,11 +20,17 @@ export class LedgerEntity {
   })
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Short description of the ledger.',
-    required: false,
   })
   description?: string;
+
+  @ApiProperty({
+    enum: Currency,
+    description: 'Default currency for this ledger.',
+    example: Currency.ARS,
+  })
+  currency: Currency;
 
   @ApiProperty({
     description: 'UUID of the user who owns this ledger.',

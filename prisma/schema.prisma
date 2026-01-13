@@ -192,7 +192,7 @@ model Transaction {
 
   ledger      Ledger      @relation("LedgerTransactions", fields: [ledgerId], references: [id])
   category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
-  group       Group?      @relation("TransactionGroup", fields: [groupId], references: [id])
+  group       Group      @relation("TransactionGroup", fields: [groupId], references: [id])
   paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
   debtOwner   DebtOwner? @relation("TransactionDebtOwner", fields: [debtOwnerId], references: [id])
 

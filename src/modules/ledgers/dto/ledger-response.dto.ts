@@ -18,6 +18,11 @@ export class LedgerResponseDto {
   })
   description?: string;
 
+  @ApiProperty({
+    enum: Currency,
+    description: 'Default currency for this ledger.',
+    example: Currency.ARS,
+  })
   currency: Currency;
 
   @ApiProperty({

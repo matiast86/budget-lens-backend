@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Currency,
-  EntryType,
-  Prisma,
-  Transaction,
-} from 'prisma/generated/prisma/client';
+import { Currency, EntryType, Prisma } from 'prisma/generated/prisma/client';
 import { TransactionCreateInput } from 'prisma/generated/prisma/models';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -67,9 +62,19 @@ export class TransactionsRepository {
   async update(
     id: number,
     data: Prisma.TransactionUpdateInput,
-  ): Promise<Transaction> {
+  ): Promise<TransactionDetailView> {
     return await this.prisma.transaction
-      .update({ where: { id }, data })
+      .update({
+        where: { id },
+        data,
+        include: {
+          category: true,
+          paymentMethod: true,
+          debtOwner: true,
+          group: true,
+          transactionsBreakDown: true,
+        },
+      })
       .catch(handleP2025(`Transaction with id: ${id} not found.`));
   }
 

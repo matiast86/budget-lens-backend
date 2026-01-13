@@ -20,8 +20,8 @@ export class CreateTransactionDto {
   @Min(1)
   categoryId: number;
 
-  @ApiPropertyOptional({
-    description: 'Optional ID of the selected group.',
+  @ApiProperty({
+    description: 'ID of the selected group.',
     example: 78,
   })
   @IsInt()
@@ -45,11 +45,21 @@ export class CreateTransactionDto {
   @Min(1)
   debtOwnerId?: number;
 
+  @ApiPropertyOptional({
+    description: 'Optional debt amount associated with this transaction.',
+    example: 12000,
+  })
   @IsOptional()
   @IsNumber()
   debtAmount?: number;
 
+  @ApiPropertyOptional({
+    enum: DebtDirection,
+    description: 'Optional debt direction for shared debt.',
+    example: DebtDirection.OWED_BY_ME,
+  })
   @IsOptional()
+  @IsEnum(DebtDirection)
   debtDirection?: DebtDirection;
 
   @ApiProperty({
@@ -93,9 +103,13 @@ export class CreateTransactionDto {
   @IsEnum(Currency)
   currency: Currency;
 
+  @ApiPropertyOptional({
+    description: 'Exchange rate used when currency differs from ledger.',
+    example: 950.5,
+  })
   @IsOptional()
   @IsNumber()
-  exchangeRate: number;
+  exchangeRate?: number;
 
   @ApiProperty({
     description: 'Total transaction amount.',
@@ -107,7 +121,7 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     description:
-      'Week number of the breakdown (1–4). In case the transaction is for current month',
+      'Week number of the breakdown (1-4) when the transaction is for current month.',
     example: 3,
   })
   @IsOptional()
