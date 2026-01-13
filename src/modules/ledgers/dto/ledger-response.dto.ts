@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Currency } from 'prisma/generated/prisma/enums';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
 import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collaboration-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
@@ -16,6 +17,8 @@ export class LedgerResponseDto {
     example: 'Tracks monthly family expenses and shared utilities.',
   })
   description?: string;
+
+  currency: Currency;
 
   @ApiProperty({
     description: 'User id of the ledger owner',

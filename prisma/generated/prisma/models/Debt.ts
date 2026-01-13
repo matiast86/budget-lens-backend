@@ -44,6 +44,7 @@ export type DebtMinAggregateOutputType = {
   direction: $Enums.DebtDirection | null
   amount: number | null
   period: Date | null
+  description: string | null
 }
 
 export type DebtMaxAggregateOutputType = {
@@ -52,6 +53,7 @@ export type DebtMaxAggregateOutputType = {
   direction: $Enums.DebtDirection | null
   amount: number | null
   period: Date | null
+  description: string | null
 }
 
 export type DebtCountAggregateOutputType = {
@@ -60,6 +62,7 @@ export type DebtCountAggregateOutputType = {
   direction: number
   amount: number
   period: number
+  description: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type DebtMinAggregateInputType = {
   direction?: true
   amount?: true
   period?: true
+  description?: true
 }
 
 export type DebtMaxAggregateInputType = {
@@ -90,6 +94,7 @@ export type DebtMaxAggregateInputType = {
   direction?: true
   amount?: true
   period?: true
+  description?: true
 }
 
 export type DebtCountAggregateInputType = {
@@ -98,6 +103,7 @@ export type DebtCountAggregateInputType = {
   direction?: true
   amount?: true
   period?: true
+  description?: true
   _all?: true
 }
 
@@ -193,6 +199,7 @@ export type DebtGroupByOutputType = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date
+  description: string | null
   _count: DebtCountAggregateOutputType | null
   _avg: DebtAvgAggregateOutputType | null
   _sum: DebtSumAggregateOutputType | null
@@ -224,6 +231,7 @@ export type DebtWhereInput = {
   direction?: Prisma.EnumDebtDirectionFilter<"Debt"> | $Enums.DebtDirection
   amount?: Prisma.FloatFilter<"Debt"> | number
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
+  description?: Prisma.StringNullableFilter<"Debt"> | string | null
   debtOwner?: Prisma.XOR<Prisma.DebtOwnerScalarRelationFilter, Prisma.DebtOwnerWhereInput>
 }
 
@@ -233,6 +241,7 @@ export type DebtOrderByWithRelationInput = {
   direction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   debtOwner?: Prisma.DebtOwnerOrderByWithRelationInput
 }
 
@@ -245,6 +254,7 @@ export type DebtWhereUniqueInput = Prisma.AtLeast<{
   direction?: Prisma.EnumDebtDirectionFilter<"Debt"> | $Enums.DebtDirection
   amount?: Prisma.FloatFilter<"Debt"> | number
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
+  description?: Prisma.StringNullableFilter<"Debt"> | string | null
   debtOwner?: Prisma.XOR<Prisma.DebtOwnerScalarRelationFilter, Prisma.DebtOwnerWhereInput>
 }, "id">
 
@@ -254,6 +264,7 @@ export type DebtOrderByWithAggregationInput = {
   direction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DebtCountOrderByAggregateInput
   _avg?: Prisma.DebtAvgOrderByAggregateInput
   _max?: Prisma.DebtMaxOrderByAggregateInput
@@ -270,12 +281,14 @@ export type DebtScalarWhereWithAggregatesInput = {
   direction?: Prisma.EnumDebtDirectionWithAggregatesFilter<"Debt"> | $Enums.DebtDirection
   amount?: Prisma.FloatWithAggregatesFilter<"Debt"> | number
   period?: Prisma.DateTimeWithAggregatesFilter<"Debt"> | Date | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"Debt"> | string | null
 }
 
 export type DebtCreateInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
+  description?: string | null
   debtOwner: Prisma.DebtOwnerCreateNestedOneWithoutDebtsInput
 }
 
@@ -285,12 +298,14 @@ export type DebtUncheckedCreateInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
+  description?: string | null
 }
 
 export type DebtUpdateInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   debtOwner?: Prisma.DebtOwnerUpdateOneRequiredWithoutDebtsNestedInput
 }
 
@@ -300,6 +315,7 @@ export type DebtUncheckedUpdateInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DebtCreateManyInput = {
@@ -308,12 +324,14 @@ export type DebtCreateManyInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
+  description?: string | null
 }
 
 export type DebtUpdateManyMutationInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DebtUncheckedUpdateManyInput = {
@@ -322,6 +340,7 @@ export type DebtUncheckedUpdateManyInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DebtCountOrderByAggregateInput = {
@@ -330,6 +349,7 @@ export type DebtCountOrderByAggregateInput = {
   direction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  description?: Prisma.SortOrder
 }
 
 export type DebtAvgOrderByAggregateInput = {
@@ -344,6 +364,7 @@ export type DebtMaxOrderByAggregateInput = {
   direction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  description?: Prisma.SortOrder
 }
 
 export type DebtMinOrderByAggregateInput = {
@@ -352,6 +373,7 @@ export type DebtMinOrderByAggregateInput = {
   direction?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   period?: Prisma.SortOrder
+  description?: Prisma.SortOrder
 }
 
 export type DebtSumOrderByAggregateInput = {
@@ -428,6 +450,7 @@ export type DebtCreateWithoutDebtOwnerInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
+  description?: string | null
 }
 
 export type DebtUncheckedCreateWithoutDebtOwnerInput = {
@@ -435,6 +458,7 @@ export type DebtUncheckedCreateWithoutDebtOwnerInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
+  description?: string | null
 }
 
 export type DebtCreateOrConnectWithoutDebtOwnerInput = {
@@ -472,6 +496,7 @@ export type DebtScalarWhereInput = {
   direction?: Prisma.EnumDebtDirectionFilter<"Debt"> | $Enums.DebtDirection
   amount?: Prisma.FloatFilter<"Debt"> | number
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
+  description?: Prisma.StringNullableFilter<"Debt"> | string | null
 }
 
 export type DebtCreateManyDebtOwnerInput = {
@@ -479,12 +504,14 @@ export type DebtCreateManyDebtOwnerInput = {
   direction: $Enums.DebtDirection
   amount: number
   period: Date | string
+  description?: string | null
 }
 
 export type DebtUpdateWithoutDebtOwnerInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DebtUncheckedUpdateWithoutDebtOwnerInput = {
@@ -492,6 +519,7 @@ export type DebtUncheckedUpdateWithoutDebtOwnerInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DebtUncheckedUpdateManyWithoutDebtOwnerInput = {
@@ -499,6 +527,7 @@ export type DebtUncheckedUpdateManyWithoutDebtOwnerInput = {
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -509,6 +538,7 @@ export type DebtSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   direction?: boolean
   amount?: boolean
   period?: boolean
+  description?: boolean
   debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
@@ -518,6 +548,7 @@ export type DebtSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   direction?: boolean
   amount?: boolean
   period?: boolean
+  description?: boolean
   debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
@@ -527,6 +558,7 @@ export type DebtSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   direction?: boolean
   amount?: boolean
   period?: boolean
+  description?: boolean
   debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debt"]>
 
@@ -536,9 +568,10 @@ export type DebtSelectScalar = {
   direction?: boolean
   amount?: boolean
   period?: boolean
+  description?: boolean
 }
 
-export type DebtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "debtOwnerId" | "direction" | "amount" | "period", ExtArgs["result"]["debt"]>
+export type DebtOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "debtOwnerId" | "direction" | "amount" | "period" | "description", ExtArgs["result"]["debt"]>
 export type DebtInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   debtOwner?: boolean | Prisma.DebtOwnerDefaultArgs<ExtArgs>
 }
@@ -560,6 +593,7 @@ export type $DebtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     direction: $Enums.DebtDirection
     amount: number
     period: Date
+    description: string | null
   }, ExtArgs["result"]["debt"]>
   composites: {}
 }
@@ -989,6 +1023,7 @@ export interface DebtFieldRefs {
   readonly direction: Prisma.FieldRef<"Debt", 'DebtDirection'>
   readonly amount: Prisma.FieldRef<"Debt", 'Float'>
   readonly period: Prisma.FieldRef<"Debt", 'DateTime'>
+  readonly description: Prisma.FieldRef<"Debt", 'String'>
 }
     
 

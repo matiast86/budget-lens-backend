@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Currency } from 'prisma/generated/prisma/enums';
 
 export class LedgerDashboardResponseDto {
   @ApiProperty({ example: 1 })
@@ -11,6 +12,8 @@ export class LedgerDashboardResponseDto {
     example: 'Tracks monthly family expenses and shared utilities.',
   })
   description?: string;
+
+  currency: Currency
 
   @ApiProperty({
     description: 'ISO date string when the ledger was created',

@@ -1362,6 +1362,7 @@ export const LedgerScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
+  currency: 'currency',
   ownerId: 'ownerId',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -1412,7 +1413,8 @@ export const DebtScalarFieldEnum = {
   debtOwnerId: 'debtOwnerId',
   direction: 'direction',
   amount: 'amount',
-  period: 'period'
+  period: 'period',
+  description: 'description'
 } as const
 
 export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
@@ -1471,6 +1473,7 @@ export const TransactionScalarFieldEnum = {
   installment: 'installment',
   comment: 'comment',
   currency: 'currency',
+  exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
   type: 'type',
@@ -1599,6 +1602,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Currency'
+ */
+export type EnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Currency'>
+    
+
+
+/**
+ * Reference to a field of type 'Currency[]'
+ */
+export type ListEnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Currency[]'>
+    
+
+
+/**
  * Reference to a field of type 'PaymentType'
  */
 export type EnumPaymentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentType'>
@@ -1623,20 +1640,6 @@ export type EnumCreditBrandFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'CreditBrand[]'
  */
 export type ListEnumCreditBrandFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreditBrand[]'>
-    
-
-
-/**
- * Reference to a field of type 'Currency'
- */
-export type EnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Currency'>
-    
-
-
-/**
- * Reference to a field of type 'Currency[]'
- */
-export type ListEnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Currency[]'>
     
 
 

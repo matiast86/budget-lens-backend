@@ -37,6 +37,7 @@ model Ledger {
   id             Int              @id @default(autoincrement())
   name           String
   description    String?
+  currency       Currency
   ownerId        String           @db.Uuid
   debtOwners     DebtOwner[]      @relation("LedgerDebtOwners")
   owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])
@@ -106,6 +107,7 @@ model Debt {
   direction    DebtDirection
   amount       Float
   period       DateTime
+  description  String?
 
   @@map("debts")
 }
@@ -173,13 +175,14 @@ model Transaction {
   status                Status
   entryType             EntryType
   categoryId            Int
-  groupId               Int?
+  groupId               Int
   transactionDate       DateTime
   paymentMonth          DateTime
   installments          Int                     @default(1)
   installment           Int                     @default(1)
   comment               String?
   currency              Currency
+  exchangeRate          Decimal?
   totalAmount           Decimal
   monthlyAmount         Decimal
   type                  TransactionType        @default(VARIABLE)

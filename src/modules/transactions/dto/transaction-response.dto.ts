@@ -75,6 +75,8 @@ export class TransactionResponseDto {
   })
   currency: Currency;
 
+  exchangeRate: number;
+
   @ApiProperty({
     description: 'Total transaction amount.',
     example: 27500.5,
@@ -94,7 +96,7 @@ export class TransactionResponseDto {
   category: CategoryResponseDto;
 
   @ApiProperty({ type: () => GroupResponseDto, required: false })
-  group?: GroupResponseDto;
+  group: GroupResponseDto;
 
   @ApiProperty({ type: () => PaymentMethodResponseDto })
   paymentMethod: PaymentMethodResponseDto;

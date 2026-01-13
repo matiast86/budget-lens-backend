@@ -15,7 +15,7 @@ export class TransactionsBreakDownEntity {
   transactionId: number;
 
   @ApiProperty({
-    description: 'Week number of the breakdown (1–52).',
+    description: 'Week number of the breakdown (1–4).',
     example: 3,
   })
   weekNumber: number;

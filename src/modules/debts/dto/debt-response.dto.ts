@@ -28,6 +28,8 @@ export class DebtResponseDto {
   })
   period: string;
 
+  description?: string;
+
   constructor(partial: Partial<DebtResponseDto>) {
     Object.assign(this, partial);
   }

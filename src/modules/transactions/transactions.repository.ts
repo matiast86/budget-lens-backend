@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Transaction } from 'prisma/generated/prisma/client';
+import {
+  Currency,
+  EntryType,
+  Prisma,
+  Transaction,
+} from 'prisma/generated/prisma/client';
 import { TransactionCreateInput } from 'prisma/generated/prisma/models';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TransactionDetailView } from 'src/types/entities/transaction.types';
+import {
+  TransactionBreakDownsAndGroups,
+  TransactionDetailView,
+} from 'src/types/entities/transaction.types';
 
 @Injectable()
 export class TransactionsRepository {
@@ -69,5 +77,18 @@ export class TransactionsRepository {
     await this.prisma.transaction
       .delete({ where: { id } })
       .catch(handleP2025(`Transaction with id: ${id} not found.`));
+  }
+
+  async findByGroupAndCategory(
+    categoryId: number,
+    paymentMethodId: number,
+    groupId: number,
+    currency: Currency,
+    entryType: EntryType,
+  ): Promise<TransactionBreakDownsAndGroups | null> {
+    return await this.prisma.transaction.findFirst({
+      where: { categoryId, paymentMethodId, groupId, currency, entryType },
+      include: { transactionsBreakDown: true, group: true },
+    });
   }
 }

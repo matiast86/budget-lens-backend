@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaymentType } from 'prisma/generated/prisma/client';
+import { PaymentMethod, PaymentType } from 'prisma/generated/prisma/client';
 
 import {
   paymentMethodArrayToArrayDto,
@@ -97,5 +97,12 @@ export class PaymentMethodsService {
   async remove(userId: string, id: number): Promise<void> {
     await this.usersService.findOne(userId);
     await this.paymentMethodsRepository.delete(id, userId);
+  }
+
+  async findById(id: number): Promise<PaymentMethod> {
+    const method = await this.paymentMethodsRepository.findOne(id);
+    if (!method)
+      throw new NotFoundException(`Payment method with id: ${id} not found.`);
+    return method;
   }
 }

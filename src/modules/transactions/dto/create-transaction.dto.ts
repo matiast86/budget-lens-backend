@@ -6,9 +6,10 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   Min,
 } from 'class-validator';
-import { Currency } from 'prisma/generated/prisma/enums';
+import { Currency, DebtDirection } from 'prisma/generated/prisma/enums';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -23,10 +24,9 @@ export class CreateTransactionDto {
     description: 'Optional ID of the selected group.',
     example: 78,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
-  groupId?: number;
+  groupId: number;
 
   @ApiProperty({
     description: "ID of the transaction's payment method.",
@@ -45,6 +45,13 @@ export class CreateTransactionDto {
   @Min(1)
   debtOwnerId?: number;
 
+  @IsOptional()
+  @IsNumber()
+  debtAmount?: number;
+
+  @IsOptional()
+  debtDirection?: DebtDirection;
+
   @ApiProperty({
     description: 'Date the transaction occurred (ISO 8601).',
     example: '2025-02-01T00:00:00.000Z',
@@ -59,7 +66,7 @@ export class CreateTransactionDto {
   })
   @IsOptional()
   @IsDateString()
-  paymentMonth?: Date;
+  paymentMonthValue?: Date;
 
   @ApiPropertyOptional({
     description: 'Number of total installments; defaults to 1.',
@@ -86,13 +93,28 @@ export class CreateTransactionDto {
   @IsEnum(Currency)
   currency: Currency;
 
+  @IsOptional()
+  @IsNumber()
+  exchangeRate: number;
+
   @ApiProperty({
     description: 'Total transaction amount.',
     example: 27500.5,
   })
   @IsNumber()
   @Min(0)
-  totalAmount: number;
+  totalProvidedAmount: number;
+
+  @ApiProperty({
+    description:
+      'Week number of the breakdown (1–4). In case the transaction is for current month',
+    example: 3,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  weekNumber?: number;
   constructor(partial: Partial<CreateTransactionDto>) {
     Object.assign(this, partial);
   }

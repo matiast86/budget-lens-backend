@@ -38,6 +38,7 @@ export type LedgerMinAggregateOutputType = {
   id: number | null
   name: string | null
   description: string | null
+  currency: $Enums.Currency | null
   ownerId: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type LedgerMaxAggregateOutputType = {
   id: number | null
   name: string | null
   description: string | null
+  currency: $Enums.Currency | null
   ownerId: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -58,6 +60,7 @@ export type LedgerCountAggregateOutputType = {
   id: number
   name: number
   description: number
+  currency: number
   ownerId: number
   isActive: number
   createdAt: number
@@ -78,6 +81,7 @@ export type LedgerMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  currency?: true
   ownerId?: true
   isActive?: true
   createdAt?: true
@@ -88,6 +92,7 @@ export type LedgerMaxAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  currency?: true
   ownerId?: true
   isActive?: true
   createdAt?: true
@@ -98,6 +103,7 @@ export type LedgerCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  currency?: true
   ownerId?: true
   isActive?: true
   createdAt?: true
@@ -195,6 +201,7 @@ export type LedgerGroupByOutputType = {
   id: number
   name: string
   description: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive: boolean
   createdAt: Date
@@ -228,6 +235,7 @@ export type LedgerWhereInput = {
   id?: Prisma.IntFilter<"Ledger"> | number
   name?: Prisma.StringFilter<"Ledger"> | string
   description?: Prisma.StringNullableFilter<"Ledger"> | string | null
+  currency?: Prisma.EnumCurrencyFilter<"Ledger"> | $Enums.Currency
   ownerId?: Prisma.UuidFilter<"Ledger"> | string
   isActive?: Prisma.BoolFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Ledger"> | Date | string
@@ -245,6 +253,7 @@ export type LedgerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  currency?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -265,6 +274,7 @@ export type LedgerWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.LedgerWhereInput | Prisma.LedgerWhereInput[]
   name?: Prisma.StringFilter<"Ledger"> | string
   description?: Prisma.StringNullableFilter<"Ledger"> | string | null
+  currency?: Prisma.EnumCurrencyFilter<"Ledger"> | $Enums.Currency
   ownerId?: Prisma.UuidFilter<"Ledger"> | string
   isActive?: Prisma.BoolFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Ledger"> | Date | string
@@ -282,6 +292,7 @@ export type LedgerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  currency?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -300,6 +311,7 @@ export type LedgerScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Ledger"> | number
   name?: Prisma.StringWithAggregatesFilter<"Ledger"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Ledger"> | string | null
+  currency?: Prisma.EnumCurrencyWithAggregatesFilter<"Ledger"> | $Enums.Currency
   ownerId?: Prisma.UuidWithAggregatesFilter<"Ledger"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Ledger"> | Date | string
@@ -309,6 +321,7 @@ export type LedgerScalarWhereWithAggregatesInput = {
 export type LedgerCreateInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -325,6 +338,7 @@ export type LedgerUncheckedCreateInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -340,6 +354,7 @@ export type LedgerUncheckedCreateInput = {
 export type LedgerUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -356,6 +371,7 @@ export type LedgerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +388,7 @@ export type LedgerCreateManyInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -381,6 +398,7 @@ export type LedgerCreateManyInput = {
 export type LedgerUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,6 +408,7 @@ export type LedgerUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -410,6 +429,7 @@ export type LedgerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -424,6 +444,7 @@ export type LedgerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -434,6 +455,7 @@ export type LedgerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -493,6 +515,10 @@ export type LedgerUncheckedUpdateManyWithoutOwnerNestedInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type EnumCurrencyFieldUpdateOperationsInput = {
+  set?: $Enums.Currency
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -590,6 +616,7 @@ export type LedgerUpdateOneRequiredWithoutTransactionsNestedInput = {
 export type LedgerCreateWithoutOwnerInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -605,6 +632,7 @@ export type LedgerUncheckedCreateWithoutOwnerInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -649,6 +677,7 @@ export type LedgerScalarWhereInput = {
   id?: Prisma.IntFilter<"Ledger"> | number
   name?: Prisma.StringFilter<"Ledger"> | string
   description?: Prisma.StringNullableFilter<"Ledger"> | string | null
+  currency?: Prisma.EnumCurrencyFilter<"Ledger"> | $Enums.Currency
   ownerId?: Prisma.UuidFilter<"Ledger"> | string
   isActive?: Prisma.BoolFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Ledger"> | Date | string
@@ -658,6 +687,7 @@ export type LedgerScalarWhereInput = {
 export type LedgerCreateWithoutCollaborationsInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -673,6 +703,7 @@ export type LedgerUncheckedCreateWithoutCollaborationsInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -703,6 +734,7 @@ export type LedgerUpdateToOneWithWhereWithoutCollaborationsInput = {
 export type LedgerUpdateWithoutCollaborationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -718,6 +750,7 @@ export type LedgerUncheckedUpdateWithoutCollaborationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -732,6 +765,7 @@ export type LedgerUncheckedUpdateWithoutCollaborationsInput = {
 export type LedgerCreateWithoutPaymentMethodsInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -747,6 +781,7 @@ export type LedgerUncheckedCreateWithoutPaymentMethodsInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -777,6 +812,7 @@ export type LedgerUpdateToOneWithWhereWithoutPaymentMethodsInput = {
 export type LedgerUpdateWithoutPaymentMethodsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -792,6 +828,7 @@ export type LedgerUncheckedUpdateWithoutPaymentMethodsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -806,6 +843,7 @@ export type LedgerUncheckedUpdateWithoutPaymentMethodsInput = {
 export type LedgerCreateWithoutDebtOwnersInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -821,6 +859,7 @@ export type LedgerUncheckedCreateWithoutDebtOwnersInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -851,6 +890,7 @@ export type LedgerUpdateToOneWithWhereWithoutDebtOwnersInput = {
 export type LedgerUpdateWithoutDebtOwnersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -866,6 +906,7 @@ export type LedgerUncheckedUpdateWithoutDebtOwnersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -880,6 +921,7 @@ export type LedgerUncheckedUpdateWithoutDebtOwnersInput = {
 export type LedgerCreateWithoutCategoriesInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -895,6 +937,7 @@ export type LedgerUncheckedCreateWithoutCategoriesInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -925,6 +968,7 @@ export type LedgerUpdateToOneWithWhereWithoutCategoriesInput = {
 export type LedgerUpdateWithoutCategoriesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -940,6 +984,7 @@ export type LedgerUncheckedUpdateWithoutCategoriesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -954,6 +999,7 @@ export type LedgerUncheckedUpdateWithoutCategoriesInput = {
 export type LedgerCreateWithoutGroupsInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -969,6 +1015,7 @@ export type LedgerUncheckedCreateWithoutGroupsInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -999,6 +1046,7 @@ export type LedgerUpdateToOneWithWhereWithoutGroupsInput = {
 export type LedgerUpdateWithoutGroupsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1014,6 +1062,7 @@ export type LedgerUncheckedUpdateWithoutGroupsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1028,6 +1077,7 @@ export type LedgerUncheckedUpdateWithoutGroupsInput = {
 export type LedgerCreateWithoutTransactionsInput = {
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1043,6 +1093,7 @@ export type LedgerUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1073,6 +1124,7 @@ export type LedgerUpdateToOneWithWhereWithoutTransactionsInput = {
 export type LedgerUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1088,6 +1140,7 @@ export type LedgerUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1103,6 +1156,7 @@ export type LedgerCreateManyOwnerInput = {
   id?: number
   name: string
   description?: string | null
+  currency: $Enums.Currency
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1111,6 +1165,7 @@ export type LedgerCreateManyOwnerInput = {
 export type LedgerUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1126,6 +1181,7 @@ export type LedgerUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1141,6 +1197,7 @@ export type LedgerUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1226,6 +1283,7 @@ export type LedgerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   name?: boolean
   description?: boolean
+  currency?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1244,6 +1302,7 @@ export type LedgerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   description?: boolean
+  currency?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1255,6 +1314,7 @@ export type LedgerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   description?: boolean
+  currency?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1266,13 +1326,14 @@ export type LedgerSelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
+  currency?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LedgerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "ownerId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["ledger"]>
+export type LedgerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "currency" | "ownerId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["ledger"]>
 export type LedgerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   debtOwners?: boolean | Prisma.Ledger$debtOwnersArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1305,6 +1366,7 @@ export type $LedgerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: number
     name: string
     description: string | null
+    currency: $Enums.Currency
     ownerId: string
     isActive: boolean
     createdAt: Date
@@ -1742,6 +1804,7 @@ export interface LedgerFieldRefs {
   readonly id: Prisma.FieldRef<"Ledger", 'Int'>
   readonly name: Prisma.FieldRef<"Ledger", 'String'>
   readonly description: Prisma.FieldRef<"Ledger", 'String'>
+  readonly currency: Prisma.FieldRef<"Ledger", 'Currency'>
   readonly ownerId: Prisma.FieldRef<"Ledger", 'String'>
   readonly isActive: Prisma.FieldRef<"Ledger", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Ledger", 'DateTime'>

@@ -16,10 +16,23 @@ export const TransactionIncludes = {
   },
 } as const;
 
+export const PartialIncludes = {
+  detail: {
+    include: {
+      transactionsBreakDown: true,
+      group: true,
+    },
+  },
+};
+
 /* ==========================================================================
    VIEW TYPES
    ========================================================================== */
 
 export type TransactionDetailView = Prisma.TransactionGetPayload<
   typeof TransactionIncludes.detail
+>;
+
+export type TransactionBreakDownsAndGroups = Prisma.TransactionGetPayload<
+  typeof PartialIncludes.detail
 >;

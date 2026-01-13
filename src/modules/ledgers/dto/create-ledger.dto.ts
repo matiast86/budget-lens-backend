@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Currency } from 'prisma/generated/prisma/enums';
 
 export class CreateLedgerDto {
   @ApiProperty({
@@ -10,6 +11,9 @@ export class CreateLedgerDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @IsNumber()
+  currency: Currency;
 
   @ApiProperty({
     description:

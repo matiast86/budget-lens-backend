@@ -65,4 +65,8 @@ export class PaymentMethodsRepository {
       })
       .catch(handleP2025(`Payment method with id: ${id} not found.`));
   }
+
+  async findOne(id: number): Promise<PaymentMethod | null> {
+    return await this.prisma.paymentMethod.findUnique({ where: { id } });
+  }
 }

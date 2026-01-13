@@ -101,6 +101,7 @@ export const LedgerScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
+  currency: 'currency',
   ownerId: 'ownerId',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -151,7 +152,8 @@ export const DebtScalarFieldEnum = {
   debtOwnerId: 'debtOwnerId',
   direction: 'direction',
   amount: 'amount',
-  period: 'period'
+  period: 'period',
+  description: 'description'
 } as const
 
 export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
@@ -210,6 +212,7 @@ export const TransactionScalarFieldEnum = {
   installment: 'installment',
   comment: 'comment',
   currency: 'currency',
+  exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
   type: 'type',

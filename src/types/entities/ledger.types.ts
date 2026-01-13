@@ -6,6 +6,7 @@ export const LedgerIncludes = {
       id: true,
       name: true,
       description: true,
+      currency: true,
       createdAt: true,
       updatedAt: true,
     },

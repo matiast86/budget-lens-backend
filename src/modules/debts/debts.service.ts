@@ -37,7 +37,7 @@ export class DebtsService {
     owner: DebtOwnerResponseDto,
     createDebtDto: CreateDebtDto,
   ): Promise<DebtResponseDto> {
-    const { direction, amount, periodString } = createDebtDto;
+    const { direction, amount, periodString, description } = createDebtDto;
 
     //convert period string in format YYYY-MM to date
     const period = parsePeriod(periodString);
@@ -45,6 +45,7 @@ export class DebtsService {
       direction,
       amount,
       period,
+      description,
       debtOwner: { connect: { id: owner.id } },
     });
     return debtToResponseDto(debt);

@@ -24,11 +24,13 @@ export class LedgersService {
     ownerId: string,
     dto: CreateLedgerDto,
   ): Promise<LedgerDashboardResponseDto> {
+    const { name, description, currency } = dto;
     await this.usersService.findOne(ownerId);
 
     const data: Prisma.LedgerCreateInput = {
-      name: dto.name,
-      description: dto.description,
+      name: name,
+      description: description,
+      currency: currency,
       owner: { connect: { id: ownerId } },
     };
 

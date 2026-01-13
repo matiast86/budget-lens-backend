@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, Matches } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 import { DebtDirection } from 'prisma/generated/prisma/client';
 
 export class CreateDebtDto {
@@ -17,4 +23,8 @@ export class CreateDebtDto {
   })
   @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, { message: 'month must be YYYY-MM' })
   periodString: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
