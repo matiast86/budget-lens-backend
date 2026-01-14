@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from 'prisma/generated/prisma/client';
 import {
   Currency,
   DebtDirection,
@@ -16,7 +17,11 @@ import {
   isPastMonth,
   periodMapper,
 } from 'src/helpers/dates';
-import { transactionToResponseDto } from 'src/helpers/mappers/transaction.mapper';
+import {
+  transactionArrayToArrayDto,
+  transactionToResponseDto,
+} from 'src/helpers/mappers/transaction.mapper';
+import { TransactionRelation } from 'src/types/entities/transaction.types';
 import { DebtOwnersService } from '../debt-owners/debt-owners.service';
 import { DebtsService } from '../debts/debts.service';
 import { LedgersService } from '../ledgers/ledgers.service';
@@ -433,6 +438,39 @@ export class TransactionsService {
       totalAmount,
     });
 
+    return transactionToResponseDto(updated);
+  }
+
+  async findAllByLedgerId(
+    ledgerId: number,
+    skip: number = 1,
+    take: number = 20,
+  ): Promise<TransactionResponseDto[]> {
+    const ledgers = await this.transactionsRepository.findAllByPaginated(
+      { ledgerId },
+      skip,
+      take,
+    );
+
+    return transactionArrayToArrayDto(ledgers);
+  }
+
+  async findById(id: number): Promise<TransactionResponseDto> {
+    const transaction = await this.transactionsRepository.findById(id);
+    if (!transaction)
+      throw new NotFoundException(`Transaction with id: ${id} not found.`);
+    return transactionToResponseDto(transaction);
+  }
+
+  async changeRelation(
+    id: number,
+    relation: TransactionRelation,
+    targetId: number,
+  ): Promise<TransactionResponseDto> {
+    const data: Prisma.TransactionUpdateInput = {
+      [relation]: { connect: { id: targetId } },
+    };
+    const updated = await this.transactionsRepository.update(id, data);
     return transactionToResponseDto(updated);
   }
 }

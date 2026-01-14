@@ -36,3 +36,5 @@ export type TransactionDetailView = Prisma.TransactionGetPayload<
 export type TransactionBreakDownsAndGroups = Prisma.TransactionGetPayload<
   typeof PartialIncludes.detail
 >;
+
+export type TransactionRelation = 'category' | 'group' | 'paymentMethod';
