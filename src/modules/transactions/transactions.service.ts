@@ -1,5 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { TransactionBreakDown } from 'prisma/generated/prisma/browser';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   Currency,
   DebtDirection,
@@ -18,7 +21,9 @@ import { DebtOwnersService } from '../debt-owners/debt-owners.service';
 import { DebtsService } from '../debts/debts.service';
 import { LedgersService } from '../ledgers/ledgers.service';
 import { PaymentMethodsService } from '../payment-methods/payment-methods.service';
+import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
+import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { TransactionsRepository } from './transactions.repository';
@@ -63,20 +68,17 @@ export class TransactionsService {
     });
   }
 
-  // Helper: sum breakdown amounts as numbers (Prisma decimals).
-  sumBreakDownAmount(transactionBreakDowns: TransactionBreakDown[]): number {
-    const amounts = transactionBreakDowns.map((bd) => bd.amount);
-    return amounts.reduce((acc, cur) => acc + Number(cur), 0);
-  }
-
   // Helper: merge existing and new comments into a single string.
-  updateComment(existing?: string, newComment?: string): string | undefined {
+  private updateComment(
+    existing?: string,
+    newComment?: string,
+  ): string | undefined {
     const merged = [existing, newComment].filter(Boolean).join('/');
     return merged || undefined;
   }
 
   // Helper: determine transaction status based on its date.
-  setTransactionStatus(transactionDate: Date): Status {
+  private setTransactionStatus(transactionDate: Date): Status {
     switch (true) {
       case checkCurrentMonth(transactionDate):
         return Status.CURRENT;
@@ -88,7 +90,7 @@ export class TransactionsService {
   }
 
   // Helper: create installment transactions and optional debt records.
-  async handleInstallments(
+  private async handleInstallments(
     installments: number,
     totalProvidedAmount: number,
     currency: Currency,
@@ -169,7 +171,7 @@ export class TransactionsService {
     return newTransactions;
   }
 
-  assignTotalAmount(
+  private assignTotalAmount(
     totalProvidedAmount: number,
     currency: Currency,
     ledgerCurrency: Currency,
@@ -347,6 +349,90 @@ export class TransactionsService {
 
   async createIncome(
     ledgerId: number,
-    createTransactionDto: CreateTransactionDto,
-  ): Promise<TransactionResponseDto> {}
+    createIncomeDto: CreateIncomeDto,
+  ): Promise<TransactionResponseDto> {
+    const {
+      categoryId,
+      groupId,
+      paymentMethodId,
+      transactionDate,
+      paymentMonthValue,
+      comment,
+      currency,
+      exchangeRate,
+      totalProvidedAmount,
+    } = createIncomeDto;
+    const ledger = await this.ledgersService.findOne(ledgerId);
+
+    // Enforce exchange rate when currencies differ.
+    if (currency != ledger.currency && !exchangeRate)
+      throw new BadRequestException(`You must provide the exchange rate.`);
+
+    // Default payment month to transaction date when not provided.
+    const paymentMonth = paymentMonthValue ?? transactionDate;
+
+    const totalAmount = this.assignTotalAmount(
+      totalProvidedAmount,
+      currency,
+      ledger.currency,
+      exchangeRate,
+    );
+
+    const newTransaction = await this.transactionsRepository.create({
+      status: this.setTransactionStatus(transactionDate),
+      entryType: EntryType.INCOME,
+      transactionDate,
+      paymentMonth,
+      comment,
+      currency,
+      exchangeRate,
+      totalAmount,
+      monthlyAmount: totalAmount,
+      category: { connect: { id: categoryId } },
+      ledger: { connect: { id: ledgerId } },
+      group: { connect: { id: groupId } },
+      paymentMethod: { connect: { id: paymentMethodId } },
+    });
+
+    await this.createTransactionsBD(newTransaction.id);
+    return transactionToResponseDto(newTransaction);
+  }
+
+  async assignBreakDown(
+    transactionId: number,
+    assignBreakDownDto: AssignBreakDownDto,
+  ): Promise<TransactionResponseDto> {
+    const { amountOne, amountTwo, amountThree, amountFour } =
+      assignBreakDownDto;
+
+    const transaction =
+      await this.transactionsRepository.findById(transactionId);
+    if (!transaction)
+      throw new NotFoundException(
+        `Transaction with id: ${transactionId} not found.`,
+      );
+
+    const breakDowns = transaction.transactionsBreakDown;
+    const amountByWeek: Record<number, number | undefined> = {
+      1: amountOne,
+      2: amountTwo,
+      3: amountThree,
+      4: amountFour,
+    };
+    let totalAmount = 0;
+
+    for (const bd of breakDowns) {
+      const newAmount = amountByWeek[bd.weekNumber];
+      if (newAmount != null) {
+        await this.transactionBDService.update(bd.id, { amount: newAmount });
+      }
+      const amountToUse = newAmount != null ? newAmount : Number(bd.amount);
+      totalAmount += amountToUse;
+    }
+    const updated = await this.transactionsRepository.update(transaction.id, {
+      totalAmount,
+    });
+
+    return transactionToResponseDto(updated);
+  }
 }
