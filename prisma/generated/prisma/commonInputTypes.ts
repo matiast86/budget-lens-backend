@@ -279,50 +279,6 @@ export type EnumCurrencyNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumCurrencyNullableFilter<$PrismaModel>
 }
 
-export type EnumDebtDirectionFilter<$PrismaModel = never> = {
-  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
-  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel> | $Enums.DebtDirection
-}
-
-export type FloatFilter<$PrismaModel = never> = {
-  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedFloatFilter<$PrismaModel> | number
-}
-
-export type EnumDebtDirectionWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
-  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDebtDirectionWithAggregatesFilter<$PrismaModel> | $Enums.DebtDirection
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
-}
-
-export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
-  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
-  _min?: Prisma.NestedFloatFilter<$PrismaModel>
-  _max?: Prisma.NestedFloatFilter<$PrismaModel>
-}
-
 export type EnumCategoryScopeFilter<$PrismaModel = never> = {
   equals?: $Enums.CategoryScope | Prisma.EnumCategoryScopeFieldRefInput<$PrismaModel>
   in?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
@@ -470,6 +426,23 @@ export type EnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
+}
+
+export type EnumDebtDirectionFilter<$PrismaModel = never> = {
+  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
+  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel> | $Enums.DebtDirection
+}
+
+export type EnumDebtDirectionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
+  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDebtDirectionWithAggregatesFilter<$PrismaModel> | $Enums.DebtDirection
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
 }
 
 export type NestedUuidFilter<$PrismaModel = never> = {
@@ -748,39 +721,6 @@ export type NestedEnumCurrencyNullableWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumCurrencyNullableFilter<$PrismaModel>
 }
 
-export type NestedEnumDebtDirectionFilter<$PrismaModel = never> = {
-  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
-  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel> | $Enums.DebtDirection
-}
-
-export type NestedEnumDebtDirectionWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
-  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumDebtDirectionWithAggregatesFilter<$PrismaModel> | $Enums.DebtDirection
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
-}
-
-export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
-  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
-  _min?: Prisma.NestedFloatFilter<$PrismaModel>
-  _max?: Prisma.NestedFloatFilter<$PrismaModel>
-}
-
 export type NestedEnumCategoryScopeFilter<$PrismaModel = never> = {
   equals?: $Enums.CategoryScope | Prisma.EnumCategoryScopeFieldRefInput<$PrismaModel>
   in?: $Enums.CategoryScope[] | Prisma.ListEnumCategoryScopeFieldRefInput<$PrismaModel>
@@ -928,6 +868,23 @@ export type NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumDebtDirectionFilter<$PrismaModel = never> = {
+  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
+  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel> | $Enums.DebtDirection
+}
+
+export type NestedEnumDebtDirectionWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DebtDirection | Prisma.EnumDebtDirectionFieldRefInput<$PrismaModel>
+  in?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DebtDirection[] | Prisma.ListEnumDebtDirectionFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDebtDirectionWithAggregatesFilter<$PrismaModel> | $Enums.DebtDirection
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDebtDirectionFilter<$PrismaModel>
 }
 
 

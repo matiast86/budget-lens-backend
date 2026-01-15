@@ -205,8 +205,7 @@ export type DebtOwnerWhereInput = {
   name?: Prisma.StringFilter<"DebtOwner"> | string
   ledgerId?: Prisma.IntFilter<"DebtOwner"> | number
   ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
-  debts?: Prisma.DebtListRelationFilter
-  transactions?: Prisma.TransactionListRelationFilter
+  transactions?: Prisma.TransactionDebtOwnerListRelationFilter
 }
 
 export type DebtOwnerOrderByWithRelationInput = {
@@ -214,8 +213,7 @@ export type DebtOwnerOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   ledgerId?: Prisma.SortOrder
   ledger?: Prisma.LedgerOrderByWithRelationInput
-  debts?: Prisma.DebtOrderByRelationAggregateInput
-  transactions?: Prisma.TransactionOrderByRelationAggregateInput
+  transactions?: Prisma.TransactionDebtOwnerOrderByRelationAggregateInput
 }
 
 export type DebtOwnerWhereUniqueInput = Prisma.AtLeast<{
@@ -227,8 +225,7 @@ export type DebtOwnerWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"DebtOwner"> | string
   ledgerId?: Prisma.IntFilter<"DebtOwner"> | number
   ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
-  debts?: Prisma.DebtListRelationFilter
-  transactions?: Prisma.TransactionListRelationFilter
+  transactions?: Prisma.TransactionDebtOwnerListRelationFilter
 }, "id" | "ledgerId_name">
 
 export type DebtOwnerOrderByWithAggregationInput = {
@@ -254,31 +251,27 @@ export type DebtOwnerScalarWhereWithAggregatesInput = {
 export type DebtOwnerCreateInput = {
   name: string
   ledger: Prisma.LedgerCreateNestedOneWithoutDebtOwnersInput
-  debts?: Prisma.DebtCreateNestedManyWithoutDebtOwnerInput
-  transactions?: Prisma.TransactionCreateNestedManyWithoutDebtOwnerInput
+  transactions?: Prisma.TransactionDebtOwnerCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUncheckedCreateInput = {
   id?: number
   name: string
   ledgerId: number
-  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutDebtOwnerInput
-  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutDebtOwnerInput
+  transactions?: Prisma.TransactionDebtOwnerUncheckedCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutDebtOwnersNestedInput
-  debts?: Prisma.DebtUpdateManyWithoutDebtOwnerNestedInput
-  transactions?: Prisma.TransactionUpdateManyWithoutDebtOwnerNestedInput
+  transactions?: Prisma.TransactionDebtOwnerUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
-  debts?: Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput
-  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutDebtOwnerNestedInput
+  transactions?: Prisma.TransactionDebtOwnerUncheckedUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerCreateManyInput = {
@@ -305,11 +298,6 @@ export type DebtOwnerListRelationFilter = {
 
 export type DebtOwnerOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type DebtOwnerScalarRelationFilter = {
-  is?: Prisma.DebtOwnerWhereInput
-  isNot?: Prisma.DebtOwnerWhereInput
 }
 
 export type DebtOwnerLedgerIdNameCompoundUniqueInput = {
@@ -345,9 +333,9 @@ export type DebtOwnerSumOrderByAggregateInput = {
   ledgerId?: Prisma.SortOrder
 }
 
-export type DebtOwnerNullableScalarRelationFilter = {
-  is?: Prisma.DebtOwnerWhereInput | null
-  isNot?: Prisma.DebtOwnerWhereInput | null
+export type DebtOwnerScalarRelationFilter = {
+  is?: Prisma.DebtOwnerWhereInput
+  isNot?: Prisma.DebtOwnerWhereInput
 }
 
 export type DebtOwnerCreateNestedManyWithoutLedgerInput = {
@@ -392,47 +380,29 @@ export type DebtOwnerUncheckedUpdateManyWithoutLedgerNestedInput = {
   deleteMany?: Prisma.DebtOwnerScalarWhereInput | Prisma.DebtOwnerScalarWhereInput[]
 }
 
-export type DebtOwnerCreateNestedOneWithoutDebtsInput = {
-  create?: Prisma.XOR<Prisma.DebtOwnerCreateWithoutDebtsInput, Prisma.DebtOwnerUncheckedCreateWithoutDebtsInput>
-  connectOrCreate?: Prisma.DebtOwnerCreateOrConnectWithoutDebtsInput
-  connect?: Prisma.DebtOwnerWhereUniqueInput
-}
-
-export type DebtOwnerUpdateOneRequiredWithoutDebtsNestedInput = {
-  create?: Prisma.XOR<Prisma.DebtOwnerCreateWithoutDebtsInput, Prisma.DebtOwnerUncheckedCreateWithoutDebtsInput>
-  connectOrCreate?: Prisma.DebtOwnerCreateOrConnectWithoutDebtsInput
-  upsert?: Prisma.DebtOwnerUpsertWithoutDebtsInput
-  connect?: Prisma.DebtOwnerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DebtOwnerUpdateToOneWithWhereWithoutDebtsInput, Prisma.DebtOwnerUpdateWithoutDebtsInput>, Prisma.DebtOwnerUncheckedUpdateWithoutDebtsInput>
-}
-
 export type DebtOwnerCreateNestedOneWithoutTransactionsInput = {
   create?: Prisma.XOR<Prisma.DebtOwnerCreateWithoutTransactionsInput, Prisma.DebtOwnerUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.DebtOwnerCreateOrConnectWithoutTransactionsInput
   connect?: Prisma.DebtOwnerWhereUniqueInput
 }
 
-export type DebtOwnerUpdateOneWithoutTransactionsNestedInput = {
+export type DebtOwnerUpdateOneRequiredWithoutTransactionsNestedInput = {
   create?: Prisma.XOR<Prisma.DebtOwnerCreateWithoutTransactionsInput, Prisma.DebtOwnerUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.DebtOwnerCreateOrConnectWithoutTransactionsInput
   upsert?: Prisma.DebtOwnerUpsertWithoutTransactionsInput
-  disconnect?: Prisma.DebtOwnerWhereInput | boolean
-  delete?: Prisma.DebtOwnerWhereInput | boolean
   connect?: Prisma.DebtOwnerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.DebtOwnerUpdateToOneWithWhereWithoutTransactionsInput, Prisma.DebtOwnerUpdateWithoutTransactionsInput>, Prisma.DebtOwnerUncheckedUpdateWithoutTransactionsInput>
 }
 
 export type DebtOwnerCreateWithoutLedgerInput = {
   name: string
-  debts?: Prisma.DebtCreateNestedManyWithoutDebtOwnerInput
-  transactions?: Prisma.TransactionCreateNestedManyWithoutDebtOwnerInput
+  transactions?: Prisma.TransactionDebtOwnerCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUncheckedCreateWithoutLedgerInput = {
   id?: number
   name: string
-  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutDebtOwnerInput
-  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutDebtOwnerInput
+  transactions?: Prisma.TransactionDebtOwnerUncheckedCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerCreateOrConnectWithoutLedgerInput = {
@@ -470,59 +440,15 @@ export type DebtOwnerScalarWhereInput = {
   ledgerId?: Prisma.IntFilter<"DebtOwner"> | number
 }
 
-export type DebtOwnerCreateWithoutDebtsInput = {
-  name: string
-  ledger: Prisma.LedgerCreateNestedOneWithoutDebtOwnersInput
-  transactions?: Prisma.TransactionCreateNestedManyWithoutDebtOwnerInput
-}
-
-export type DebtOwnerUncheckedCreateWithoutDebtsInput = {
-  id?: number
-  name: string
-  ledgerId: number
-  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutDebtOwnerInput
-}
-
-export type DebtOwnerCreateOrConnectWithoutDebtsInput = {
-  where: Prisma.DebtOwnerWhereUniqueInput
-  create: Prisma.XOR<Prisma.DebtOwnerCreateWithoutDebtsInput, Prisma.DebtOwnerUncheckedCreateWithoutDebtsInput>
-}
-
-export type DebtOwnerUpsertWithoutDebtsInput = {
-  update: Prisma.XOR<Prisma.DebtOwnerUpdateWithoutDebtsInput, Prisma.DebtOwnerUncheckedUpdateWithoutDebtsInput>
-  create: Prisma.XOR<Prisma.DebtOwnerCreateWithoutDebtsInput, Prisma.DebtOwnerUncheckedCreateWithoutDebtsInput>
-  where?: Prisma.DebtOwnerWhereInput
-}
-
-export type DebtOwnerUpdateToOneWithWhereWithoutDebtsInput = {
-  where?: Prisma.DebtOwnerWhereInput
-  data: Prisma.XOR<Prisma.DebtOwnerUpdateWithoutDebtsInput, Prisma.DebtOwnerUncheckedUpdateWithoutDebtsInput>
-}
-
-export type DebtOwnerUpdateWithoutDebtsInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledger?: Prisma.LedgerUpdateOneRequiredWithoutDebtOwnersNestedInput
-  transactions?: Prisma.TransactionUpdateManyWithoutDebtOwnerNestedInput
-}
-
-export type DebtOwnerUncheckedUpdateWithoutDebtsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
-  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutDebtOwnerNestedInput
-}
-
 export type DebtOwnerCreateWithoutTransactionsInput = {
   name: string
   ledger: Prisma.LedgerCreateNestedOneWithoutDebtOwnersInput
-  debts?: Prisma.DebtCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerUncheckedCreateWithoutTransactionsInput = {
   id?: number
   name: string
   ledgerId: number
-  debts?: Prisma.DebtUncheckedCreateNestedManyWithoutDebtOwnerInput
 }
 
 export type DebtOwnerCreateOrConnectWithoutTransactionsInput = {
@@ -544,14 +470,12 @@ export type DebtOwnerUpdateToOneWithWhereWithoutTransactionsInput = {
 export type DebtOwnerUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutDebtOwnersNestedInput
-  debts?: Prisma.DebtUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
-  debts?: Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerCreateManyLedgerInput = {
@@ -561,15 +485,13 @@ export type DebtOwnerCreateManyLedgerInput = {
 
 export type DebtOwnerUpdateWithoutLedgerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  debts?: Prisma.DebtUpdateManyWithoutDebtOwnerNestedInput
-  transactions?: Prisma.TransactionUpdateManyWithoutDebtOwnerNestedInput
+  transactions?: Prisma.TransactionDebtOwnerUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerUncheckedUpdateWithoutLedgerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  debts?: Prisma.DebtUncheckedUpdateManyWithoutDebtOwnerNestedInput
-  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutDebtOwnerNestedInput
+  transactions?: Prisma.TransactionDebtOwnerUncheckedUpdateManyWithoutDebtOwnerNestedInput
 }
 
 export type DebtOwnerUncheckedUpdateManyWithoutLedgerInput = {
@@ -583,12 +505,10 @@ export type DebtOwnerUncheckedUpdateManyWithoutLedgerInput = {
  */
 
 export type DebtOwnerCountOutputType = {
-  debts: number
   transactions: number
 }
 
 export type DebtOwnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  debts?: boolean | DebtOwnerCountOutputTypeCountDebtsArgs
   transactions?: boolean | DebtOwnerCountOutputTypeCountTransactionsArgs
 }
 
@@ -605,15 +525,8 @@ export type DebtOwnerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
 /**
  * DebtOwnerCountOutputType without action
  */
-export type DebtOwnerCountOutputTypeCountDebtsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DebtWhereInput
-}
-
-/**
- * DebtOwnerCountOutputType without action
- */
 export type DebtOwnerCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TransactionWhereInput
+  where?: Prisma.TransactionDebtOwnerWhereInput
 }
 
 
@@ -622,7 +535,6 @@ export type DebtOwnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   name?: boolean
   ledgerId?: boolean
   ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
-  debts?: boolean | Prisma.DebtOwner$debtsArgs<ExtArgs>
   transactions?: boolean | Prisma.DebtOwner$transactionsArgs<ExtArgs>
   _count?: boolean | Prisma.DebtOwnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["debtOwner"]>
@@ -650,7 +562,6 @@ export type DebtOwnerSelectScalar = {
 export type DebtOwnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "ledgerId", ExtArgs["result"]["debtOwner"]>
 export type DebtOwnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
-  debts?: boolean | Prisma.DebtOwner$debtsArgs<ExtArgs>
   transactions?: boolean | Prisma.DebtOwner$transactionsArgs<ExtArgs>
   _count?: boolean | Prisma.DebtOwnerCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -665,8 +576,7 @@ export type $DebtOwnerPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "DebtOwner"
   objects: {
     ledger: Prisma.$LedgerPayload<ExtArgs>
-    debts: Prisma.$DebtPayload<ExtArgs>[]
-    transactions: Prisma.$TransactionPayload<ExtArgs>[]
+    transactions: Prisma.$TransactionDebtOwnerPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1067,8 +977,7 @@ readonly fields: DebtOwnerFieldRefs;
 export interface Prisma__DebtOwnerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   ledger<T extends Prisma.LedgerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LedgerDefaultArgs<ExtArgs>>): Prisma.Prisma__LedgerClient<runtime.Types.Result.GetResult<Prisma.$LedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  debts<T extends Prisma.DebtOwner$debtsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DebtOwner$debtsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DebtPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  transactions<T extends Prisma.DebtOwner$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DebtOwner$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  transactions<T extends Prisma.DebtOwner$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DebtOwner$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionDebtOwnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1497,51 +1406,27 @@ export type DebtOwnerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * DebtOwner.debts
- */
-export type DebtOwner$debtsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Debt
-   */
-  select?: Prisma.DebtSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Debt
-   */
-  omit?: Prisma.DebtOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DebtInclude<ExtArgs> | null
-  where?: Prisma.DebtWhereInput
-  orderBy?: Prisma.DebtOrderByWithRelationInput | Prisma.DebtOrderByWithRelationInput[]
-  cursor?: Prisma.DebtWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.DebtScalarFieldEnum | Prisma.DebtScalarFieldEnum[]
-}
-
-/**
  * DebtOwner.transactions
  */
 export type DebtOwner$transactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Transaction
+   * Select specific fields to fetch from the TransactionDebtOwner
    */
-  select?: Prisma.TransactionSelect<ExtArgs> | null
+  select?: Prisma.TransactionDebtOwnerSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Transaction
+   * Omit specific fields from the TransactionDebtOwner
    */
-  omit?: Prisma.TransactionOmit<ExtArgs> | null
+  omit?: Prisma.TransactionDebtOwnerOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.TransactionInclude<ExtArgs> | null
-  where?: Prisma.TransactionWhereInput
-  orderBy?: Prisma.TransactionOrderByWithRelationInput | Prisma.TransactionOrderByWithRelationInput[]
-  cursor?: Prisma.TransactionWhereUniqueInput
+  include?: Prisma.TransactionDebtOwnerInclude<ExtArgs> | null
+  where?: Prisma.TransactionDebtOwnerWhereInput
+  orderBy?: Prisma.TransactionDebtOwnerOrderByWithRelationInput | Prisma.TransactionDebtOwnerOrderByWithRelationInput[]
+  cursor?: Prisma.TransactionDebtOwnerWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.TransactionScalarFieldEnum | Prisma.TransactionScalarFieldEnum[]
+  distinct?: Prisma.TransactionDebtOwnerScalarFieldEnum | Prisma.TransactionDebtOwnerScalarFieldEnum[]
 }
 
 /**

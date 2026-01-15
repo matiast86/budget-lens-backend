@@ -62,6 +62,7 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
+  TransactionDebtOwner: 'TransactionDebtOwner',
   TransactionBreakDown: 'TransactionBreakDown'
 } as const
 
@@ -149,9 +150,6 @@ export type LedgerPaymentMethodScalarFieldEnum = (typeof LedgerPaymentMethodScal
 
 export const DebtScalarFieldEnum = {
   id: 'id',
-  debtOwnerId: 'debtOwnerId',
-  direction: 'direction',
-  amount: 'amount',
   period: 'period',
   description: 'description'
 } as const
@@ -216,11 +214,21 @@ export const TransactionScalarFieldEnum = {
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
   type: 'type',
-  debtOwnerId: 'debtOwnerId',
   paymentMethodId: 'paymentMethodId'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const TransactionDebtOwnerScalarFieldEnum = {
+  transactionId: 'transactionId',
+  debtOwnerId: 'debtOwnerId',
+  amount: 'amount',
+  direction: 'direction',
+  debtId: 'debtId'
+} as const
+
+export type TransactionDebtOwnerScalarFieldEnum = (typeof TransactionDebtOwnerScalarFieldEnum)[keyof typeof TransactionDebtOwnerScalarFieldEnum]
 
 
 export const TransactionBreakDownScalarFieldEnum = {
