@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from 'prisma/generated/prisma/client';
-import { DebtUpdateInput } from 'prisma/generated/prisma/models';
 import { parsePeriod } from 'src/helpers/dates';
 import {
   debtArrayToArrayDto,
@@ -21,7 +20,7 @@ export class DebtsService {
   constructor(private readonly debtsRepository: DebtsRepository) {}
   private parsedOrderBy(
     orderBy?: string,
-  ): Prisma.DebtOrderByWithRelationInput | undefined {
+  ): Prisma.TransactionDebtOwnerOrderByWithRelationInput | undefined {
     if (!orderBy) return undefined;
     const [field, dirRaw] = orderBy.split(':');
     const allowedFields = ['amount', 'period', 'direction'] as const;
@@ -29,7 +28,8 @@ export class DebtsService {
     if (!allowedFields.includes(field as any)) {
       throw new BadRequestException('Invalid sort field');
     }
-    const direction = dirRaw === 'desc' ? 'desc' : 'asc'; // or throw if dirRaw && not valid
+    const direction = dirRaw === 'desc' ? 'desc' : 'asc';
+    if (field === 'period') return { debt: { period: direction } };
     return { [field]: direction };
   }
 
@@ -37,16 +37,22 @@ export class DebtsService {
     owner: DebtOwnerResponseDto,
     createDebtDto: CreateDebtDto,
   ): Promise<DebtResponseDto> {
-    const { direction, amount, periodString, description } = createDebtDto;
+    const { transactionId, direction, amount, periodString, description } =
+      createDebtDto;
 
     //convert period string in format YYYY-MM to date
     const period = parsePeriod(periodString);
     const debt = await this.debtsRepository.create({
-      direction,
-      amount,
       period,
       description,
-      debtOwner: { connect: { id: owner.id } },
+      transactionDebtOwner: {
+        create: {
+          transaction: { connect: { id: transactionId } },
+          debtOwner: { connect: { id: owner.id } },
+          amount,
+          direction,
+        },
+      },
     });
     return debtToResponseDto(debt);
   }
@@ -69,7 +75,15 @@ export class DebtsService {
 
   async findOneById(id: number): Promise<DebtResponseDto> {
     const debt = await this.debtsRepository.findById(id);
-    if (!debt) throw new NotFoundException(`Debt with id:  ${id} not found.`);
+    if (!debt) {
+      const orphan = await this.debtsRepository.findDebtOnlyById(id);
+      if (orphan) {
+        throw new BadRequestException(
+          `Debt with id: ${id} is missing its split relation.`,
+        );
+      }
+      throw new NotFoundException(`Debt with id:  ${id} not found.`);
+    }
     return debtToResponseDto(debt);
   }
 
@@ -77,12 +91,16 @@ export class DebtsService {
     id: number,
     updateDebtDto: UpdateDebtDto,
   ): Promise<DebtResponseDto> {
-    const { periodString, ...res } = updateDebtDto;
-    const data: DebtUpdateInput = {
-      ...res,
+    const { periodString, amount, direction, description } = updateDebtDto;
+    const data: Prisma.DebtUpdateInput = {
+      ...(description != undefined && { description }),
       ...(periodString && { period: parsePeriod(periodString) }),
     };
-    const updated = await this.debtsRepository.update(id, data);
+    const splitData: Prisma.TransactionDebtOwnerUpdateInput = {
+      ...(amount != undefined && { amount }),
+      ...(direction != undefined && { direction }),
+    };
+    const updated = await this.debtsRepository.update(id, data, splitData);
     return debtToResponseDto(updated);
   }
 
@@ -92,6 +110,15 @@ export class DebtsService {
 
   async findEntityById(id: number): Promise<DebtResponseDto | undefined> {
     const debt = await this.debtsRepository.findById(id);
-    return debt ? debtToResponseDto(debt) : undefined;
+    if (!debt) {
+      const orphan = await this.debtsRepository.findDebtOnlyById(id);
+      if (orphan) {
+        throw new BadRequestException(
+          `Debt with id: ${id} is missing its split relation.`,
+        );
+      }
+      return undefined;
+    }
+    return debtToResponseDto(debt);
   }
 }

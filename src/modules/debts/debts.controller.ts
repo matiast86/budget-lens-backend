@@ -43,7 +43,9 @@ export class DebtsController {
   // CREATE
   // ============================================================
 
-  @ApiOperation({ summary: 'Create a new debt for a specific debt owner' })
+  @ApiOperation({
+    summary: 'Create a new debt for a specific debt owner and transaction',
+  })
   @ApiParam({
     name: 'ownerId',
     description: 'ID of the debt owner',

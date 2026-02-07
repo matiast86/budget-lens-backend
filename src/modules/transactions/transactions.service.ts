@@ -6,7 +6,6 @@ import {
 import { Prisma } from 'prisma/generated/prisma/client';
 import {
   Currency,
-  DebtDirection,
   EntryType,
   PaymentType,
   Status,
@@ -29,7 +28,10 @@ import { PaymentMethodsService } from '../payment-methods/payment-methods.servic
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
 import { CreateIncomeDto } from './dto/create-income.dto';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
+import {
+  CreateTransactionDto,
+  TransactionDebtSplitDto,
+} from './dto/create-transaction.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { TransactionsRepository } from './transactions.repository';
 
@@ -55,22 +57,27 @@ export class TransactionsService {
     }
   }
 
-  // Helper: record a debt entry tied to the transaction context.
-  async handleDebtOwner(
-    debtOwnerId: number,
-    direction: DebtDirection,
-    description: string,
-    debtAmount: number,
-    transactionDate: Date,
+  // Helper: record debt splits tied to a transaction.
+  async handleDebtsForTransaction(
+    transactionId: number,
+    debts: TransactionDebtSplitDto[] | undefined,
+    fallbackPeriod: Date,
+    fallbackDescription?: string,
+    existingDebtOwnerIds?: Set<number>,
   ): Promise<void> {
-    const date = transactionDate ?? new Date();
-    const owner = await this.debtOwnersService.findById(debtOwnerId);
-    await this.debtsService.create(owner, {
-      direction,
-      amount: debtAmount,
-      periodString: periodMapper(date),
-      description,
-    });
+    if (!debts || debts.length === 0) return;
+    const basePeriod = fallbackPeriod ?? new Date();
+    for (const debt of debts) {
+      if (existingDebtOwnerIds?.has(debt.debtOwnerId)) continue;
+      const owner = await this.debtOwnersService.findById(debt.debtOwnerId);
+      await this.debtsService.create(owner, {
+        transactionId,
+        direction: debt.direction,
+        amount: debt.amount,
+        periodString: debt.periodString ?? periodMapper(basePeriod),
+        description: debt.description ?? fallbackDescription,
+      });
+    }
   }
 
   // Helper: merge existing and new comments into a single string.
@@ -107,9 +114,7 @@ export class TransactionsService {
     paymentMethodId: number,
     groupId: number,
     exchangeRate?: number,
-    debtOwnerId?: number,
-    debtAmount?: number,
-    debtDirection?: DebtDirection,
+    debts?: TransactionDebtSplitDto[],
     comment?: string,
   ): Promise<TransactionResponseDto[]> {
     const newTransactions: TransactionResponseDto[] = [];
@@ -120,39 +125,6 @@ export class TransactionsService {
       exchangeRate,
     );
     const monthlyAmount = totalAmount / installments;
-    // If debt is provided, create a debt entry per installment.
-    if (debtOwnerId && debtDirection && debtAmount != undefined) {
-      for (let installment = 1; installment <= installments; installment++) {
-        const newTransaction = await this.transactionsRepository.create({
-          status: this.setTransactionStatus(transactionDate),
-          entryType: EntryType.EXPENSE,
-          transactionDate,
-          paymentMonth: increaseMonthByInstallment(paymentMonth, installment),
-          comment,
-          currency,
-          exchangeRate,
-          totalAmount,
-          monthlyAmount,
-          category: { connect: { id: categoryId } },
-          ledger: { connect: { id: ledgerId } },
-          debtOwner: { connect: { id: debtOwnerId } },
-          group: { connect: { id: groupId } },
-          paymentMethod: { connect: { id: paymentMethodId } },
-        });
-        await this.createTransactionsBD(newTransaction.id);
-
-        newTransactions.push(transactionToResponseDto(newTransaction));
-
-        await this.handleDebtOwner(
-          debtOwnerId,
-          debtDirection,
-          newTransaction.group.name,
-          debtAmount,
-          newTransaction.paymentMonth,
-        );
-      }
-      return newTransactions;
-    }
     // No debt: just create the installment transactions.
     for (let installment = 1; installment <= installments; installment++) {
       const newTransaction = await this.transactionsRepository.create({
@@ -171,6 +143,12 @@ export class TransactionsService {
         paymentMethod: { connect: { id: paymentMethodId } },
       });
       await this.createTransactionsBD(newTransaction.id);
+      await this.handleDebtsForTransaction(
+        newTransaction.id,
+        debts,
+        newTransaction.paymentMonth,
+        newTransaction.group?.name,
+      );
       newTransactions.push(transactionToResponseDto(newTransaction));
     }
     return newTransactions;
@@ -198,9 +176,7 @@ export class TransactionsService {
       categoryId,
       groupId,
       paymentMethodId,
-      debtOwnerId,
-      debtAmount,
-      debtDirection,
+      debts,
       transactionDate,
       paymentMonthValue,
       installments,
@@ -255,23 +231,21 @@ export class TransactionsService {
           comment: updatedCommnent,
           totalAmount: updatedTotal,
         });
-        const debtDescription = existing.groupId
-          ? existing.group.name
-          : undefined;
-
-        if (
-          debtOwnerId &&
-          debtDirection &&
-          debtDescription &&
-          debtAmount != undefined
-        )
-          await this.handleDebtOwner(
-            debtOwnerId,
-            debtDirection,
-            debtDescription,
-            debtAmount,
-            transactionDate,
+        if (debts && debts.length) {
+          const existingDetail = await this.transactionsRepository.findById(
+            existing.id,
           );
+          const existingDebtOwnerIds = existingDetail
+            ? new Set(existingDetail.debtOwners.map((d) => d.debtOwnerId))
+            : undefined;
+          await this.handleDebtsForTransaction(
+            existing.id,
+            debts,
+            transactionDate,
+            existing.group?.name,
+            existingDebtOwnerIds,
+          );
+        }
         return transactionToResponseDto(updated);
       }
     }
@@ -291,9 +265,7 @@ export class TransactionsService {
         paymentMethodId,
         groupId,
         exchangeRate,
-        debtOwnerId,
-        debtAmount,
-        debtDirection,
+        debts,
         comment,
       );
 
@@ -304,34 +276,6 @@ export class TransactionsService {
       exchangeRate,
     );
 
-    // Single transaction with debt.
-    if (debtOwnerId && debtDirection && debtAmount != undefined) {
-      const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(transactionDate),
-        entryType: EntryType.EXPENSE,
-        transactionDate,
-        paymentMonth,
-        comment,
-        currency,
-        exchangeRate,
-        totalAmount,
-        monthlyAmount: totalAmount,
-        category: { connect: { id: categoryId } },
-        ledger: { connect: { id: ledgerId } },
-        debtOwner: { connect: { id: debtOwnerId } },
-        group: { connect: { id: groupId } },
-        paymentMethod: { connect: { id: paymentMethodId } },
-      });
-      await this.createTransactionsBD(newTransaction.id);
-      await this.handleDebtOwner(
-        debtOwnerId,
-        debtDirection,
-        newTransaction.group.name,
-        debtAmount,
-        newTransaction.paymentMonth,
-      );
-      return transactionToResponseDto(newTransaction);
-    }
     // Single transaction without debt.
     const newTransaction = await this.transactionsRepository.create({
       status: this.setTransactionStatus(transactionDate),
@@ -349,6 +293,12 @@ export class TransactionsService {
       paymentMethod: { connect: { id: paymentMethodId } },
     });
     await this.createTransactionsBD(newTransaction.id);
+    await this.handleDebtsForTransaction(
+      newTransaction.id,
+      debts,
+      newTransaction.paymentMonth,
+      newTransaction.group?.name,
+    );
     return transactionToResponseDto(newTransaction);
   }
 

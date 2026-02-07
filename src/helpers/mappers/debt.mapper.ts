@@ -1,19 +1,30 @@
-import { Debt } from 'prisma/generated/prisma/client';
 import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
+import { DebtWithSplit } from 'src/types/entities/debt.types';
 import { periodMapper } from '../dates';
 
-export const debtToResponseDto = (debt: Debt): DebtResponseDto => {
-  const { id, debtOwnerId, direction, amount, period, description } = debt;
-  return new DebtResponseDto({
-    id,
+export const debtToResponseDto = (debt: DebtWithSplit): DebtResponseDto => {
+  const {
+    debt: debtRecord,
+    debtOwner,
     debtOwnerId,
+    transactionId,
     direction,
     amount,
-    period: periodMapper(period),
-    description: description ?? undefined,
+  } = debt;
+  return new DebtResponseDto({
+    id: debtRecord.id,
+    debtOwnerId,
+    debtOwnerName: debtOwner?.name,
+    transactionId,
+    direction,
+    amount: Number(amount),
+    period: periodMapper(debtRecord.period),
+    description: debtRecord.description ?? undefined,
   });
 };
 
-export const debtArrayToArrayDto = (debtArray: Debt[]): DebtResponseDto[] => {
+export const debtArrayToArrayDto = (
+  debtArray: DebtWithSplit[],
+): DebtResponseDto[] => {
   return debtArray.map(debtToResponseDto);
 };

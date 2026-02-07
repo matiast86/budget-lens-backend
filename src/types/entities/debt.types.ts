@@ -1,5 +1,9 @@
 import { Prisma } from 'prisma/generated/prisma/client';
 
 export type DebtOwnerWithDebts = Prisma.DebtOwnerGetPayload<{
-  include: { debts: { include: { owner: false } } };
+  include: { transactions: { include: { debt: true; debtOwner: true } } };
+}>;
+
+export type DebtWithSplit = Prisma.TransactionDebtOwnerGetPayload<{
+  include: { debt: true; debtOwner: true };
 }>;

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -9,6 +10,13 @@ import {
 import { DebtDirection } from 'prisma/generated/prisma/client';
 
 export class CreateDebtDto {
+  @ApiProperty({
+    description: 'ID of the transaction that originated the debt.',
+    example: 550,
+  })
+  @IsInt()
+  transactionId: number;
+
   @ApiProperty({ enum: DebtDirection })
   @IsEnum(DebtDirection)
   direction: DebtDirection;

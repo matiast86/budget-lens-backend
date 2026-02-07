@@ -10,6 +10,7 @@ import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
+import { DebtEntity } from 'src/modules/debts/entities/debt.entity';
 
 export class TransactionEntity {
   @ApiProperty({
@@ -109,12 +110,11 @@ export class TransactionEntity {
   monthlyAmount: number;
 
   @ApiProperty({
-    description:
-      'Optional reference to a debt owner if this transaction involves shared debt.',
-    example: 10,
+    description: 'Debts associated with this transaction, if any.',
+    example: [],
     required: false,
   })
-  debtOwnerId?: number;
+  debts?: DebtEntity[];
 
   @ApiProperty({
     description: "The id of the transaction's payment method.",

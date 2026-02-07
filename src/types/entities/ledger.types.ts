@@ -18,7 +18,12 @@ export const LedgerIncludes = {
         include: {
           category: true,
           paymentMethod: true,
-          debtOwner: true,
+          debtOwners: {
+            include: {
+              debt: true,
+              debtOwner: true,
+            },
+          },
           group: true,
           transactionsBreakDown: true,
         },

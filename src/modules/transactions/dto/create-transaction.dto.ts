@@ -1,15 +1,56 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEnum,
   IsInt,
+  IsArray,
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
+  ValidateNested,
   Max,
   Min,
 } from 'class-validator';
 import { Currency, DebtDirection } from 'prisma/generated/prisma/enums';
+
+export class TransactionDebtSplitDto {
+  @ApiProperty({
+    description: 'ID of the debt owner for this split.',
+    example: 10,
+  })
+  @IsInt()
+  @Min(1)
+  debtOwnerId: number;
+
+  @ApiProperty({
+    description: 'Amount assigned to this debt owner.',
+    example: 20000,
+  })
+  @IsNumber()
+  amount: number;
+
+  @ApiProperty({
+    enum: DebtDirection,
+    description: 'Debt direction for this split.',
+    example: DebtDirection.OWED_BY_ME,
+  })
+  @IsEnum(DebtDirection)
+  direction: DebtDirection;
+
+  @ApiPropertyOptional({
+    example: '2025-07',
+    description: 'Period (YYYY-MM) when this debt should be recorded',
+  })
+  @IsOptional()
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, { message: 'month must be YYYY-MM' })
+  periodString?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -37,30 +78,15 @@ export class CreateTransactionDto {
   paymentMethodId: number;
 
   @ApiPropertyOptional({
-    description: 'Optional reference to a debt owner for shared debt.',
-    example: 10,
+    type: () => TransactionDebtSplitDto,
+    isArray: true,
+    description: 'Optional debt splits for shared transactions.',
   })
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  debtOwnerId?: number;
-
-  @ApiPropertyOptional({
-    description: 'Optional debt amount associated with this transaction.',
-    example: 12000,
-  })
-  @IsOptional()
-  @IsNumber()
-  debtAmount?: number;
-
-  @ApiPropertyOptional({
-    enum: DebtDirection,
-    description: 'Optional debt direction for shared debt.',
-    example: DebtDirection.OWED_BY_ME,
-  })
-  @IsOptional()
-  @IsEnum(DebtDirection)
-  debtDirection?: DebtDirection;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TransactionDebtSplitDto)
+  debts?: TransactionDebtSplitDto[];
 
   @ApiProperty({
     description: 'Date the transaction occurred (ISO 8601).',

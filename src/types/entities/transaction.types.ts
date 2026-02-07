@@ -9,7 +9,12 @@ export const TransactionIncludes = {
     include: {
       category: true,
       paymentMethod: true,
-      debtOwner: true,
+      debtOwners: {
+        include: {
+          debt: true,
+          debtOwner: true,
+        },
+      },
       transactionsBreakDown: true,
       group: true,
     },

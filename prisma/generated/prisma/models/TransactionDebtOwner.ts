@@ -286,7 +286,7 @@ export type TransactionDebtOwnerScalarWhereWithAggregatesInput = {
 export type TransactionDebtOwnerCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   direction: $Enums.DebtDirection
-  transaction: Prisma.TransactionCreateNestedOneWithoutDebtOwnerInput
+  transaction: Prisma.TransactionCreateNestedOneWithoutDebtOwnersInput
   debtOwner: Prisma.DebtOwnerCreateNestedOneWithoutTransactionsInput
   debt: Prisma.DebtCreateNestedOneWithoutTransactionDebtOwnerInput
 }
@@ -302,7 +302,7 @@ export type TransactionDebtOwnerUncheckedCreateInput = {
 export type TransactionDebtOwnerUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
-  transaction?: Prisma.TransactionUpdateOneRequiredWithoutDebtOwnerNestedInput
+  transaction?: Prisma.TransactionUpdateOneRequiredWithoutDebtOwnersNestedInput
   debtOwner?: Prisma.DebtOwnerUpdateOneRequiredWithoutTransactionsNestedInput
   debt?: Prisma.DebtUpdateOneRequiredWithoutTransactionDebtOwnerNestedInput
 }
@@ -517,7 +517,7 @@ export type EnumDebtDirectionFieldUpdateOperationsInput = {
 export type TransactionDebtOwnerCreateWithoutDebtInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   direction: $Enums.DebtDirection
-  transaction: Prisma.TransactionCreateNestedOneWithoutDebtOwnerInput
+  transaction: Prisma.TransactionCreateNestedOneWithoutDebtOwnersInput
   debtOwner: Prisma.DebtOwnerCreateNestedOneWithoutTransactionsInput
 }
 
@@ -547,7 +547,7 @@ export type TransactionDebtOwnerUpdateToOneWithWhereWithoutDebtInput = {
 export type TransactionDebtOwnerUpdateWithoutDebtInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
-  transaction?: Prisma.TransactionUpdateOneRequiredWithoutDebtOwnerNestedInput
+  transaction?: Prisma.TransactionUpdateOneRequiredWithoutDebtOwnersNestedInput
   debtOwner?: Prisma.DebtOwnerUpdateOneRequiredWithoutTransactionsNestedInput
 }
 
@@ -561,7 +561,7 @@ export type TransactionDebtOwnerUncheckedUpdateWithoutDebtInput = {
 export type TransactionDebtOwnerCreateWithoutDebtOwnerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   direction: $Enums.DebtDirection
-  transaction: Prisma.TransactionCreateNestedOneWithoutDebtOwnerInput
+  transaction: Prisma.TransactionCreateNestedOneWithoutDebtOwnersInput
   debt: Prisma.DebtCreateNestedOneWithoutTransactionDebtOwnerInput
 }
 
@@ -659,7 +659,7 @@ export type TransactionDebtOwnerCreateManyDebtOwnerInput = {
 export type TransactionDebtOwnerUpdateWithoutDebtOwnerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   direction?: Prisma.EnumDebtDirectionFieldUpdateOperationsInput | $Enums.DebtDirection
-  transaction?: Prisma.TransactionUpdateOneRequiredWithoutDebtOwnerNestedInput
+  transaction?: Prisma.TransactionUpdateOneRequiredWithoutDebtOwnersNestedInput
   debt?: Prisma.DebtUpdateOneRequiredWithoutTransactionDebtOwnerNestedInput
 }
 

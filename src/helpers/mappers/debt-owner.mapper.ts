@@ -5,12 +5,12 @@ import { debtToResponseDto } from './debt.mapper';
 export const debtOwnerToResponseDto = (
   debtOwner: DebtOwnerWithDebts,
 ): DebtOwnerResponseDto => {
-  const { id, name, debts, ledgerId } = debtOwner;
+  const { id, name, transactions, ledgerId } = debtOwner;
   return new DebtOwnerResponseDto({
     id,
     name,
     ledgerId,
-    debts: debts ? debts.map(debtToResponseDto) : [],
+    debts: transactions ? transactions.map(debtToResponseDto) : [],
   });
 };
 

@@ -189,7 +189,7 @@ model Transaction {
   category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
   group       Group      @relation("TransactionGroup", fields: [groupId], references: [id])
   paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
-  debtOwner   TransactionDebtOwner[] @relation("TransactionsDebtOwners")
+  debtOwners   TransactionDebtOwner[] @relation("TransactionsDebtOwners")
 
   @@map("transactions")
 }

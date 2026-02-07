@@ -17,14 +17,14 @@ export class DebtOwnersRepository {
       skip,
       take,
       orderBy: { name: 'asc' },
-      include: { debts: true },
+      include: { transactions: { include: { debt: true, debtOwner: true } } },
     });
   }
 
   async findById(id: number): Promise<DebtOwnerWithDebts | null> {
     return await this.prisma.debtOwner.findUnique({
       where: { id },
-      include: { debts: true },
+      include: { transactions: { include: { debt: true, debtOwner: true } } },
     });
   }
 
@@ -34,7 +34,7 @@ export class DebtOwnersRepository {
   ): Promise<DebtOwnerWithDebts | null> {
     return await this.prisma.debtOwner.findUnique({
       where: { ledgerId_name: { ledgerId, name } },
-      include: { debts: true },
+      include: { transactions: { include: { debt: true, debtOwner: true } } },
     });
   }
 

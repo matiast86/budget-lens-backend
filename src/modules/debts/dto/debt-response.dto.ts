@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DebtDirection } from 'prisma/generated/prisma/client';
 
 export class DebtResponseDto {
@@ -10,6 +10,18 @@ export class DebtResponseDto {
 
   @ApiProperty({ description: 'Reference ID of the debt owner.', example: 15 })
   debtOwnerId: number;
+
+  @ApiPropertyOptional({
+    description: 'Name of the debt owner.',
+    example: 'Ana Perez',
+  })
+  debtOwnerName?: string;
+
+  @ApiProperty({
+    description: 'Reference ID of the transaction that originated the debt.',
+    example: 550,
+  })
+  transactionId: number;
 
   @ApiProperty({
     enum: DebtDirection,
@@ -28,6 +40,10 @@ export class DebtResponseDto {
   })
   period: string;
 
+  @ApiPropertyOptional({
+    description: 'Optional description of the debt.',
+    example: 'Shared dinner reimbursement',
+  })
   description?: string;
 
   constructor(partial: Partial<DebtResponseDto>) {

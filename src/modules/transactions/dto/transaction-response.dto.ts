@@ -3,6 +3,7 @@ import { Currency, EntryType, Status } from 'prisma/generated/prisma/client';
 import { CategoryResponseDto } from 'src/modules/categories/dto/category-response.dto';
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
+import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
 
 export class TransactionResponseDto {
@@ -92,8 +93,12 @@ export class TransactionResponseDto {
   })
   monthlyAmount: number;
 
-  @ApiPropertyOptional({ type: String })
-  debtOwner?: string;
+  @ApiPropertyOptional({
+    type: () => DebtResponseDto,
+    isArray: true,
+    description: 'Debts associated with this transaction, if any.',
+  })
+  debts?: DebtResponseDto[];
 
   @ApiProperty({ type: () => CategoryResponseDto })
   category: CategoryResponseDto;
