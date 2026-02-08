@@ -1,6 +1,8 @@
+import { Currency } from 'prisma/generated/prisma/enums';
+
 export class InflationIndexEntity {
   id: number;
-  ledgerId: number;
+  currency: Currency;
   period: Date;
   monthlyRate: number;
   cpiIndex: number;

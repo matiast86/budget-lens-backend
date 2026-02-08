@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Currency } from 'prisma/generated/prisma/enums';
 
 export class InflationIndexResponseDto {
   @ApiProperty({
@@ -8,10 +9,11 @@ export class InflationIndexResponseDto {
   id: number;
 
   @ApiProperty({
-    description: 'Ledger ID this inflation index belongs to.',
-    example: 101,
+    enum: Currency,
+    description: 'Currency this inflation index applies to.',
+    example: Currency.ARS,
   })
-  ledgerId: number;
+  currency: Currency;
 
   @ApiProperty({
     description: 'The month this inflation data represents (ISO 8601).',

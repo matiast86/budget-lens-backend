@@ -1,7 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNumber, Min, Max } from 'class-validator';
+import { IsDateString, IsEnum, IsNumber, Min, Max } from 'class-validator';
+import { Currency } from 'prisma/generated/prisma/enums';
 
 export class CreateInflationIndexDto {
+  @ApiProperty({
+    enum: Currency,
+    description: 'Currency this inflation index applies to.',
+    example: Currency.ARS,
+  })
+  @IsEnum(Currency)
+  currency: Currency;
+
   @ApiProperty({
     description:
       'The month this inflation data represents (ISO 8601 date, first day of month).',

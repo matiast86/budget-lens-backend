@@ -4,11 +4,11 @@ import { InflationIndexResponseDto } from 'src/modules/inflation-indexes/dto/inf
 export const inflationIndexToResponseDto = (
   inflationIndex: InflationIndex,
 ): InflationIndexResponseDto => {
-  const { id, ledgerId, period, monthlyRate, cpiIndex, createdAt, updatedAt } =
+  const { id, currency, period, monthlyRate, cpiIndex, createdAt, updatedAt } =
     inflationIndex;
   return new InflationIndexResponseDto({
     id,
-    ledgerId,
+    currency,
     period: period.toISOString(),
     monthlyRate: Number(monthlyRate),
     cpiIndex: Number(cpiIndex),
