@@ -36,6 +36,8 @@ export type TransactionAvgAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   totalAmount: runtime.Decimal | null
   monthlyAmount: runtime.Decimal | null
+  cpiIndex: runtime.Decimal | null
+  realMonthlyAmount: runtime.Decimal | null
   debtOwnerId: number | null
   paymentMethodId: number | null
 }
@@ -50,6 +52,8 @@ export type TransactionSumAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   totalAmount: runtime.Decimal | null
   monthlyAmount: runtime.Decimal | null
+  cpiIndex: runtime.Decimal | null
+  realMonthlyAmount: runtime.Decimal | null
   debtOwnerId: number | null
   paymentMethodId: number | null
 }
@@ -70,6 +74,10 @@ export type TransactionMinAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   totalAmount: runtime.Decimal | null
   monthlyAmount: runtime.Decimal | null
+  isPaid: boolean | null
+  impactsCashflow: boolean | null
+  cpiIndex: runtime.Decimal | null
+  realMonthlyAmount: runtime.Decimal | null
   type: $Enums.TransactionType | null
   debtOwnerId: number | null
   paymentMethodId: number | null
@@ -91,6 +99,10 @@ export type TransactionMaxAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   totalAmount: runtime.Decimal | null
   monthlyAmount: runtime.Decimal | null
+  isPaid: boolean | null
+  impactsCashflow: boolean | null
+  cpiIndex: runtime.Decimal | null
+  realMonthlyAmount: runtime.Decimal | null
   type: $Enums.TransactionType | null
   debtOwnerId: number | null
   paymentMethodId: number | null
@@ -112,6 +124,10 @@ export type TransactionCountAggregateOutputType = {
   exchangeRate: number
   totalAmount: number
   monthlyAmount: number
+  isPaid: number
+  impactsCashflow: number
+  cpiIndex: number
+  realMonthlyAmount: number
   type: number
   debtOwnerId: number
   paymentMethodId: number
@@ -129,6 +145,8 @@ export type TransactionAvgAggregateInputType = {
   exchangeRate?: true
   totalAmount?: true
   monthlyAmount?: true
+  cpiIndex?: true
+  realMonthlyAmount?: true
   debtOwnerId?: true
   paymentMethodId?: true
 }
@@ -143,6 +161,8 @@ export type TransactionSumAggregateInputType = {
   exchangeRate?: true
   totalAmount?: true
   monthlyAmount?: true
+  cpiIndex?: true
+  realMonthlyAmount?: true
   debtOwnerId?: true
   paymentMethodId?: true
 }
@@ -163,6 +183,10 @@ export type TransactionMinAggregateInputType = {
   exchangeRate?: true
   totalAmount?: true
   monthlyAmount?: true
+  isPaid?: true
+  impactsCashflow?: true
+  cpiIndex?: true
+  realMonthlyAmount?: true
   type?: true
   debtOwnerId?: true
   paymentMethodId?: true
@@ -184,6 +208,10 @@ export type TransactionMaxAggregateInputType = {
   exchangeRate?: true
   totalAmount?: true
   monthlyAmount?: true
+  isPaid?: true
+  impactsCashflow?: true
+  cpiIndex?: true
+  realMonthlyAmount?: true
   type?: true
   debtOwnerId?: true
   paymentMethodId?: true
@@ -205,6 +233,10 @@ export type TransactionCountAggregateInputType = {
   exchangeRate?: true
   totalAmount?: true
   monthlyAmount?: true
+  isPaid?: true
+  impactsCashflow?: true
+  cpiIndex?: true
+  realMonthlyAmount?: true
   type?: true
   debtOwnerId?: true
   paymentMethodId?: true
@@ -313,6 +345,10 @@ export type TransactionGroupByOutputType = {
   exchangeRate: runtime.Decimal | null
   totalAmount: runtime.Decimal
   monthlyAmount: runtime.Decimal
+  isPaid: boolean
+  impactsCashflow: boolean
+  cpiIndex: runtime.Decimal | null
+  realMonthlyAmount: runtime.Decimal | null
   type: $Enums.TransactionType
   debtOwnerId: number | null
   paymentMethodId: number
@@ -357,6 +393,10 @@ export type TransactionWhereInput = {
   exchangeRate?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFilter<"Transaction"> | boolean
+  impactsCashflow?: Prisma.BoolFilter<"Transaction"> | boolean
+  cpiIndex?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
   debtOwnerId?: Prisma.IntNullableFilter<"Transaction"> | number | null
   paymentMethodId?: Prisma.IntFilter<"Transaction"> | number
@@ -384,6 +424,10 @@ export type TransactionOrderByWithRelationInput = {
   exchangeRate?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  isPaid?: Prisma.SortOrder
+  impactsCashflow?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrderInput | Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
@@ -414,6 +458,10 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   exchangeRate?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFilter<"Transaction"> | boolean
+  impactsCashflow?: Prisma.BoolFilter<"Transaction"> | boolean
+  cpiIndex?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
   debtOwnerId?: Prisma.IntNullableFilter<"Transaction"> | number | null
   paymentMethodId?: Prisma.IntFilter<"Transaction"> | number
@@ -441,6 +489,10 @@ export type TransactionOrderByWithAggregationInput = {
   exchangeRate?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  isPaid?: Prisma.SortOrder
+  impactsCashflow?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrderInput | Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
@@ -470,6 +522,10 @@ export type TransactionScalarWhereWithAggregatesInput = {
   exchangeRate?: Prisma.DecimalNullableWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolWithAggregatesFilter<"Transaction"> | boolean
+  impactsCashflow?: Prisma.BoolWithAggregatesFilter<"Transaction"> | boolean
+  cpiIndex?: Prisma.DecimalNullableWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.DecimalNullableWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeWithAggregatesFilter<"Transaction"> | $Enums.TransactionType
   debtOwnerId?: Prisma.IntNullableWithAggregatesFilter<"Transaction"> | number | null
   paymentMethodId?: Prisma.IntWithAggregatesFilter<"Transaction"> | number
@@ -487,6 +543,10 @@ export type TransactionCreateInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownCreateNestedManyWithoutTransactionInput
   ledger: Prisma.LedgerCreateNestedOneWithoutTransactionsInput
@@ -512,6 +572,10 @@ export type TransactionUncheckedCreateInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -530,6 +594,10 @@ export type TransactionUpdateInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownUpdateManyWithoutTransactionNestedInput
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutTransactionsNestedInput
@@ -555,6 +623,10 @@ export type TransactionUncheckedUpdateInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -577,6 +649,10 @@ export type TransactionCreateManyInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -594,6 +670,10 @@ export type TransactionUpdateManyMutationInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
 }
 
@@ -613,6 +693,10 @@ export type TransactionUncheckedUpdateManyInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -644,6 +728,10 @@ export type TransactionCountOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  isPaid?: Prisma.SortOrder
+  impactsCashflow?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrder
   type?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
@@ -659,6 +747,8 @@ export type TransactionAvgOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
 }
@@ -679,6 +769,10 @@ export type TransactionMaxOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  isPaid?: Prisma.SortOrder
+  impactsCashflow?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrder
   type?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
@@ -700,6 +794,10 @@ export type TransactionMinOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  isPaid?: Prisma.SortOrder
+  impactsCashflow?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrder
   type?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
@@ -715,6 +813,8 @@ export type TransactionSumOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   monthlyAmount?: Prisma.SortOrder
+  cpiIndex?: Prisma.SortOrder
+  realMonthlyAmount?: Prisma.SortOrder
   debtOwnerId?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
 }
@@ -988,6 +1088,10 @@ export type TransactionCreateWithoutLedgerInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownCreateNestedManyWithoutTransactionInput
   category: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
@@ -1011,6 +1115,10 @@ export type TransactionUncheckedCreateWithoutLedgerInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1062,6 +1170,10 @@ export type TransactionScalarWhereInput = {
   exchangeRate?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFilter<"Transaction"> | boolean
+  impactsCashflow?: Prisma.BoolFilter<"Transaction"> | boolean
+  cpiIndex?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.DecimalNullableFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
   debtOwnerId?: Prisma.IntNullableFilter<"Transaction"> | number | null
   paymentMethodId?: Prisma.IntFilter<"Transaction"> | number
@@ -1079,6 +1191,10 @@ export type TransactionCreateWithoutPaymentMethodInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownCreateNestedManyWithoutTransactionInput
   ledger: Prisma.LedgerCreateNestedOneWithoutTransactionsInput
@@ -1103,6 +1219,10 @@ export type TransactionUncheckedCreateWithoutPaymentMethodInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   transactionsBreakDown?: Prisma.TransactionBreakDownUncheckedCreateNestedManyWithoutTransactionInput
@@ -1146,6 +1266,10 @@ export type TransactionCreateWithoutDebtOwnerInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownCreateNestedManyWithoutTransactionInput
   ledger: Prisma.LedgerCreateNestedOneWithoutTransactionsInput
@@ -1170,6 +1294,10 @@ export type TransactionUncheckedCreateWithoutDebtOwnerInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   paymentMethodId: number
   transactionsBreakDown?: Prisma.TransactionBreakDownUncheckedCreateNestedManyWithoutTransactionInput
@@ -1213,6 +1341,10 @@ export type TransactionCreateWithoutCategoryInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownCreateNestedManyWithoutTransactionInput
   ledger: Prisma.LedgerCreateNestedOneWithoutTransactionsInput
@@ -1236,6 +1368,10 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1280,6 +1416,10 @@ export type TransactionCreateWithoutGroupInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownCreateNestedManyWithoutTransactionInput
   ledger: Prisma.LedgerCreateNestedOneWithoutTransactionsInput
@@ -1303,6 +1443,10 @@ export type TransactionUncheckedCreateWithoutGroupInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1347,6 +1491,10 @@ export type TransactionCreateWithoutTransactionsBreakDownInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   ledger: Prisma.LedgerCreateNestedOneWithoutTransactionsInput
   category: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
@@ -1371,6 +1519,10 @@ export type TransactionUncheckedCreateWithoutTransactionsBreakDownInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1404,6 +1556,10 @@ export type TransactionUpdateWithoutTransactionsBreakDownInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1428,6 +1584,10 @@ export type TransactionUncheckedUpdateWithoutTransactionsBreakDownInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1448,6 +1608,10 @@ export type TransactionCreateManyLedgerInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1465,6 +1629,10 @@ export type TransactionUpdateWithoutLedgerInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownUpdateManyWithoutTransactionNestedInput
   category?: Prisma.CategoryUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1488,6 +1656,10 @@ export type TransactionUncheckedUpdateWithoutLedgerInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1509,6 +1681,10 @@ export type TransactionUncheckedUpdateManyWithoutLedgerInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1530,6 +1706,10 @@ export type TransactionCreateManyPaymentMethodInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
 }
@@ -1546,6 +1726,10 @@ export type TransactionUpdateWithoutPaymentMethodInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownUpdateManyWithoutTransactionNestedInput
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1570,6 +1754,10 @@ export type TransactionUncheckedUpdateWithoutPaymentMethodInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   transactionsBreakDown?: Prisma.TransactionBreakDownUncheckedUpdateManyWithoutTransactionNestedInput
@@ -1591,6 +1779,10 @@ export type TransactionUncheckedUpdateManyWithoutPaymentMethodInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -1611,6 +1803,10 @@ export type TransactionCreateManyDebtOwnerInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   paymentMethodId: number
 }
@@ -1627,6 +1823,10 @@ export type TransactionUpdateWithoutDebtOwnerInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownUpdateManyWithoutTransactionNestedInput
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1651,6 +1851,10 @@ export type TransactionUncheckedUpdateWithoutDebtOwnerInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
   transactionsBreakDown?: Prisma.TransactionBreakDownUncheckedUpdateManyWithoutTransactionNestedInput
@@ -1672,6 +1876,10 @@ export type TransactionUncheckedUpdateManyWithoutDebtOwnerInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -1691,6 +1899,10 @@ export type TransactionCreateManyCategoryInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1708,6 +1920,10 @@ export type TransactionUpdateWithoutCategoryInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownUpdateManyWithoutTransactionNestedInput
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1731,6 +1947,10 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1752,6 +1972,10 @@ export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1772,6 +1996,10 @@ export type TransactionCreateManyGroupInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: $Enums.TransactionType
   debtOwnerId?: number | null
   paymentMethodId: number
@@ -1789,6 +2017,10 @@ export type TransactionUpdateWithoutGroupInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   transactionsBreakDown?: Prisma.TransactionBreakDownUpdateManyWithoutTransactionNestedInput
   ledger?: Prisma.LedgerUpdateOneRequiredWithoutTransactionsNestedInput
@@ -1812,6 +2044,10 @@ export type TransactionUncheckedUpdateWithoutGroupInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1833,6 +2069,10 @@ export type TransactionUncheckedUpdateManyWithoutGroupInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   monthlyAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isPaid?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  impactsCashflow?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cpiIndex?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  realMonthlyAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   debtOwnerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   paymentMethodId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1885,6 +2125,10 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   exchangeRate?: boolean
   totalAmount?: boolean
   monthlyAmount?: boolean
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: boolean
+  realMonthlyAmount?: boolean
   type?: boolean
   debtOwnerId?: boolean
   paymentMethodId?: boolean
@@ -1913,6 +2157,10 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   exchangeRate?: boolean
   totalAmount?: boolean
   monthlyAmount?: boolean
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: boolean
+  realMonthlyAmount?: boolean
   type?: boolean
   debtOwnerId?: boolean
   paymentMethodId?: boolean
@@ -1939,6 +2187,10 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   exchangeRate?: boolean
   totalAmount?: boolean
   monthlyAmount?: boolean
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: boolean
+  realMonthlyAmount?: boolean
   type?: boolean
   debtOwnerId?: boolean
   paymentMethodId?: boolean
@@ -1965,12 +2217,16 @@ export type TransactionSelectScalar = {
   exchangeRate?: boolean
   totalAmount?: boolean
   monthlyAmount?: boolean
+  isPaid?: boolean
+  impactsCashflow?: boolean
+  cpiIndex?: boolean
+  realMonthlyAmount?: boolean
   type?: boolean
   debtOwnerId?: boolean
   paymentMethodId?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ledgerId" | "status" | "entryType" | "categoryId" | "groupId" | "transactionDate" | "paymentMonth" | "installments" | "installment" | "comment" | "currency" | "exchangeRate" | "totalAmount" | "monthlyAmount" | "type" | "debtOwnerId" | "paymentMethodId", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ledgerId" | "status" | "entryType" | "categoryId" | "groupId" | "transactionDate" | "paymentMonth" | "installments" | "installment" | "comment" | "currency" | "exchangeRate" | "totalAmount" | "monthlyAmount" | "isPaid" | "impactsCashflow" | "cpiIndex" | "realMonthlyAmount" | "type" | "debtOwnerId" | "paymentMethodId", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transactionsBreakDown?: boolean | Prisma.Transaction$transactionsBreakDownArgs<ExtArgs>
   ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
@@ -2021,6 +2277,10 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     exchangeRate: runtime.Decimal | null
     totalAmount: runtime.Decimal
     monthlyAmount: runtime.Decimal
+    isPaid: boolean
+    impactsCashflow: boolean
+    cpiIndex: runtime.Decimal | null
+    realMonthlyAmount: runtime.Decimal | null
     type: $Enums.TransactionType
     debtOwnerId: number | null
     paymentMethodId: number
@@ -2468,6 +2728,10 @@ export interface TransactionFieldRefs {
   readonly exchangeRate: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly totalAmount: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly monthlyAmount: Prisma.FieldRef<"Transaction", 'Decimal'>
+  readonly isPaid: Prisma.FieldRef<"Transaction", 'Boolean'>
+  readonly impactsCashflow: Prisma.FieldRef<"Transaction", 'Boolean'>
+  readonly cpiIndex: Prisma.FieldRef<"Transaction", 'Decimal'>
+  readonly realMonthlyAmount: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly type: Prisma.FieldRef<"Transaction", 'TransactionType'>
   readonly debtOwnerId: Prisma.FieldRef<"Transaction", 'Int'>
   readonly paymentMethodId: Prisma.FieldRef<"Transaction", 'Int'>

@@ -62,7 +62,8 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
-  TransactionBreakDown: 'TransactionBreakDown'
+  TransactionBreakDown: 'TransactionBreakDown',
+  InflationIndex: 'InflationIndex'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -215,6 +216,10 @@ export const TransactionScalarFieldEnum = {
   exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
+  isPaid: 'isPaid',
+  impactsCashflow: 'impactsCashflow',
+  cpiIndex: 'cpiIndex',
+  realMonthlyAmount: 'realMonthlyAmount',
   type: 'type',
   debtOwnerId: 'debtOwnerId',
   paymentMethodId: 'paymentMethodId'
@@ -231,6 +236,18 @@ export const TransactionBreakDownScalarFieldEnum = {
 } as const
 
 export type TransactionBreakDownScalarFieldEnum = (typeof TransactionBreakDownScalarFieldEnum)[keyof typeof TransactionBreakDownScalarFieldEnum]
+
+
+export const InflationIndexScalarFieldEnum = {
+  id: 'id',
+  period: 'period',
+  monthlyRate: 'monthlyRate',
+  cpiIndex: 'cpiIndex',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InflationIndexScalarFieldEnum = (typeof InflationIndexScalarFieldEnum)[keyof typeof InflationIndexScalarFieldEnum]
 
 
 export const SortOrder = {

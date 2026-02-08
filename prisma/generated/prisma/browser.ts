@@ -77,3 +77,8 @@ export type Transaction = Prisma.TransactionModel
  * 
  */
 export type TransactionBreakDown = Prisma.TransactionBreakDownModel
+/**
+ * Model InflationIndex
+ * 
+ */
+export type InflationIndex = Prisma.InflationIndexModel

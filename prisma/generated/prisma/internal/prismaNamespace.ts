@@ -395,7 +395,8 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
-  TransactionBreakDown: 'TransactionBreakDown'
+  TransactionBreakDown: 'TransactionBreakDown',
+  InflationIndex: 'InflationIndex'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionBreakDown"
+    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionBreakDown" | "inflationIndex"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1303,6 +1304,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    InflationIndex: {
+      payload: Prisma.$InflationIndexPayload<ExtArgs>
+      fields: Prisma.InflationIndexFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InflationIndexFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InflationIndexFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        findFirst: {
+          args: Prisma.InflationIndexFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InflationIndexFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        findMany: {
+          args: Prisma.InflationIndexFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>[]
+        }
+        create: {
+          args: Prisma.InflationIndexCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        createMany: {
+          args: Prisma.InflationIndexCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InflationIndexCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>[]
+        }
+        delete: {
+          args: Prisma.InflationIndexDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        update: {
+          args: Prisma.InflationIndexUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        deleteMany: {
+          args: Prisma.InflationIndexDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InflationIndexUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InflationIndexUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>[]
+        }
+        upsert: {
+          args: Prisma.InflationIndexUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        aggregate: {
+          args: Prisma.InflationIndexAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInflationIndex>
+        }
+        groupBy: {
+          args: Prisma.InflationIndexGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InflationIndexGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InflationIndexCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InflationIndexCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1476,6 +1551,10 @@ export const TransactionScalarFieldEnum = {
   exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
+  isPaid: 'isPaid',
+  impactsCashflow: 'impactsCashflow',
+  cpiIndex: 'cpiIndex',
+  realMonthlyAmount: 'realMonthlyAmount',
   type: 'type',
   debtOwnerId: 'debtOwnerId',
   paymentMethodId: 'paymentMethodId'
@@ -1492,6 +1571,18 @@ export const TransactionBreakDownScalarFieldEnum = {
 } as const
 
 export type TransactionBreakDownScalarFieldEnum = (typeof TransactionBreakDownScalarFieldEnum)[keyof typeof TransactionBreakDownScalarFieldEnum]
+
+
+export const InflationIndexScalarFieldEnum = {
+  id: 'id',
+  period: 'period',
+  monthlyRate: 'monthlyRate',
+  cpiIndex: 'cpiIndex',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InflationIndexScalarFieldEnum = (typeof InflationIndexScalarFieldEnum)[keyof typeof InflationIndexScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1847,6 +1938,7 @@ export type GlobalOmitConfig = {
   group?: Prisma.GroupOmit
   transaction?: Prisma.TransactionOmit
   transactionBreakDown?: Prisma.TransactionBreakDownOmit
+  inflationIndex?: Prisma.InflationIndexOmit
 }
 
 /* Types for Logging */

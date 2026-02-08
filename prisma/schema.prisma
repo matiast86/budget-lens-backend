@@ -185,6 +185,10 @@ model Transaction {
   exchangeRate          Decimal?
   totalAmount           Decimal
   monthlyAmount         Decimal
+  isPaid                Boolean                @default(false)
+  impactsCashflow       Boolean                 @default(true)
+  cpiIndex              Decimal?
+  realMonthlyAmount     Decimal?
   type                  TransactionType        @default(VARIABLE)
   debtOwnerId           Int?
   paymentMethodId       Int
@@ -208,6 +212,17 @@ model TransactionBreakDown {
   transaction    Transaction  @relation("TransactionsBreakDown", fields: [transactionId], references: [id])
 
   @@map("transactions_break_down")
+}
+
+model InflationIndex {
+  id          Int      @id @default(autoincrement())
+  period      DateTime @unique
+  monthlyRate Decimal  @db.Decimal(10, 6)
+  cpiIndex    Decimal  @db.Decimal(10, 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("inflation_indexes")
 }
 
 // =====================================================
