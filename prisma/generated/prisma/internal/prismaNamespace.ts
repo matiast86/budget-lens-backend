@@ -1575,6 +1575,7 @@ export type TransactionBreakDownScalarFieldEnum = (typeof TransactionBreakDownSc
 
 export const InflationIndexScalarFieldEnum = {
   id: 'id',
+  ledgerId: 'ledgerId',
   period: 'period',
   monthlyRate: 'monthlyRate',
   cpiIndex: 'cpiIndex',

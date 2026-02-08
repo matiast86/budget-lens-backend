@@ -8,6 +8,12 @@ export class InflationIndexResponseDto {
   id: number;
 
   @ApiProperty({
+    description: 'Ledger ID this inflation index belongs to.',
+    example: 101,
+  })
+  ledgerId: number;
+
+  @ApiProperty({
     description: 'The month this inflation data represents (ISO 8601).',
     example: '2026-02-01T00:00:00.000Z',
   })

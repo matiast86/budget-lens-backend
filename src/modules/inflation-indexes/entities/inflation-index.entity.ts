@@ -1,5 +1,6 @@
 export class InflationIndexEntity {
   id: number;
+  ledgerId: number;
   period: Date;
   monthlyRate: number;
   cpiIndex: number;

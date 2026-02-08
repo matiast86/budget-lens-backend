@@ -28,18 +28,21 @@ export type AggregateInflationIndex = {
 
 export type InflationIndexAvgAggregateOutputType = {
   id: number | null
+  ledgerId: number | null
   monthlyRate: runtime.Decimal | null
   cpiIndex: runtime.Decimal | null
 }
 
 export type InflationIndexSumAggregateOutputType = {
   id: number | null
+  ledgerId: number | null
   monthlyRate: runtime.Decimal | null
   cpiIndex: runtime.Decimal | null
 }
 
 export type InflationIndexMinAggregateOutputType = {
   id: number | null
+  ledgerId: number | null
   period: Date | null
   monthlyRate: runtime.Decimal | null
   cpiIndex: runtime.Decimal | null
@@ -49,6 +52,7 @@ export type InflationIndexMinAggregateOutputType = {
 
 export type InflationIndexMaxAggregateOutputType = {
   id: number | null
+  ledgerId: number | null
   period: Date | null
   monthlyRate: runtime.Decimal | null
   cpiIndex: runtime.Decimal | null
@@ -58,6 +62,7 @@ export type InflationIndexMaxAggregateOutputType = {
 
 export type InflationIndexCountAggregateOutputType = {
   id: number
+  ledgerId: number
   period: number
   monthlyRate: number
   cpiIndex: number
@@ -69,18 +74,21 @@ export type InflationIndexCountAggregateOutputType = {
 
 export type InflationIndexAvgAggregateInputType = {
   id?: true
+  ledgerId?: true
   monthlyRate?: true
   cpiIndex?: true
 }
 
 export type InflationIndexSumAggregateInputType = {
   id?: true
+  ledgerId?: true
   monthlyRate?: true
   cpiIndex?: true
 }
 
 export type InflationIndexMinAggregateInputType = {
   id?: true
+  ledgerId?: true
   period?: true
   monthlyRate?: true
   cpiIndex?: true
@@ -90,6 +98,7 @@ export type InflationIndexMinAggregateInputType = {
 
 export type InflationIndexMaxAggregateInputType = {
   id?: true
+  ledgerId?: true
   period?: true
   monthlyRate?: true
   cpiIndex?: true
@@ -99,6 +108,7 @@ export type InflationIndexMaxAggregateInputType = {
 
 export type InflationIndexCountAggregateInputType = {
   id?: true
+  ledgerId?: true
   period?: true
   monthlyRate?: true
   cpiIndex?: true
@@ -195,6 +205,7 @@ export type InflationIndexGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type InflationIndexGroupByOutputType = {
   id: number
+  ledgerId: number
   period: Date
   monthlyRate: runtime.Decimal
   cpiIndex: runtime.Decimal
@@ -227,36 +238,44 @@ export type InflationIndexWhereInput = {
   OR?: Prisma.InflationIndexWhereInput[]
   NOT?: Prisma.InflationIndexWhereInput | Prisma.InflationIndexWhereInput[]
   id?: Prisma.IntFilter<"InflationIndex"> | number
+  ledgerId?: Prisma.IntFilter<"InflationIndex"> | number
   period?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
   monthlyRate?: Prisma.DecimalFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex?: Prisma.DecimalFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
+  ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
 }
 
 export type InflationIndexOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   period?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  ledger?: Prisma.LedgerOrderByWithRelationInput
 }
 
 export type InflationIndexWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  period?: Date | string
+  ledgerId_period?: Prisma.InflationIndexLedgerIdPeriodCompoundUniqueInput
   AND?: Prisma.InflationIndexWhereInput | Prisma.InflationIndexWhereInput[]
   OR?: Prisma.InflationIndexWhereInput[]
   NOT?: Prisma.InflationIndexWhereInput | Prisma.InflationIndexWhereInput[]
+  ledgerId?: Prisma.IntFilter<"InflationIndex"> | number
+  period?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
   monthlyRate?: Prisma.DecimalFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex?: Prisma.DecimalFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
-}, "id" | "period">
+  ledger?: Prisma.XOR<Prisma.LedgerScalarRelationFilter, Prisma.LedgerWhereInput>
+}, "id" | "ledgerId_period">
 
 export type InflationIndexOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   period?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
@@ -274,6 +293,7 @@ export type InflationIndexScalarWhereWithAggregatesInput = {
   OR?: Prisma.InflationIndexScalarWhereWithAggregatesInput[]
   NOT?: Prisma.InflationIndexScalarWhereWithAggregatesInput | Prisma.InflationIndexScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"InflationIndex"> | number
+  ledgerId?: Prisma.IntWithAggregatesFilter<"InflationIndex"> | number
   period?: Prisma.DateTimeWithAggregatesFilter<"InflationIndex"> | Date | string
   monthlyRate?: Prisma.DecimalWithAggregatesFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex?: Prisma.DecimalWithAggregatesFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -287,10 +307,12 @@ export type InflationIndexCreateInput = {
   cpiIndex: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  ledger: Prisma.LedgerCreateNestedOneWithoutInflationIndexesInput
 }
 
 export type InflationIndexUncheckedCreateInput = {
   id?: number
+  ledgerId: number
   period: Date | string
   monthlyRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -304,10 +326,12 @@ export type InflationIndexUpdateInput = {
   cpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ledger?: Prisma.LedgerUpdateOneRequiredWithoutInflationIndexesNestedInput
 }
 
 export type InflationIndexUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   monthlyRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -317,6 +341,7 @@ export type InflationIndexUncheckedUpdateInput = {
 
 export type InflationIndexCreateManyInput = {
   id?: number
+  ledgerId: number
   period: Date | string
   monthlyRate: runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -334,6 +359,7 @@ export type InflationIndexUpdateManyMutationInput = {
 
 export type InflationIndexUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  ledgerId?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   monthlyRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   cpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -341,8 +367,24 @@ export type InflationIndexUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type InflationIndexListRelationFilter = {
+  every?: Prisma.InflationIndexWhereInput
+  some?: Prisma.InflationIndexWhereInput
+  none?: Prisma.InflationIndexWhereInput
+}
+
+export type InflationIndexOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type InflationIndexLedgerIdPeriodCompoundUniqueInput = {
+  ledgerId: number
+  period: Date | string
+}
+
 export type InflationIndexCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   period?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
@@ -352,12 +394,14 @@ export type InflationIndexCountOrderByAggregateInput = {
 
 export type InflationIndexAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
 }
 
 export type InflationIndexMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   period?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
@@ -367,6 +411,7 @@ export type InflationIndexMaxOrderByAggregateInput = {
 
 export type InflationIndexMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   period?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
@@ -376,41 +421,182 @@ export type InflationIndexMinOrderByAggregateInput = {
 
 export type InflationIndexSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ledgerId?: Prisma.SortOrder
   monthlyRate?: Prisma.SortOrder
   cpiIndex?: Prisma.SortOrder
+}
+
+export type InflationIndexCreateNestedManyWithoutLedgerInput = {
+  create?: Prisma.XOR<Prisma.InflationIndexCreateWithoutLedgerInput, Prisma.InflationIndexUncheckedCreateWithoutLedgerInput> | Prisma.InflationIndexCreateWithoutLedgerInput[] | Prisma.InflationIndexUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.InflationIndexCreateOrConnectWithoutLedgerInput | Prisma.InflationIndexCreateOrConnectWithoutLedgerInput[]
+  createMany?: Prisma.InflationIndexCreateManyLedgerInputEnvelope
+  connect?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+}
+
+export type InflationIndexUncheckedCreateNestedManyWithoutLedgerInput = {
+  create?: Prisma.XOR<Prisma.InflationIndexCreateWithoutLedgerInput, Prisma.InflationIndexUncheckedCreateWithoutLedgerInput> | Prisma.InflationIndexCreateWithoutLedgerInput[] | Prisma.InflationIndexUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.InflationIndexCreateOrConnectWithoutLedgerInput | Prisma.InflationIndexCreateOrConnectWithoutLedgerInput[]
+  createMany?: Prisma.InflationIndexCreateManyLedgerInputEnvelope
+  connect?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+}
+
+export type InflationIndexUpdateManyWithoutLedgerNestedInput = {
+  create?: Prisma.XOR<Prisma.InflationIndexCreateWithoutLedgerInput, Prisma.InflationIndexUncheckedCreateWithoutLedgerInput> | Prisma.InflationIndexCreateWithoutLedgerInput[] | Prisma.InflationIndexUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.InflationIndexCreateOrConnectWithoutLedgerInput | Prisma.InflationIndexCreateOrConnectWithoutLedgerInput[]
+  upsert?: Prisma.InflationIndexUpsertWithWhereUniqueWithoutLedgerInput | Prisma.InflationIndexUpsertWithWhereUniqueWithoutLedgerInput[]
+  createMany?: Prisma.InflationIndexCreateManyLedgerInputEnvelope
+  set?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  disconnect?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  delete?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  connect?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  update?: Prisma.InflationIndexUpdateWithWhereUniqueWithoutLedgerInput | Prisma.InflationIndexUpdateWithWhereUniqueWithoutLedgerInput[]
+  updateMany?: Prisma.InflationIndexUpdateManyWithWhereWithoutLedgerInput | Prisma.InflationIndexUpdateManyWithWhereWithoutLedgerInput[]
+  deleteMany?: Prisma.InflationIndexScalarWhereInput | Prisma.InflationIndexScalarWhereInput[]
+}
+
+export type InflationIndexUncheckedUpdateManyWithoutLedgerNestedInput = {
+  create?: Prisma.XOR<Prisma.InflationIndexCreateWithoutLedgerInput, Prisma.InflationIndexUncheckedCreateWithoutLedgerInput> | Prisma.InflationIndexCreateWithoutLedgerInput[] | Prisma.InflationIndexUncheckedCreateWithoutLedgerInput[]
+  connectOrCreate?: Prisma.InflationIndexCreateOrConnectWithoutLedgerInput | Prisma.InflationIndexCreateOrConnectWithoutLedgerInput[]
+  upsert?: Prisma.InflationIndexUpsertWithWhereUniqueWithoutLedgerInput | Prisma.InflationIndexUpsertWithWhereUniqueWithoutLedgerInput[]
+  createMany?: Prisma.InflationIndexCreateManyLedgerInputEnvelope
+  set?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  disconnect?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  delete?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  connect?: Prisma.InflationIndexWhereUniqueInput | Prisma.InflationIndexWhereUniqueInput[]
+  update?: Prisma.InflationIndexUpdateWithWhereUniqueWithoutLedgerInput | Prisma.InflationIndexUpdateWithWhereUniqueWithoutLedgerInput[]
+  updateMany?: Prisma.InflationIndexUpdateManyWithWhereWithoutLedgerInput | Prisma.InflationIndexUpdateManyWithWhereWithoutLedgerInput[]
+  deleteMany?: Prisma.InflationIndexScalarWhereInput | Prisma.InflationIndexScalarWhereInput[]
+}
+
+export type InflationIndexCreateWithoutLedgerInput = {
+  period: Date | string
+  monthlyRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InflationIndexUncheckedCreateWithoutLedgerInput = {
+  id?: number
+  period: Date | string
+  monthlyRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InflationIndexCreateOrConnectWithoutLedgerInput = {
+  where: Prisma.InflationIndexWhereUniqueInput
+  create: Prisma.XOR<Prisma.InflationIndexCreateWithoutLedgerInput, Prisma.InflationIndexUncheckedCreateWithoutLedgerInput>
+}
+
+export type InflationIndexCreateManyLedgerInputEnvelope = {
+  data: Prisma.InflationIndexCreateManyLedgerInput | Prisma.InflationIndexCreateManyLedgerInput[]
+  skipDuplicates?: boolean
+}
+
+export type InflationIndexUpsertWithWhereUniqueWithoutLedgerInput = {
+  where: Prisma.InflationIndexWhereUniqueInput
+  update: Prisma.XOR<Prisma.InflationIndexUpdateWithoutLedgerInput, Prisma.InflationIndexUncheckedUpdateWithoutLedgerInput>
+  create: Prisma.XOR<Prisma.InflationIndexCreateWithoutLedgerInput, Prisma.InflationIndexUncheckedCreateWithoutLedgerInput>
+}
+
+export type InflationIndexUpdateWithWhereUniqueWithoutLedgerInput = {
+  where: Prisma.InflationIndexWhereUniqueInput
+  data: Prisma.XOR<Prisma.InflationIndexUpdateWithoutLedgerInput, Prisma.InflationIndexUncheckedUpdateWithoutLedgerInput>
+}
+
+export type InflationIndexUpdateManyWithWhereWithoutLedgerInput = {
+  where: Prisma.InflationIndexScalarWhereInput
+  data: Prisma.XOR<Prisma.InflationIndexUpdateManyMutationInput, Prisma.InflationIndexUncheckedUpdateManyWithoutLedgerInput>
+}
+
+export type InflationIndexScalarWhereInput = {
+  AND?: Prisma.InflationIndexScalarWhereInput | Prisma.InflationIndexScalarWhereInput[]
+  OR?: Prisma.InflationIndexScalarWhereInput[]
+  NOT?: Prisma.InflationIndexScalarWhereInput | Prisma.InflationIndexScalarWhereInput[]
+  id?: Prisma.IntFilter<"InflationIndex"> | number
+  ledgerId?: Prisma.IntFilter<"InflationIndex"> | number
+  period?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
+  monthlyRate?: Prisma.DecimalFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex?: Prisma.DecimalFilter<"InflationIndex"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InflationIndex"> | Date | string
+}
+
+export type InflationIndexCreateManyLedgerInput = {
+  id?: number
+  period: Date | string
+  monthlyRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InflationIndexUpdateWithoutLedgerInput = {
+  period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  monthlyRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InflationIndexUncheckedUpdateWithoutLedgerInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  monthlyRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InflationIndexUncheckedUpdateManyWithoutLedgerInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  monthlyRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  cpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
 
 export type InflationIndexSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  ledgerId?: boolean
   period?: boolean
   monthlyRate?: boolean
   cpiIndex?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inflationIndex"]>
 
 export type InflationIndexSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  ledgerId?: boolean
   period?: boolean
   monthlyRate?: boolean
   cpiIndex?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inflationIndex"]>
 
 export type InflationIndexSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  ledgerId?: boolean
   period?: boolean
   monthlyRate?: boolean
   cpiIndex?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["inflationIndex"]>
 
 export type InflationIndexSelectScalar = {
   id?: boolean
+  ledgerId?: boolean
   period?: boolean
   monthlyRate?: boolean
   cpiIndex?: boolean
@@ -418,13 +604,25 @@ export type InflationIndexSelectScalar = {
   updatedAt?: boolean
 }
 
-export type InflationIndexOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "period" | "monthlyRate" | "cpiIndex" | "createdAt" | "updatedAt", ExtArgs["result"]["inflationIndex"]>
+export type InflationIndexOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ledgerId" | "period" | "monthlyRate" | "cpiIndex" | "createdAt" | "updatedAt", ExtArgs["result"]["inflationIndex"]>
+export type InflationIndexInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
+}
+export type InflationIndexIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
+}
+export type InflationIndexIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  ledger?: boolean | Prisma.LedgerDefaultArgs<ExtArgs>
+}
 
 export type $InflationIndexPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "InflationIndex"
-  objects: {}
+  objects: {
+    ledger: Prisma.$LedgerPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    ledgerId: number
     period: Date
     monthlyRate: runtime.Decimal
     cpiIndex: runtime.Decimal
@@ -824,6 +1022,7 @@ readonly fields: InflationIndexFieldRefs;
  */
 export interface Prisma__InflationIndexClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  ledger<T extends Prisma.LedgerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LedgerDefaultArgs<ExtArgs>>): Prisma.Prisma__LedgerClient<runtime.Types.Result.GetResult<Prisma.$LedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -854,6 +1053,7 @@ export interface Prisma__InflationIndexClient<T, Null = never, ExtArgs extends r
  */
 export interface InflationIndexFieldRefs {
   readonly id: Prisma.FieldRef<"InflationIndex", 'Int'>
+  readonly ledgerId: Prisma.FieldRef<"InflationIndex", 'Int'>
   readonly period: Prisma.FieldRef<"InflationIndex", 'DateTime'>
   readonly monthlyRate: Prisma.FieldRef<"InflationIndex", 'Decimal'>
   readonly cpiIndex: Prisma.FieldRef<"InflationIndex", 'Decimal'>
@@ -876,6 +1076,10 @@ export type InflationIndexFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
+  /**
    * Filter, which InflationIndex to fetch.
    */
   where: Prisma.InflationIndexWhereUniqueInput
@@ -894,6 +1098,10 @@ export type InflationIndexFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
+  /**
    * Filter, which InflationIndex to fetch.
    */
   where: Prisma.InflationIndexWhereUniqueInput
@@ -911,6 +1119,10 @@ export type InflationIndexFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the InflationIndex
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
   /**
    * Filter, which InflationIndex to fetch.
    */
@@ -960,6 +1172,10 @@ export type InflationIndexFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
+  /**
    * Filter, which InflationIndex to fetch.
    */
   where?: Prisma.InflationIndexWhereInput
@@ -1008,6 +1224,10 @@ export type InflationIndexFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
+  /**
    * Filter, which InflationIndices to fetch.
    */
   where?: Prisma.InflationIndexWhereInput
@@ -1051,6 +1271,10 @@ export type InflationIndexCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
+  /**
    * The data needed to create a InflationIndex.
    */
   data: Prisma.XOR<Prisma.InflationIndexCreateInput, Prisma.InflationIndexUncheckedCreateInput>
@@ -1084,6 +1308,10 @@ export type InflationIndexCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    */
   data: Prisma.InflationIndexCreateManyInput | Prisma.InflationIndexCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1098,6 +1326,10 @@ export type InflationIndexUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the InflationIndex
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
   /**
    * The data needed to update a InflationIndex.
    */
@@ -1150,6 +1382,10 @@ export type InflationIndexUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * Limit how many InflationIndices to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1164,6 +1400,10 @@ export type InflationIndexUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the InflationIndex
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
   /**
    * The filter to search for the InflationIndex to update in case it exists.
    */
@@ -1190,6 +1430,10 @@ export type InflationIndexDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the InflationIndex
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
   /**
    * Filter which InflationIndex to delete.
    */
@@ -1222,4 +1466,8 @@ export type InflationIndexDefaultArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the InflationIndex
    */
   omit?: Prisma.InflationIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InflationIndexInclude<ExtArgs> | null
 }

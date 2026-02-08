@@ -44,8 +44,9 @@ model Ledger {
   collaborations Collaboration[]  @relation("LedgerCollaborations")
   groups         Group[]          @relation("LedgerGroups")
   categories     Category[]         @relation("LedgerCategories")
-  transactions   Transaction[]    @relation("LedgerTransactions")
-  paymentMethods LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
+  transactions      Transaction[]       @relation("LedgerTransactions")
+  paymentMethods    LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
+  inflationIndexes  InflationIndex[]    @relation("LedgerInflationIndexes")
   isActive       Boolean         @default(true)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -216,12 +217,16 @@ model TransactionBreakDown {
 
 model InflationIndex {
   id          Int      @id @default(autoincrement())
-  period      DateTime @unique
+  ledgerId    Int
+  period      DateTime
   monthlyRate Decimal  @db.Decimal(10, 6)
   cpiIndex    Decimal  @db.Decimal(10, 4)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  ledger Ledger @relation("LedgerInflationIndexes", fields: [ledgerId], references: [id])
+
+  @@unique([ledgerId, period])
   @@map("inflation_indexes")
 }
 
