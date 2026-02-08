@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -129,6 +130,16 @@ export class CreateTransactionDto {
   @Min(1)
   @Max(4)
   weekNumber?: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether this transaction impacts cashflow analysis. For credit cards: set to false for unbilled charges. Defaults to true for non-CC, false for CC.',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  impactsCashflow?: boolean;
+
   constructor(partial: Partial<CreateTransactionDto>) {
     Object.assign(this, partial);
   }

@@ -100,6 +100,12 @@ export class TransactionEntity {
   })
   totalAmount: number;
 
+  @ApiProperty({
+    enum: TransactionType,
+    description: 'Type of transaction (FIXED or VARIABLE).',
+    example: TransactionType.VARIABLE,
+    default: TransactionType.VARIABLE,
+  })
   type: TransactionType;
 
   @ApiProperty({
@@ -107,6 +113,37 @@ export class TransactionEntity {
     example: 9166.83,
   })
   monthlyAmount: number;
+
+  @ApiProperty({
+    description: 'Whether the transaction/statement has been paid.',
+    example: false,
+    default: false,
+  })
+  isPaid: boolean;
+
+  @ApiProperty({
+    description:
+      'Whether this transaction impacts cashflow analysis. For credit cards: indicates if charge has been billed.',
+    example: true,
+    default: true,
+  })
+  impactsCashflow: boolean;
+
+  @ApiProperty({
+    description:
+      'CPI index value at the time of payment month (base 100 = Jan 2024).',
+    example: 550.0,
+    required: false,
+  })
+  cpiIndex?: number;
+
+  @ApiProperty({
+    description:
+      'Inflation-adjusted monthly amount in constant Jan 2024 pesos.',
+    example: 5000.0,
+    required: false,
+  })
+  realMonthlyAmount?: number;
 
   @ApiProperty({
     description:

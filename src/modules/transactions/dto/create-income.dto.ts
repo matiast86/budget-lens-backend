@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsInt,
@@ -82,6 +83,15 @@ export class CreateIncomeDto {
   @IsNumber()
   @Min(0)
   totalProvidedAmount: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether this income transaction impacts cashflow analysis. Defaults to true.',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  impactsCashflow?: boolean;
 
   constructor(partial: Partial<CreateIncomeDto>) {
     Object.assign(this, partial);

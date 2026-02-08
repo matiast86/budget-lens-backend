@@ -22,6 +22,10 @@ export const transactionToResponseDto = (
     totalAmount,
     paymentMethod,
     monthlyAmount,
+    isPaid,
+    impactsCashflow,
+    cpiIndex,
+    realMonthlyAmount,
     debtOwner,
     group,
     transactionsBreakDown,
@@ -41,6 +45,12 @@ export const transactionToResponseDto = (
     totalAmount: Number(totalAmount),
     paymentMethod: paymentMethodToResponseDto(paymentMethod),
     monthlyAmount: Number(monthlyAmount),
+    isPaid,
+    impactsCashflow,
+    cpiIndex: cpiIndex ? Number(cpiIndex) : undefined,
+    realMonthlyAmount: realMonthlyAmount
+      ? Number(realMonthlyAmount)
+      : undefined,
     debtOwner: debtOwner?.name,
     group,
     transactionsBreakDown: transactionBdArrayToArrayDto(transactionsBreakDown),

@@ -92,6 +92,33 @@ export class TransactionResponseDto {
   })
   monthlyAmount: number;
 
+  @ApiProperty({
+    description: 'Whether the transaction/statement has been paid.',
+    example: false,
+  })
+  isPaid: boolean;
+
+  @ApiProperty({
+    description:
+      'Whether this transaction impacts cashflow analysis. For credit cards: indicates if charge has been billed.',
+    example: true,
+  })
+  impactsCashflow: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'CPI index value at the time of payment month (base 100 = Jan 2024).',
+    example: 550.0,
+  })
+  cpiIndex?: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Inflation-adjusted monthly amount in constant Jan 2024 pesos.',
+    example: 5000.0,
+  })
+  realMonthlyAmount?: number;
+
   @ApiPropertyOptional({ type: String })
   debtOwner?: string;
 

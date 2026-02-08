@@ -14,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoryTemplatesModule } from './modules/category-templates/category-templates.module';
 import { DataCollectionService } from './services/data-collection/data-collection.service';
+import { InflationIndexesModule } from './modules/inflation-indexes/inflation-indexes.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { DataCollectionService } from './services/data-collection/data-collectio
     TransactionsBreakDownModule,
     AuthModule,
     CategoryTemplatesModule,
+    InflationIndexesModule,
   ],
   controllers: [],
   providers: [DataCollectionService],
