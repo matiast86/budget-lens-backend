@@ -20,7 +20,7 @@ export class InflationIndexesRepository {
     return await this.prisma.inflationIndex.findUnique({ where: { id } });
   }
 
-  async findManyByPaginated(
+  async findManyPaginated(
     where: Prisma.InflationIndexWhereInput,
     skip: number,
     take: number,
