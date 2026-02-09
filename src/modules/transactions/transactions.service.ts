@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from 'prisma/generated/prisma/client';
+import { Prisma, Transaction } from 'prisma/generated/prisma/client';
 import {
   Currency,
   DebtDirection,
@@ -528,6 +528,10 @@ export class TransactionsService {
     if (!transaction)
       throw new NotFoundException(`Transaction with id: ${id} not found.`);
     return transactionToResponseDto(transaction);
+  }
+
+  async findEntityById(id: number): Promise<Transaction | null> {
+    return await this.transactionsRepository.findById(id);
   }
 
   async changeRelation(

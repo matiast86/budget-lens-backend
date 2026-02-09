@@ -1,34 +1,51 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TransactionsBreakDownService } from './transactions-break-down.service';
-import { CreateTransactionsBreakDownDto } from './dto/create-transactions-break-down.dto';
+import {
+  Body,
+  Controller,
+  Param,
+  ParseIntPipe,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { TransactionBreakDownResponseDto } from './dto/transaction-break-down-response.dto';
 import { UpdateTransactionsBreakDownDto } from './dto/update-transactions-break-down.dto';
+import { TransactionsBreakDownService } from './transactions-break-down.service';
 
+@ApiBearerAuth()
+@ApiTags('Transactions Break Down')
+@UseGuards(AuthGuard)
 @Controller('transactions-break-down')
 export class TransactionsBreakDownController {
-  constructor(private readonly transactionsBreakDownService: TransactionsBreakDownService) {}
-
-  @Post()
-  create(@Body() createTransactionsBreakDownDto: CreateTransactionsBreakDownDto) {
-    return this.transactionsBreakDownService.create(createTransactionsBreakDownDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.transactionsBreakDownService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsBreakDownService.findOne(+id);
-  }
+  constructor(
+    private readonly transactionsBreakDownService: TransactionsBreakDownService,
+  ) {}
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionsBreakDownDto: UpdateTransactionsBreakDownDto) {
-    return this.transactionsBreakDownService.update(+id, updateTransactionsBreakDownDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsBreakDownService.remove(+id);
+  @ApiOperation({ summary: 'Update a weekly breakdown entry' })
+  @ApiParam({ name: 'id', type: Number, description: 'Breakdown record ID' })
+  @ApiOkResponse({ type: TransactionBreakDownResponseDto })
+  @ApiNotFoundResponse({ description: 'Breakdown record not found' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateTransactionsBreakDownDto,
+  ): Promise<TransactionBreakDownResponseDto> {
+    const updated = await this.transactionsBreakDownService.update(
+      id,
+      updateDto,
+    );
+    return new TransactionBreakDownResponseDto({
+      id: updated.id,
+      transactionId: updated.transactionId,
+      weekNumber: updated.weekNumber,
+      amount: Number(updated.amount),
+    });
   }
 }
