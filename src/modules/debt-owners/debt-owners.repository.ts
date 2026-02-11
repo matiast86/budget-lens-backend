@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DebtOwner, Prisma } from 'prisma/generated/prisma/client';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DebtOwnerWithDebts } from 'src/types/entities/debt.types';
+import { DebtOwnerWithTransactions } from 'src/types/entities/debt.types';
 
 @Injectable()
 export class DebtOwnersRepository {
@@ -11,30 +11,30 @@ export class DebtOwnersRepository {
     skip: number,
     take: number,
     ledgerId: number,
-  ): Promise<DebtOwnerWithDebts[]> {
+  ): Promise<DebtOwnerWithTransactions[]> {
     return await this.prisma.debtOwner.findMany({
       where: { ledgerId },
       skip,
       take,
       orderBy: { name: 'asc' },
-      include: { debts: true },
+      include: { transactions: { include: { debt: true } } },
     });
   }
 
-  async findById(id: number): Promise<DebtOwnerWithDebts | null> {
+  async findById(id: number): Promise<DebtOwnerWithTransactions | null> {
     return await this.prisma.debtOwner.findUnique({
       where: { id },
-      include: { debts: true },
+      include: { transactions: { include: { debt: true } } },
     });
   }
 
   async findByNameInLedger(
     ledgerId: number,
     name: string,
-  ): Promise<DebtOwnerWithDebts | null> {
+  ): Promise<DebtOwnerWithTransactions | null> {
     return await this.prisma.debtOwner.findUnique({
       where: { ledgerId_name: { ledgerId, name } },
-      include: { debts: true },
+      include: { transactions: { include: { debt: true } } },
     });
   }
 

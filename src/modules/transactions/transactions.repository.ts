@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Currency, EntryType, Prisma } from 'prisma/generated/prisma/client';
+import {
+  Currency,
+  DebtDirection,
+  EntryType,
+  Prisma,
+} from 'prisma/generated/prisma/client';
 import { TransactionCreateInput } from 'prisma/generated/prisma/models';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -18,7 +23,7 @@ export class TransactionsRepository {
       include: {
         category: true,
         paymentMethod: true,
-        debtOwner: true,
+        debtOwners: { include: { debtOwner: true, debt: true } },
         group: true,
         transactionsBreakDown: true,
       },
@@ -31,7 +36,7 @@ export class TransactionsRepository {
       include: {
         category: true,
         paymentMethod: true,
-        debtOwner: true,
+        debtOwners: { include: { debtOwner: true, debt: true } },
         group: true,
         transactionsBreakDown: true,
       },
@@ -52,7 +57,7 @@ export class TransactionsRepository {
       include: {
         category: true,
         paymentMethod: true,
-        debtOwner: true,
+        debtOwners: { include: { debtOwner: true, debt: true } },
         group: true,
         transactionsBreakDown: true,
       },
@@ -70,7 +75,7 @@ export class TransactionsRepository {
         include: {
           category: true,
           paymentMethod: true,
-          debtOwner: true,
+          debtOwners: { include: { debtOwner: true, debt: true } },
           group: true,
           transactionsBreakDown: true,
         },
@@ -94,6 +99,30 @@ export class TransactionsRepository {
     return await this.prisma.transaction.findFirst({
       where: { categoryId, paymentMethodId, groupId, currency, entryType },
       include: { transactionsBreakDown: true, group: true },
+    });
+  }
+
+  async createTransactionDebtOwner(
+    transactionId: number,
+    debtOwnerId: number,
+    amount: number,
+    direction: DebtDirection,
+    period: Date,
+    description?: string,
+  ): Promise<void> {
+    await this.prisma.transactionDebtOwner.create({
+      data: {
+        transaction: { connect: { id: transactionId } },
+        debtOwner: { connect: { id: debtOwnerId } },
+        amount,
+        direction,
+        debt: {
+          create: {
+            period,
+            description,
+          },
+        },
+      },
     });
   }
 }

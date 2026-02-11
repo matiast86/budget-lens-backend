@@ -1,151 +1,227 @@
-# CLAUDE.md — Expense Tracker: Excel-to-App Comparative Analysis
+# CLAUDE.md — Budget Lens: Expense Tracker
 
 ## Context
 
-I'm building a personal expense tracking application using **NestJS + Prisma + PostgreSQL**. The app must replicate and eventually replace my Excel-based expense tracker (`Gastos_Mati_Claude.xlsx`), which I've used since January 2024. This is not a generic expense tracker — it was designed for **the Argentine economic context** (high inflation, installment-based credit card purchases, salary renegotiations, multi-currency tracking). The Excel file is included in this project for reference.
-
-## Your Task
-
-Perform a **full comparative analysis** between the current state of the NestJS app (codebase in this repo) and the Excel tracker described below. Specifically:
-
-1. **Map every Excel concept to the app's current data model** (Prisma schema). Identify what's already implemented, what's missing, and what's implemented differently.
-2. **Identify logic gaps**: calculations, derived fields, and business rules present in the Excel that the app doesn't yet handle.
-3. **Identify structural gaps**: sheets/views in the Excel that have no equivalent endpoint, service, or module in the app.
-4. **Produce a prioritized gap report** with concrete recommendations (schema changes, new modules, new endpoints, missing calculations).
+Personal expense tracking application using **NestJS + Prisma + PostgreSQL**. Replicates an Excel-based tracker (`Gastos_Mati_Claude.xlsx`) designed for the **Argentine economic context** (high inflation, installment-based credit card purchases, multi-currency tracking, inter-family debt ledger).
 
 ---
 
-## Excel Structure — Complete Reference
+## Current Project State (as of 2026-02-08)
+
+### Architecture
+
+- **Framework**: NestJS with modular structure
+- **ORM**: Prisma with PostgreSQL
+- **Auth**: JWT-based with `AuthGuard`, `RolesGuard` (ADMIN/USER), and `LedgerAccessGuard` for multi-tenant ledger access
+- **Pattern**: Controller → Service → Repository → Prisma, with DTOs, entities, mappers, and typed includes
+
+### Modules Implemented
+
+| Module | Controller | Service | Repository | Status |
+|--------|-----------|---------|------------|--------|
+| Users | Yes | Yes | Yes | Complete |
+| Auth | Yes | Yes | - | Complete |
+| Ledgers | Yes | Yes | Yes | Complete |
+| Collaborations | Yes | Yes | Yes | Complete |
+| Categories | Yes | Yes | Yes | Complete |
+| Groups | Yes | Yes | Yes | Complete |
+| Payment Methods | Yes | Yes | Yes | Complete |
+| Inflation Indexes | Yes | Yes | Yes | Complete (controller just added) |
+| Transactions | Yes | Yes | Yes | Controller added, service needs debt refactor |
+| Transactions Break Down | Yes | Yes | Yes | Controller added (update only) |
+| Debts | Partial | Yes | Yes | **Needs refactor for new schema** |
+| Debt Owners | Yes | Yes | Yes | **Needs refactor for new schema** |
+
+### Controllers Recently Added
+
+All controllers follow these patterns:
+- `@ApiBearerAuth()`, `@ApiTags()`, `@UseGuards()` at class level
+- Swagger decorators (`@ApiOperation`, `@ApiOkResponse`, `@ApiParam`, etc.) per endpoint
+- `ParseIntPipe` for `:id` params, `ParseEnumPipe` for enum params
+- `@HttpCode(HttpStatus.NO_CONTENT)` for DELETE endpoints
+
+**Inflation Indexes Controller** (`inflation-indexes.controller.ts`):
+- `@UseGuards(AuthGuard, RolesGuard)` — all endpoints require auth, `@Roles(Role.ADMIN)` on POST/PATCH/DELETE
+- Endpoints: `POST /`, `GET /` (with currency, pagination, period range, orderBy), `GET /:id`, `PATCH /:id`, `DELETE /:id`
+
+**Transactions Controller** (`transactions.controller.ts`):
+- `@UseGuards(AuthGuard, LedgerAccessGuard)` — ledger-scoped access control
+- Ledger-scoped routes use `ledgers/:ledgerId/...` (guard resolves via `request.params.ledgerId`)
+- Transaction-scoped routes use `@LedgerFrom('transaction', 'id')` (guard loads transaction → derives ledgerId)
+- Endpoints: `POST .../expenses`, `POST .../incomes`, `GET ledgers/:ledgerId`, `GET /:id`, `PATCH /:id/breakdown`, `PATCH /:id/category/:targetId`, `PATCH /:id/group/:targetId`, `PATCH /:id/payment-method/:targetId`
+
+**Transactions Break Down Controller** (`transactions-break-down.controller.ts`):
+- `@UseGuards(AuthGuard)` only (LedgerAccessGuard doesn't support breakdown entity type)
+- Single endpoint: `PATCH /:id`
+
+### Guards & Decorators
+
+- **`AuthGuard`**: JWT token validation
+- **`RolesGuard`**: Checks `@Roles()` metadata; passes through if no decorator present
+- **`LedgerAccessGuard`**: Multi-tenant authorization — resolves ledgerId from various entity types via `@LedgerFrom(type, param)` decorator, verifies user is owner or collaborator
+  - Supported types: `ledger`, `group`, `category`, `debtOwner`, `collaboration`, `transaction`, `debt`
+  - NOT supported: `transactionBreakDown` (would need extension)
+- **`@Roles(...roles)`**: Sets metadata for RolesGuard
+- **`@LedgerFrom(type, param)`**: Sets metadata for LedgerAccessGuard to resolve ledger from entity
+- **`@GetUser(field?)`**: Extracts user/field from JWT payload
+
+---
+
+## Recent Schema Change: Many-to-Many Debt Model
+
+### What Changed
+
+The `Transaction ↔ DebtOwner` relationship was changed from a direct 1:N FK to a **many-to-many with payload** through a `TransactionDebtOwner` join table:
+
+```
+Transaction ←→ TransactionDebtOwner ←→ DebtOwner
+                       ↓
+                      Debt
+```
+
+**Old model**: `Transaction` had optional `debtOwnerId` FK. `Debt` had `debtOwnerId`, `direction`, `amount`.
+
+**New model** (current `schema.prisma`):
+- `Transaction` has `debtOwners: TransactionDebtOwner[]`
+- `TransactionDebtOwner` is the pivot: composite PK `(transactionId, debtOwnerId)`, carries `amount`, `direction` (DebtDirection), and `debtId` (1:1 link to Debt)
+- `Debt` is simplified: only `id`, `period`, `description` (plus back-relation to TransactionDebtOwner)
+- `DebtOwner` has `transactions: TransactionDebtOwner[]` instead of direct `debts`/`transactions` relations
+
+### Files Already Updated (entities, DTOs, mappers, types)
+
+**New files created:**
+- `src/modules/transactions/entities/transaction-debt-owner.entity.ts` — TransactionDebtOwner entity
+- `src/modules/transactions/dto/debt-assignment.dto.ts` — Input DTO for debt assignments (replaces single debtOwnerId/debtAmount/debtDirection)
+- `src/modules/transactions/dto/transaction-debt-owner-response.dto.ts` — Response DTO (transactionId, debtOwnerId, debtOwnerName, amount, direction, nested debt)
+
+**Updated entities:**
+- `transaction.entity.ts` — removed `debtOwnerId`, added `debtOwners: TransactionDebtOwnerEntity[]`
+- `debt.entity.ts` — stripped to `id`, `period`, `description`
+- `debt-owner.entity.ts` — `transactions: TransactionDebtOwnerEntity[]` replaces `debts`/`transactions`
+
+**Updated DTOs:**
+- `create-transaction.dto.ts` — replaced `debtOwnerId`/`debtAmount`/`debtDirection` with `debtAssignments?: DebtAssignmentDto[]` (uses `@ValidateNested` + `@Type` from class-transformer)
+- `transaction-response.dto.ts` — replaced `debtOwner?: string` with `debtOwners?: TransactionDebtOwnerResponseDto[]`
+- `create-debt.dto.ts` — removed `direction`, `amount` (now on join table); keeps `periodString`, `description`
+- `debt-response.dto.ts` — removed `debtOwnerId`, `direction`, `amount`; keeps `id`, `period`, `description`
+- `debt-owner-response.dto.ts` — `transactions?: TransactionDebtOwnerResponseDto[]` replaces `debts: DebtResponseDto[]`
+
+**Updated types:**
+- `transaction.types.ts` — `TransactionIncludes.detail` uses `debtOwners: { include: { debtOwner: true, debt: true } }`
+- `debt.types.ts` — `DebtOwnerWithDebts` renamed to `DebtOwnerWithTransactions`, includes `transactions: { include: { debt: true } }`
+- `ledger.types.ts` — `LedgerIncludes.detail` transactions include updated to match
+
+**Updated mappers:**
+- `transaction.mapper.ts` — maps `debtOwners` array via `transactionDebtOwnerToResponseDto`
+- `debt.mapper.ts` — simplified to map `id`, `period`, `description`
+- `debt-owner.mapper.ts` — traverses `transactions: TransactionDebtOwner[]` with nested debt
+
+**Updated repositories:**
+- `ledgers.repository.ts` — both `findLedgerById` and `findLedgerByName` includes updated
+
+**Dependency added:** `class-transformer` (for `@Type(() => DebtAssignmentDto)`)
+
+### PENDING: Service & Repository Changes for Debt Refactor
+
+The following files still reference the old schema and need updating:
+
+#### `TransactionsRepository` (`transactions.repository.ts`)
+- **4 methods** (`create`, `findById`, `findAllByPaginated`, `update`) have hardcoded `debtOwner: true` in includes → change to `debtOwners: { include: { debtOwner: true, debt: true } }`
+
+#### `TransactionsService` (`transactions.service.ts`)
+- **`handleDebtOwner` method** (lines 61-76): Creates standalone Debt via debtsService. Needs rewrite — debts are now created as part of TransactionDebtOwner records, not independently
+- **`createExpense`**: Destructures old `debtOwnerId`/`debtAmount`/`debtDirection` → should use `debtAssignments` array
+- **`createExpense` single with debt** (lines 364-392): Uses `debtOwner: { connect: { id } }` in create input → create transaction first, then create TransactionDebtOwner + Debt for each assignment
+- **`createExpense` merge path** (lines 312-324): Calls `handleDebtOwner` with single debt owner → iterate `debtAssignments`
+- **`handleInstallments`** (lines 100-202): Takes `debtOwnerId`/`debtAmount`/`debtDirection` params → accept `debtAssignments?: DebtAssignmentDto[]`, loop per installment
+- **`handleInstallments` create input** (line 152): Uses `debtOwner: { connect: { id } }` → link via join table after creation
+
+#### `DebtsRepository` (`debts.repository.ts`)
+- **`findAllByOwnerId`** (line 17): Filters by `debtOwnerId` which no longer exists on Debt → needs rethinking (query through join table or remove)
+- **`create`** (line 28): Accepts `DebtCreateInput` with old fields → now just `{ period, description }`
+
+#### `DebtsService` (`debts.service.ts`)
+- **`parsedOrderBy`** (line 27): Allows sorting by `amount`, `direction` which no longer exist on Debt → only `period` valid
+- **`create`** (lines 36-52): Destructures `direction`, `amount` and connects to `debtOwner` → simplify to `period` + `description`
+- **`findAllByOwnerId`** (lines 54-68): Delegates to repo method that filters by `debtOwnerId` → breaks
+
+#### `DebtOwnersRepository` (`debt-owners.repository.ts`)
+- **Import** (line 5): Uses old type `DebtOwnerWithDebts` → rename to `DebtOwnerWithTransactions`
+- **3 query methods** (`findAllByLedgerId`, `findById`, `findByNameInLedger`): Include `{ debts: true }` → `{ transactions: { include: { debt: true } } }`
+
+#### `LedgerAccessGuard` (`ledger-access.guard.ts`)
+- **`debt` resolution** (line 119): Accesses `debt.debtOwnerId` to find ledger → Debt no longer has that FK. Must resolve through TransactionDebtOwner → DebtOwner → ledgerId
+
+---
+
+## Excel Structure Reference
 
 ### SHEET: "BASE GASTOS" (Core Transaction Ledger) — ~5,500 rows
 
-This is the **single source of truth**. Every row is a transaction line (one row per installment per month). Columns:
+Single source of truth. One row per installment per month.
 
 | Column | Field | Type | Description |
 |--------|-------|------|-------------|
-| A | `STATUS` | Enum | `Cerrado` (closed/past), `Actual` (current month), `Futuro` (projected) |
-| B | `STATUS & WEEK` | Derived | Concatenation of STATUS + week number (e.g., `CerradoW1`, `ActualW3`, `FuturoW1`). Used for weekly cashflow pivots. |
-| C | `Impacto` | Boolean (`Y`/`N`) | Whether this transaction impacts the cashflow analysis. Some entries are informational only. |
-| D | `Pagado` | Boolean (`Y`/`N`) | Whether the transaction has actually been paid/settled. |
-| E | `Titular` | Enum/String | Who the expense belongs to. Values: `Yani`, `Sofi`, `Susana`, `Pau`, `Celi`, `Otros`. Used for debt tracking between family members. |
-| F | `Ingreso / Egreso` | Enum | `Ingreso` or `Egreso`. |
-| G | `Grupo de Gasto` | Enum | **Payment method / source**. Values: `VISA CDD`, `VISA GAL`, `MASTER CDD`, `MASTER CAR`, `AMEX GAL`, `Efvo./Transf.`, `Mercado Pago`, `Bancos`, `Sueldo`, `Créditos`, `Ahorros`, `Débito`, `Deuda`, `Préstamo Sofía`. This is NOT the expense category — it's the payment instrument. |
-| H | `Agrupador` | String | **Sub-category / grouping**. Granular classification. ~80 unique values including: `Supermercado`, `Alquiler & Expensas`, `OSDE`, `Servicios Hogar`, `Jardín Noah`, `Jardín Liam`, `Taxis & Cabify`, `Delivery`, `Farmacia`, `Ropa`, `Calzado`, `Cumpleaños Noah`, `Cumpleaños Liam`, `Salida con Amigos`, `Almuerzos & Café Mati`, `Servicios Streaming`, `Cursos`, `Prestamo Massa`, etc. |
-| I | `Concepto` | Enum | **Expense category** (higher level). Values: `Gastos de la casa`, `Salidas a comer`, `Noah`, `Liam`, `Salud`, `Transporte`, `Varios`, `Entretenimiento`, `Regalos`, `Créditos`, `Vestimenta`, `Monotributo`, `Librería`, `Peluquería`, `Salem`, `Vacaciones`, `Sueldo`, `Saldo`, `Saldo Mes Anterior`, `USD Susana`, `USD Sofía`, `Susana`, `Plan V VISA CDD`. |
-| J | `Detalle` | String | Free-text description (e.g., "Club La Nacion", "Carrefour", "Benito Nazar", specific store or item). |
-| K | `Fecha transacción` | Date | Actual date of the purchase/transaction. |
-| L | `Mes Pago` | Date (month) | The month this installment is **charged/paid**. For installment purchases, K stays the same but L advances each month. |
-| M | `Cuotas` | Integer | Total number of installments for this purchase. `1` for single-payment transactions. |
-| N | `N° Cuota` | Integer | Current installment number (1-indexed). |
-| O | `Cuotas Pendientes` | Integer | Remaining installments (`Cuotas - N° Cuota`). |
-| P | `Importe Total USD` | Decimal | Total amount in USD (for USD-denominated transactions). |
-| Q | `TC Estimado` | Decimal | Estimated exchange rate (USD→ARS). |
-| R | `Importe Total Pesos` | Decimal | Total amount in ARS for the full purchase. |
-| S | `Importe estimado mensual` | Decimal | Monthly installment amount in ARS (`Importe Total Pesos / Cuotas`). This is the per-month cashflow impact. |
-| T | `Inicial Mes` | Decimal | **Signed monthly amount for pivots**: negative for expenses, positive for income. This is the primary value used in all pivot tables and cashflow views. |
-| U-X | `W1`, `W2`, `W3`, `W4` | Decimal | Distribution of the monthly amount across weeks 1–4. Used for intra-month cashflow management. |
-| Y | `Balance Mes` | Decimal | Running monthly balance. |
-| Z | `Index` | Decimal | CPI index value for the transaction's payment month (base 100 = Jan 2024). Used to deflate amounts. |
-| AA | `Inicial mes real` | Decimal | **Inflation-adjusted amount**: `Inicial Mes / Index * 100`. This converts nominal pesos to "real" (constant Jan 2024) pesos. |
+| A | `STATUS` | Enum | `Cerrado`, `Actual`, `Futuro` |
+| B | `STATUS & WEEK` | Derived | STATUS + week number for weekly pivots |
+| C | `Impacto` | Boolean | Whether transaction impacts cashflow |
+| D | `Pagado` | Boolean | Whether paid/settled |
+| E | `Titular` | Enum/String | Debt owner: `Yani`, `Sofi`, `Susana`, `Pau`, `Celi`, `Otros` |
+| F | `Ingreso / Egreso` | Enum | Income or Expense |
+| G | `Grupo de Gasto` | Enum | Payment method/instrument |
+| H | `Agrupador` | String | Sub-category (~80 values) |
+| I | `Concepto` | Enum | High-level category |
+| J | `Detalle` | String | Free-text description |
+| K | `Fecha transacción` | Date | Purchase date |
+| L | `Mes Pago` | Date | Payment month (advances for installments) |
+| M | `Cuotas` | Integer | Total installments |
+| N | `N° Cuota` | Integer | Current installment number |
+| O | `Cuotas Pendientes` | Integer | Remaining installments |
+| P | `Importe Total USD` | Decimal | Total in USD |
+| Q | `TC Estimado` | Decimal | Exchange rate |
+| R | `Importe Total Pesos` | Decimal | Total in ARS |
+| S | `Importe estimado mensual` | Decimal | Monthly installment amount |
+| T | `Inicial Mes` | Decimal | Signed monthly amount for pivots |
+| U-X | `W1`-`W4` | Decimal | Weekly distribution |
+| Y | `Balance Mes` | Decimal | Running monthly balance |
+| Z | `Index` | Decimal | CPI index (base 100 = Jan 2024) |
+| AA | `Inicial mes real` | Decimal | Inflation-adjusted amount |
 
-**Key business rules:**
-- For installment purchases (Cuotas > 1), there is **one row per installment per month**. The `Fecha transacción` is the same across all rows, but `Mes Pago` and `N° Cuota` advance.
-- `Futuro` rows are projected future installments that haven't been charged yet.
-- `Ingreso` rows include: salary from multiple employers (Benito Nazar, Cruz del Sur, Particulares), opening balances per payment method, and carryover balances.
-- Negative `Importe Total Pesos` on an Egreso with a negative `Inicial Mes` that becomes positive represents **reimbursements or contra-entries** (e.g., family member paying back their share of a group expense).
-
----
+**Key rules:**
+- Installment purchases: one row per installment per month
+- `Futuro` = projected future installments
+- Negative amounts on Egreso = reimbursements/contra-entries
 
 ### SHEET: "Infla" (Inflation Table)
+Monthly CPI from Jan 2024–Dec 2026. Columns: Mes, monthly rate, cumulative CPI (base 100), YTD accumulated, year-over-year.
 
-Monthly CPI data from Jan 2024 through Dec 2026 (projected).
+### SHEET: "CASHFLOW"
+Pivot: Ingreso/Egreso → Payment method → Category → Detail, by month. Shows income/expense totals and net.
 
-| Column | Field | Description |
-|--------|-------|-------------|
-| A | `Mes` | Month (date) |
-| B | `Infl` | Monthly inflation rate (e.g., 0.206 = 20.6% for Jan 2024) |
-| C | `Base 100` | Cumulative CPI index, base 100 = Jan 2024 |
-| D | `Acum Año` | Year-to-date accumulated inflation |
-| E | `Interanual` | Year-over-year inflation rate |
+### SHEET: "TD Deudas"
+Pivot: Titular → Detail items, by month. Net balances per person. Pagado filter for settled vs pending.
 
-From Jan 2024 (20.6%) inflation has declined to ~2% projected monthly by 2026. Future months use estimated rates. This table is critical — it feeds the `Index` column in BASE GASTOS and enables all real-terms analysis.
+### SHEET: "Evolución Gastos"
+Monthly breakdown by category, nominal + inflation-adjusted (% of total).
 
----
+### SHEET: "GRAPH Evol. de gastos" / "GRAPH Evol reales detallado"
+Aggregated/detailed monthly totals for charting.
 
-### SHEET: "CASHFLOW" (Pivot Table — Monthly Cashflow Projection)
+### SHEET: "Lista"
+Dropdown reference lists for data validation.
 
-A pivot table over BASE GASTOS showing:
-- **Rows**: Ingreso/Egreso → Grupo de Gasto (payment method) → Concepto → Detalle
-- **Columns**: Month (Mes Pago), with both `Inicial Mes` and `Balance Mes` per month
-- **Filters**: Impacto = All, Titular = Multiple Items
-- Shows Ingreso Total, Egreso Total, and Grand Total (net) per month
-- Projects forward through 2026 based on `Futuro` status rows
+> **Ignore:** "Paritarias", "Hoja1", "Osde", "Expectativa mínima de salario", "Calcular %", "Sheet1" — personal notes, not in scope.
 
 ---
 
-### SHEET: "TD Deudas" (Debt Tracking Pivot)
+## Key Analytical Capabilities to Replicate
 
-Pivot showing **net balances between family members/people** by month:
-- Rows: `Titular` → `Detalle` (specific debt items)
-- Columns: Months
-- Tracks: Celi, Pau, Sofi (with sub-items like "Ropa de chile", "Celular Sofi", "Kel"), Susana, Yani, Otros
-- Positive = they owe me, Negative = I owe them
-- Has a `Pagado` filter to distinguish settled vs. pending debts
-
----
-
-### SHEET: "Evolución Gastos" (Expense Evolution Pivot)
-
-Detailed monthly breakdown by `Concepto` (category), showing both:
-- `Inicial Mes` (nominal amounts per category per month)
-- `Inicial mes real` (inflation-adjusted amounts, expressed as **percentage of total** spending)
-
-Categories tracked: Gastos de la casa, Salidas a comer, Noah, Salud, Liam, Transporte, Varios, Regalos, Créditos, Vestimenta, Entretenimiento, Monotributo, Librería, Saldo, USD Sofía.
-
----
-
-### SHEET: "GRAPH Evol. de gastos" (Expense Evolution Summary for Charts)
-
-Aggregated monthly totals (nominal + real) for charting total expense trends over time.
-
----
-
-### SHEET: "GRAPH Evol reales detallado" (Detailed Real Evolution for Charts)
-
-Per-category, per-month **real (inflation-adjusted)** expense amounts. Used for stacked area/bar charts showing how spending composition changes over time in real terms. Includes Grand Total row.
-
----
-
----
-
-### SHEET: "Lista" (Dropdown Lists)
-
-Reference lists for Excel data validation dropdowns:
-- `Grupo de gasto` values (payment methods)
-- `Concepto` values (categories)
-
-> **Note:** The Excel also contains sheets "Paritarias", "Hoja1", "Osde", "Expectativa mínima de salario", "Calcular %", and "Sheet1". These are **personal notes kept for convenience** and are NOT part of the app's scope. Ignore them entirely.
-
----
-
-## Key Analytical Capabilities the App Must Replicate
-
-1. **Inflation-adjusted expense tracking**: Every nominal amount must be convertible to real (constant-peso) terms using the CPI index table.
-2. **Installment amortization**: Credit card purchases in cuotas must generate one transaction-line per installment per month, with correct `Mes Pago`, `N° Cuota`, and `Cuotas Pendientes`.
-3. **Multi-dimensional categorization**: Payment method (Grupo de Gasto) × Category (Concepto) × Sub-category (Agrupador) × Detail, all independently filterable.
-4. **Weekly intra-month cashflow**: Distributing monthly expenses into W1–W4 buckets.
-5. **Forward projection**: `Futuro` status transactions for installments not yet charged, enabling cashflow forecasting.
-6. **Inter-person debt ledger**: Tracking who owes whom across family members, with itemized debts and payment status.
-7. **Cashflow pivot**: Monthly income vs. expense by payment method, with net balance.
-8. **Category evolution over time**: Both nominal and real, with percentage-of-total breakdowns.
-9. **Status lifecycle**: Transactions move from `Futuro` → `Actual` → `Cerrado` as months pass.
-
-## Output Format
-
-Please produce your analysis as a structured report with:
-
-1. **Data Model Mapping Table**: Each Excel field → corresponding Prisma model/field (or "MISSING")
-2. **Sheet-to-Module Mapping**: Each Excel sheet → corresponding NestJS module/service/controller (or "MISSING")
-3. **Calculation/Logic Gap List**: Business rules present in Excel but not in app code
-4. **Prioritized Recommendations**: What to build next, ordered by importance (P0 = core data integrity, P1 = key analytics, P2 = nice-to-have views)
-5. **Schema Change Suggestions**: Concrete Prisma schema modifications if needed
+1. **Inflation-adjusted tracking**: Nominal → real (constant-peso) via CPI index
+2. **Installment amortization**: One row per installment per month with correct Mes Pago and N° Cuota
+3. **Multi-dimensional categorization**: Payment method × Category × Sub-category × Detail
+4. **Weekly intra-month cashflow**: W1–W4 distribution
+5. **Forward projection**: Futuro status for cashflow forecasting
+6. **Inter-person debt ledger**: Multi-person per transaction, itemized debts, payment status
+7. **Cashflow pivot**: Monthly income vs expense by payment method
+8. **Category evolution**: Nominal + real, % of total breakdowns
+9. **Status lifecycle**: Futuro → Actual → Cerrado

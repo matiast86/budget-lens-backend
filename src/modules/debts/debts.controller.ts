@@ -9,7 +9,6 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
   Query,
   Req,
   UseGuards,
@@ -25,10 +24,8 @@ import {
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
-import { handleDebtOwnerFromRequest } from 'src/helpers/errors';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { DebtsService } from './debts.service';
-import { CreateDebtDto } from './dto/create-debt.dto';
 import { DebtResponseDto } from './dto/debt-response.dto';
 import { UpdateDebtDto } from './dto/update-debt.dto';
 
@@ -38,33 +35,6 @@ import { UpdateDebtDto } from './dto/update-debt.dto';
 @Controller('debts')
 export class DebtsController {
   constructor(private readonly debtsService: DebtsService) {}
-
-  // ============================================================
-  // CREATE
-  // ============================================================
-
-  @ApiOperation({ summary: 'Create a new debt for a specific debt owner' })
-  @ApiParam({
-    name: 'ownerId',
-    description: 'ID of the debt owner',
-    example: 12,
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Debt created successfully',
-    type: DebtResponseDto,
-  })
-  @LedgerFrom('debtOwner', 'ownerId')
-  @Post()
-  async create(
-    @Req() req: LedgerRequest,
-    @Body() createDebtDto: CreateDebtDto,
-  ): Promise<DebtResponseDto> {
-    return await this.debtsService.create(
-      handleDebtOwnerFromRequest(req),
-      createDebtDto,
-    );
-  }
 
   // ============================================================
   // GET ALL (PAGINATED)
@@ -110,14 +80,8 @@ export class DebtsController {
     @Param('ownerId', ParseIntPipe) ownerId: number,
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-    @Query('orderBy') orderBy?: string,
   ): Promise<DebtResponseDto[]> {
-    return await this.debtsService.findAllByOwnerId(
-      ownerId,
-      skip,
-      take,
-      orderBy,
-    );
+    return await this.debtsService.findAllByOwnerId(ownerId, skip, take);
   }
 
   // ============================================================

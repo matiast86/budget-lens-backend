@@ -9,9 +9,14 @@ export const TransactionIncludes = {
     include: {
       category: true,
       paymentMethod: true,
-      debtOwner: true,
       transactionsBreakDown: true,
       group: true,
+      debtOwners: {
+        include: {
+          debtOwner: true,
+          debt: true,
+        },
+      },
     },
   },
 } as const;

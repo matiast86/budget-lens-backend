@@ -35,9 +35,14 @@ export class LedgersRepository {
           include: {
             category: true,
             paymentMethod: true,
-            debtOwner: true,
             group: true,
             transactionsBreakDown: true,
+            debtOwners: {
+              include: {
+                debtOwner: true,
+                debt: true,
+              },
+            },
           },
         },
         paymentMethods: { include: { paymentMethod: true } },
@@ -57,7 +62,18 @@ export class LedgersRepository {
       include: {
         collaborations: true,
         transactions: {
-          include: { category: true, paymentMethod: true, debtOwner: true },
+          include: {
+            category: true,
+            paymentMethod: true,
+            group: true,
+            transactionsBreakDown: true,
+            debtOwners: {
+              include: {
+                debtOwner: true,
+                debt: true,
+              },
+            },
+          },
         },
         paymentMethods: { include: { paymentMethod: true } },
         groups: true,

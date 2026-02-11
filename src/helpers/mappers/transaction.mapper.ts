@@ -1,8 +1,23 @@
+import { TransactionDebtOwnerResponseDto } from 'src/modules/transactions/dto/transaction-debt-owner-response.dto';
 import { TransactionResponseDto } from 'src/modules/transactions/dto/transaction-response.dto';
 import { TransactionDetailView } from 'src/types/entities/transaction.types';
 import { categoryToResponseDto } from './category.mapper';
+import { debtToResponseDto } from './debt.mapper';
 import { paymentMethodToResponseDto } from './payment-method.mapper';
 import { transactionBdArrayToArrayDto } from './transaction-bd.mapper';
+
+export const transactionDebtOwnerToResponseDto = (
+  tdo: TransactionDetailView['debtOwners'][number],
+): TransactionDebtOwnerResponseDto => {
+  return new TransactionDebtOwnerResponseDto({
+    transactionId: tdo.transactionId,
+    debtOwnerId: tdo.debtOwnerId,
+    debtOwnerName: tdo.debtOwner.name,
+    amount: Number(tdo.amount),
+    direction: tdo.direction,
+    debt: debtToResponseDto(tdo.debt),
+  });
+};
 
 export const transactionToResponseDto = (
   transaction: TransactionDetailView,
@@ -26,7 +41,7 @@ export const transactionToResponseDto = (
     impactsCashflow,
     cpiIndex,
     realMonthlyAmount,
-    debtOwner,
+    debtOwners,
     group,
     transactionsBreakDown,
   } = transaction;
@@ -51,7 +66,9 @@ export const transactionToResponseDto = (
     realMonthlyAmount: realMonthlyAmount
       ? Number(realMonthlyAmount)
       : undefined,
-    debtOwner: debtOwner?.name,
+    debtOwners: debtOwners
+      ? debtOwners.map(transactionDebtOwnerToResponseDto)
+      : [],
     group,
     transactionsBreakDown: transactionBdArrayToArrayDto(transactionsBreakDown),
   });

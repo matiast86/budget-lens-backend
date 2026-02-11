@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -9,8 +11,10 @@ import {
   IsString,
   Max,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { Currency, DebtDirection } from 'prisma/generated/prisma/enums';
+import { Currency } from 'prisma/generated/prisma/enums';
+import { DebtAssignmentDto } from './debt-assignment.dto';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -38,37 +42,22 @@ export class CreateTransactionDto {
   paymentMethodId: number;
 
   @ApiPropertyOptional({
-    description: 'Optional reference to a debt owner for shared debt.',
-    example: 10,
+    type: [DebtAssignmentDto],
+    description:
+      'Debt assignments linking this transaction to one or more debt owners.',
   })
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  debtOwnerId?: number;
-
-  @ApiPropertyOptional({
-    description: 'Optional debt amount associated with this transaction.',
-    example: 12000,
-  })
-  @IsOptional()
-  @IsNumber()
-  debtAmount?: number;
-
-  @ApiPropertyOptional({
-    enum: DebtDirection,
-    description: 'Optional debt direction for shared debt.',
-    example: DebtDirection.OWED_BY_ME,
-  })
-  @IsOptional()
-  @IsEnum(DebtDirection)
-  debtDirection?: DebtDirection;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DebtAssignmentDto)
+  debtAssignments?: DebtAssignmentDto[];
 
   @ApiProperty({
     description: 'Date the transaction occurred (ISO 8601).',
     example: '2025-02-01T00:00:00.000Z',
   })
   @IsDateString()
-  transactionDate: Date;
+  transactionDate: string;
 
   @ApiPropertyOptional({
     description:
@@ -77,7 +66,7 @@ export class CreateTransactionDto {
   })
   @IsOptional()
   @IsDateString()
-  paymentMonthValue?: Date;
+  paymentMonthValue?: string;
 
   @ApiPropertyOptional({
     description: 'Number of total installments; defaults to 1.',

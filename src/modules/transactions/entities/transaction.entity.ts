@@ -10,6 +10,7 @@ import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
+import { TransactionDebtOwnerEntity } from './transaction-debt-owner.entity';
 
 export class TransactionEntity {
   @ApiProperty({
@@ -146,14 +147,6 @@ export class TransactionEntity {
   realMonthlyAmount?: number;
 
   @ApiProperty({
-    description:
-      'Optional reference to a debt owner if this transaction involves shared debt.',
-    example: 10,
-    required: false,
-  })
-  debtOwnerId?: number;
-
-  @ApiProperty({
     description: "The id of the transaction's payment method.",
     example: 2,
   })
@@ -178,6 +171,14 @@ export class TransactionEntity {
     required: false,
   })
   transactionsBreakDown: TransactionsBreakDownEntity[];
+
+  @ApiProperty({
+    type: () => TransactionDebtOwnerEntity,
+    isArray: true,
+    description: 'Debt owner assignments linked to this transaction.',
+    required: false,
+  })
+  debtOwners: TransactionDebtOwnerEntity[];
 
   constructor(partial: Partial<TransactionEntity>) {
     Object.assign(this, partial);

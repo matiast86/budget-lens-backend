@@ -4,6 +4,7 @@ import { CategoryResponseDto } from 'src/modules/categories/dto/category-respons
 import { GroupResponseDto } from 'src/modules/groups/dto/group-response.dto';
 import { PaymentMethodResponseDto } from 'src/modules/payment-methods/dto/payment-method-response.dto';
 import { TransactionBreakDownResponseDto } from 'src/modules/transactions-break-down/dto/transaction-break-down-response.dto';
+import { TransactionDebtOwnerResponseDto } from './transaction-debt-owner-response.dto';
 
 export class TransactionResponseDto {
   @ApiProperty({
@@ -119,8 +120,12 @@ export class TransactionResponseDto {
   })
   realMonthlyAmount?: number;
 
-  @ApiPropertyOptional({ type: String })
-  debtOwner?: string;
+  @ApiPropertyOptional({
+    type: () => TransactionDebtOwnerResponseDto,
+    isArray: true,
+    description: 'Debt owner assignments linked to this transaction.',
+  })
+  debtOwners?: TransactionDebtOwnerResponseDto[];
 
   @ApiProperty({ type: () => CategoryResponseDto })
   category: CategoryResponseDto;

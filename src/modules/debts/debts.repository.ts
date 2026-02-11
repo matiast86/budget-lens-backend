@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Debt, Prisma } from 'prisma/generated/prisma/client';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TransactionDebtOwnerWithDebt } from 'src/types/entities/transaction-debt-owner';
 
 @Injectable()
 export class DebtsRepository {
@@ -11,22 +12,17 @@ export class DebtsRepository {
     debtOwnerId: number,
     skip: number,
     take: number,
-    orderBy?: Prisma.DebtOrderByWithRelationInput,
-  ): Promise<Debt[]> {
-    return await this.prisma.debt.findMany({
+  ): Promise<TransactionDebtOwnerWithDebt[]> {
+    return await this.prisma.transactionDebtOwner.findMany({
       where: { debtOwnerId },
       skip,
       take,
-      orderBy,
+      include: { debt: true },
     });
   }
 
   async findById(id: number): Promise<Debt | null> {
     return await this.prisma.debt.findUnique({ where: { id } });
-  }
-
-  async create(data: Prisma.DebtCreateInput): Promise<Debt> {
-    return this.prisma.debt.create({ data });
   }
 
   async update(id: number, data: Prisma.DebtUpdateInput): Promise<Debt> {
