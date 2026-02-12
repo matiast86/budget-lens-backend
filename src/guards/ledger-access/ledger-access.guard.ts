@@ -161,6 +161,7 @@ export class LedgerAccessGuard implements CanActivate {
     if (!meta && !request.params?.ledgerId) return true;
 
     const user: JwtPayload | undefined = request.user;
+
     if (!user) throw new UnauthorizedException('Token not found.');
 
     const ledgerId = await this.resolveLedgerId(meta, request, context);

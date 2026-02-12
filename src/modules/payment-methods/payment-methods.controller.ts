@@ -10,7 +10,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -25,14 +24,12 @@ import {
 } from '@nestjs/swagger';
 import { PaymentType } from 'prisma/generated/prisma/client';
 import { GetUser } from 'src/decorators/get-user/get-user.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { PaymentMethodResponseDto } from './dto/payment-method-response.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
 import { PaymentMethodsService } from './payment-methods.service';
 
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 @ApiTags('Payment Methods')
 @Controller('payment-methods')
 export class PaymentMethodsController {

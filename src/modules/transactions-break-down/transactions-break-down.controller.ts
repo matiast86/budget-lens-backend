@@ -4,7 +4,6 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,14 +13,12 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { TransactionBreakDownResponseDto } from './dto/transaction-break-down-response.dto';
 import { UpdateTransactionsBreakDownDto } from './dto/update-transactions-break-down.dto';
 import { TransactionsBreakDownService } from './transactions-break-down.service';
 
 @ApiBearerAuth()
 @ApiTags('Transactions Break Down')
-@UseGuards(AuthGuard)
 @Controller('transactions-break-down')
 export class TransactionsBreakDownController {
   constructor(

@@ -11,7 +11,6 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,7 +21,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CategoriesService } from './categories.service';
 import { CategoryResponseDto } from './dto/category-response.dto';
@@ -31,7 +29,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiBearerAuth()
 @ApiTags('Categories')
-@UseGuards(AuthGuard)
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}

@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -21,7 +20,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -30,7 +28,6 @@ import { TransactionsService } from './transactions.service';
 
 @ApiBearerAuth()
 @ApiTags('Transactions')
-@UseGuards(AuthGuard)
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

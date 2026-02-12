@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -20,7 +19,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { handleLedgerFromRequest } from 'src/helpers/errors';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CollaborationsService } from './collaborations.service';
@@ -30,7 +28,6 @@ import { UpdateCollaborationDto } from './dto/update-collaboration.dto';
 
 @ApiBearerAuth()
 @ApiTags('Collaborations')
-@UseGuards(AuthGuard)
 @Controller('collaborations')
 export class CollaborationsController {
   constructor(private readonly collaborationsService: CollaborationsService) {}

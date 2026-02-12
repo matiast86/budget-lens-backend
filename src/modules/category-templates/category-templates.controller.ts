@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -9,7 +10,6 @@ import {
 } from '@nestjs/swagger';
 import { Role } from 'prisma/generated/prisma/enums';
 import { Roles } from 'src/decorators/roles/roles.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { RolesGuard } from 'src/guards/roles/roles.guard';
 import { CategoryTemplatesService } from './category-templates.service';
 import { CategoryTemplateResponseDto } from './dto/category-template-response.dto';
@@ -17,7 +17,7 @@ import { CreateCategoryTemplateDto } from './dto/create-category-template.dto';
 
 @ApiBearerAuth()
 @ApiTags('Category Templates')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @Controller('category-templates')
 export class CategoryTemplatesController {
   constructor(

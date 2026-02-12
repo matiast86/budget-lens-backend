@@ -11,7 +11,6 @@ import {
   Patch,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,7 +21,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { DebtsService } from './debts.service';
 import { DebtResponseDto } from './dto/debt-response.dto';
@@ -30,7 +28,6 @@ import { UpdateDebtDto } from './dto/update-debt.dto';
 
 @ApiBearerAuth()
 @ApiTags('Debts')
-@UseGuards(AuthGuard)
 @Controller('debts')
 export class DebtsController {
   constructor(private readonly debtsService: DebtsService) {}

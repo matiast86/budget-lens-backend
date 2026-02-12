@@ -11,7 +11,6 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -23,7 +22,6 @@ import {
 } from '@nestjs/swagger';
 import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { GroupResponseDto } from './dto/group-response.dto';
@@ -32,7 +30,6 @@ import { GroupsService } from './groups.service';
 
 @ApiBearerAuth()
 @ApiTags('Groups')
-@UseGuards(AuthGuard)
 @Controller('groups')
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}

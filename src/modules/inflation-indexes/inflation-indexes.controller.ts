@@ -27,7 +27,6 @@ import {
 } from '@nestjs/swagger';
 import { Currency, Role } from 'prisma/generated/prisma/enums';
 import { Roles } from 'src/decorators/roles/roles.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import { RolesGuard } from 'src/guards/roles/roles.guard';
 import { CreateInflationIndexDto } from './dto/create-inflation-index.dto';
 import { InflationIndexResponseDto } from './dto/inflation-index-response.dto';
@@ -36,7 +35,7 @@ import { InflationIndexesService } from './inflation-indexes.service';
 
 @ApiBearerAuth()
 @ApiTags('Inflation Indexes')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @Controller('inflation-indexes')
 export class InflationIndexesController {
   constructor(

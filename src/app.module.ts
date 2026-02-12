@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth/auth.guard';
 import { LedgerAccessGuard } from './guards/ledger-access/ledger-access.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
@@ -39,6 +40,7 @@ import { InflationIndexesModule } from './modules/inflation-indexes/inflation-in
   controllers: [],
   providers: [
     DataCollectionService,
+    { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: LedgerAccessGuard },
   ],
 })
