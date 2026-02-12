@@ -7,6 +7,7 @@ export const LedgerIncludes = {
       name: true,
       description: true,
       currency: true,
+      baseCpiIndex: true,
       createdAt: true,
       updatedAt: true,
     },

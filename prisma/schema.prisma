@@ -38,6 +38,7 @@ model Ledger {
   name           String
   description    String?
   currency       Currency
+  baseCpiIndex   Decimal          @default(100) @db.Decimal(10, 4)
   ownerId        String           @db.Uuid
   debtOwners     DebtOwner[]      @relation("LedgerDebtOwners")
   owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])

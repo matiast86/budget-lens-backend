@@ -104,6 +104,7 @@ export const LedgerScalarFieldEnum = {
   name: 'name',
   description: 'description',
   currency: 'currency',
+  baseCpiIndex: 'baseCpiIndex',
   ownerId: 'ownerId',
   isActive: 'isActive',
   createdAt: 'createdAt',

@@ -1,21 +1,33 @@
-// import { PrismaClient } from 'prisma/generated/prisma/client';
+import { CategoryScope, PrismaClient } from 'prisma/generated/prisma/client';
 
-// export const seedCategories = async (prisma: PrismaClient) => {
-//   console.log('  ➤ Seeding categories...');
+export const seedCategories = async (prisma: PrismaClient) => {
+  console.log('  ➤ Seeding categories...');
 
-//   const categories = [
-//     { name: 'Food', description: 'Groceries, restaurants, etc.' },
-//     { name: 'Transport', description: 'Taxi, subway, bus, fuel' },
-//     { name: 'Utilities', description: 'Electricity, water, internet' },
-//   ];
+  const categories = [
+    {
+      name: 'Food',
+      description: 'Groceries, restaurants, etc.',
+      scope: CategoryScope.GLOBAL,
+    },
+    {
+      name: 'Transport',
+      description: 'Taxi, subway, bus, fuel',
+      scope: CategoryScope.GLOBAL,
+    },
+    {
+      name: 'Utilities',
+      description: 'Electricity, water, internet',
+      scope: CategoryScope.GLOBAL,
+    },
+  ];
 
-//   for (const c of categories) {
-//     await prisma.category.upsert({
-//       where: { name: c.name },
-//       update: {},
-//       create: c,
-//     });
-//   }
+  for (const c of categories) {
+    await prisma.categoryTemplate.upsert({
+      where: { name: c.name },
+      update: {},
+      create: c,
+    });
+  }
 
-//   console.log('  ✔ Categories seeded');
-// };
+  console.log('  ✔ Categories seeded');
+};

@@ -100,6 +100,7 @@ export class TransactionsService {
     totalProvidedAmount: number,
     currency: Currency,
     ledgerCurrency: Currency,
+    ledgerBaseIndex: number,
     transactionDate: Date,
     paymentMonth: Date,
     categoryId: number,
@@ -130,6 +131,7 @@ export class TransactionsService {
           ledgerCurrency,
           installmentPaymentMonth,
           monthlyAmount,
+          ledgerBaseIndex,
         );
         const newTransaction = await this.transactionsRepository.create({
           status: this.setTransactionStatus(transactionDate),
@@ -174,6 +176,7 @@ export class TransactionsService {
         ledgerCurrency,
         installmentPaymentMonth,
         monthlyAmount,
+        ledgerBaseIndex,
       );
       const newTransaction = await this.transactionsRepository.create({
         status: this.setTransactionStatus(transactionDate),
@@ -215,6 +218,7 @@ export class TransactionsService {
     currency: Currency,
     paymentMonth: Date,
     monthlyAmount: number,
+    baseCpiIndex: number,
   ): Promise<{ cpiIndex?: number; realMonthlyAmount?: number }> {
     const cpiIndex = await this.inflationIndexesService.getCpiIndex(
       currency,
@@ -223,7 +227,7 @@ export class TransactionsService {
     if (!cpiIndex) return {};
     return {
       cpiIndex,
-      realMonthlyAmount: (monthlyAmount / cpiIndex) * 100,
+      realMonthlyAmount: (monthlyAmount / cpiIndex) * baseCpiIndex,
     };
   }
 
@@ -294,6 +298,7 @@ export class TransactionsService {
           ledger.currency,
           existing.paymentMonth,
           updatedTotal,
+          ledger.baseCpiIndex,
         );
         const updated = await this.transactionsRepository.update(existing.id, {
           comment: updatedCommnent,
@@ -331,6 +336,7 @@ export class TransactionsService {
         totalProvidedAmount,
         currency,
         ledger.currency,
+        ledger.baseCpiIndex,
         parsePeriod(transactionDate),
         paymentMonth,
         categoryId,
@@ -353,6 +359,7 @@ export class TransactionsService {
       ledger.currency,
       paymentMonth,
       totalAmount,
+      ledger.baseCpiIndex,
     );
 
     // Single transaction with debt.
@@ -446,6 +453,7 @@ export class TransactionsService {
       ledger.currency,
       paymentMonth,
       totalAmount,
+      ledger.baseCpiIndex,
     );
 
     const newTransaction = await this.transactionsRepository.create({

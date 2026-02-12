@@ -6,6 +6,8 @@ import {
   ledgerToDetailsResponseDto,
 } from 'src/helpers/mappers/ledger.mapper';
 import { LedgerDashboardView } from 'src/types/entities/ledger.types';
+import { CategoryTemplatesService } from '../category-templates/category-templates.service';
+import { InflationIndexesService } from '../inflation-indexes/inflation-indexes.service';
 import { UsersService } from '../users/users.service';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
@@ -18,6 +20,8 @@ export class LedgersService {
   constructor(
     private readonly ledgersRepository: LedgersRepository,
     private readonly usersService: UsersService,
+    private readonly templatesService: CategoryTemplatesService,
+    private readonly inflationIndexesService: InflationIndexesService,
   ) {}
 
   async create(
@@ -27,11 +31,28 @@ export class LedgersService {
     const { name, description, currency } = dto;
     await this.usersService.findOne(ownerId);
 
+    const templates = await this.templatesService.findAll();
+    const categoriesData = templates.map((t) => ({
+      name: t.name,
+      description: t.description ?? undefined,
+      templateId: t.id,
+    }));
+
+    const now = new Date();
+    const currentPeriod = new Date(now.getFullYear(), now.getMonth(), 1);
+    const baseCpiIndex =
+      (await this.inflationIndexesService.getCpiIndex(
+        currency,
+        currentPeriod,
+      )) ?? 100;
+
     const data: Prisma.LedgerCreateInput = {
-      name: name,
-      description: description,
-      currency: currency,
+      name,
+      description,
+      currency,
+      baseCpiIndex,
       owner: { connect: { id: ownerId } },
+      categories: { createMany: { data: categoriesData } },
     };
 
     const newLedger = await this.ledgersRepository.create(data);
