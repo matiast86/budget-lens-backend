@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Debt, Prisma } from 'prisma/generated/prisma/client';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { DebtWithOwner } from 'src/types/entities/debt.types';
 import { TransactionDebtOwnerWithDebt } from 'src/types/entities/transaction-debt-owner';
 
 @Injectable()
@@ -35,5 +36,12 @@ export class DebtsRepository {
     await this.prisma.debt
       .delete({ where: { id } })
       .catch(handleP2025(`Debt with id: ${id} not found`));
+  }
+
+  async findWithOwnerById(id: number): Promise<DebtWithOwner | null> {
+    return await this.prisma.debt.findUnique({
+      where: { id },
+      include: { transactionDebtOwner: true },
+    });
   }
 }

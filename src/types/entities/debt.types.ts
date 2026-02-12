@@ -9,3 +9,7 @@ export type DebtOwnerWithTransactions = Prisma.DebtOwnerGetPayload<{
     };
   };
 }>;
+
+export type DebtWithOwner = Prisma.DebtGetPayload<{
+  include: { transactionDebtOwner: true };
+}>;

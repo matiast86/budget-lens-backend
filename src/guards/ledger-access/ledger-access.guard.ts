@@ -113,14 +113,17 @@ export class LedgerAccessGuard implements CanActivate {
       }
 
       if (meta.type === 'debt') {
-        const debt = await this.debtsService.findEntityById(entityId);
-        if (!debt) throw new NotFoundException('Collaboration not found');
+        const debtWithOwnerId =
+          await this.debtsService.findDebtWithOwnerId(entityId);
+        if (!debtWithOwnerId)
+          throw new NotFoundException('DebtOwnerId not found');
         const debtOwner = await this.debtOwnersService.findEntityById(
-          debt.debtOwnerId,
+          debtWithOwnerId.ownerId,
         );
+        const debt = debtWithOwnerId.debtResponseDto;
         if (!debtOwner) throw new NotFoundException('Debt owner not found');
         // optional reuse:
-        (request as LedgerRequest & { debt?: typeof debt }).debt = debt;
+        (request as LedgerRequest & { debt: typeof debt }).debt = debt;
         return debtOwner.ledgerId;
       }
 
@@ -141,8 +144,6 @@ export class LedgerAccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<LedgerRequest>();
-    const user: JwtPayload | undefined = request.user;
-    if (!user) throw new UnauthorizedException('Token not found.');
 
     const meta = this.reflector.getAllAndOverride<{
       type:
@@ -155,6 +156,12 @@ export class LedgerAccessGuard implements CanActivate {
         | 'debt';
       param: string;
     }>('ledgerFrom', [context.getHandler(), context.getClass()]);
+
+    // No @LedgerFrom metadata and no ledgerId in route params → skip guard.
+    if (!meta && !request.params?.ledgerId) return true;
+
+    const user: JwtPayload | undefined = request.user;
+    if (!user) throw new UnauthorizedException('Token not found.');
 
     const ledgerId = await this.resolveLedgerId(meta, request, context);
 

@@ -50,7 +50,7 @@ export class CreateTransactionDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => DebtAssignmentDto)
-  debtAssignments?: DebtAssignmentDto[];
+  debtAssignments: DebtAssignmentDto[] = [];
 
   @ApiProperty({
     description: 'Date the transaction occurred (ISO 8601).',

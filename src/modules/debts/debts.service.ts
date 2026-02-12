@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DebtUpdateInput } from 'prisma/generated/prisma/models';
-import { parsePeriod } from 'src/helpers/dates';
+import { parsePeriod, periodMapper } from 'src/helpers/dates';
 import {
   debtArrayToArrayDto,
   debtToResponseDto,
 } from 'src/helpers/mappers/debt.mapper';
 import { DebtsRepository } from './debts.repository';
+import { DebtResponseWithOwnerIdDto } from './dto/debt-response-with-owner.dto';
 import { DebtResponseDto } from './dto/debt-response.dto';
 import { UpdateDebtDto } from './dto/update-debt.dto';
 
@@ -50,8 +51,20 @@ export class DebtsService {
     await this.debtsRepository.delete(id);
   }
 
-  async findEntityById(id: number): Promise<DebtResponseDto | undefined> {
-    const debt = await this.debtsRepository.findById(id);
-    return debt ? debtToResponseDto(debt) : undefined;
+  async findDebtWithOwnerId(
+    id: number,
+  ): Promise<DebtResponseWithOwnerIdDto | undefined> {
+    const debt = await this.debtsRepository.findWithOwnerById(id);
+    if (debt) {
+      const debtResponseDto = new DebtResponseDto({
+        id: debt.id,
+        description: debt.description ?? undefined,
+        period: periodMapper(debt.period),
+      });
+      const ownerId = debt.transactionDebtOwner?.debtOwnerId;
+      return new DebtResponseWithOwnerIdDto({ debtResponseDto, ownerId });
+    }
+
+    return undefined;
   }
 }

@@ -233,7 +233,6 @@ export class TransactionsService {
   async createExpense(
     ledgerId: number,
     createTransactionDto: CreateTransactionDto,
-    debtAssigmentsDto: DebtAssignmentDto[],
   ): Promise<TransactionResponseDto | TransactionResponseDto[]> {
     const {
       categoryId,
@@ -248,6 +247,7 @@ export class TransactionsService {
       totalProvidedAmount,
       weekNumber,
       impactsCashflow,
+      debtAssignments,
     } = createTransactionDto;
     const ledger = await this.ledgersService.findOne(ledgerId);
 
@@ -304,11 +304,11 @@ export class TransactionsService {
           ? existing.group.name
           : undefined;
 
-        if (debtAssigmentsDto.length != 0) {
+        if (debtAssignments.length != 0) {
           await this.handleDebtOwners(
             updated.id,
             updated.paymentMonth,
-            debtAssigmentsDto,
+            debtAssignments,
             debtDescription,
           );
           const refreshed = await this.transactionsRepository.findById(
@@ -337,7 +337,7 @@ export class TransactionsService {
         ledgerId,
         paymentMethodId,
         groupId,
-        debtAssigmentsDto,
+        debtAssignments,
         impactsCashflow,
         exchangeRate,
         comment,
@@ -356,7 +356,7 @@ export class TransactionsService {
     );
 
     // Single transaction with debt.
-    if (debtAssigmentsDto.length != 0) {
+    if (debtAssignments.length != 0) {
       const newTransaction = await this.transactionsRepository.create({
         status: this.setTransactionStatus(parsePeriod(transactionDate)),
         entryType: EntryType.EXPENSE,
@@ -379,7 +379,7 @@ export class TransactionsService {
       await this.handleDebtOwners(
         newTransaction.id,
         newTransaction.paymentMonth,
-        debtAssigmentsDto,
+        debtAssignments,
         newTransaction.group.name,
       );
       const refreshed = await this.transactionsRepository.findById(

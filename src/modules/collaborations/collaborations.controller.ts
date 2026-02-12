@@ -21,7 +21,6 @@ import {
 } from '@nestjs/swagger';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
-import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
 import { handleLedgerFromRequest } from 'src/helpers/errors';
 import { LedgerRequest } from '../ledgers/entities/ledger-request';
 import { CollaborationsService } from './collaborations.service';
@@ -48,7 +47,6 @@ export class CollaborationsController {
     description: 'Collaboration created successfully',
     type: CollaborationResponseDto,
   })
-  @UseGuards(LedgerAccessGuard)
   @Post('ledgers/:ledgerId')
   async create(
     @Req() req: LedgerRequest,
@@ -93,7 +91,6 @@ export class CollaborationsController {
     description: 'Collaborations for the given ledger',
     type: [CollaborationResponseDto],
   })
-  @UseGuards(LedgerAccessGuard)
   @Get('ledgers/:ledgerId')
   async findAllByLedgerId(
     @Param('ledgerId', ParseIntPipe) ledgerId: number,
@@ -134,7 +131,6 @@ export class CollaborationsController {
     type: CollaborationResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('collaboration', 'id')
   @Patch(':id')
   async update(
@@ -156,7 +152,6 @@ export class CollaborationsController {
   })
   @ApiResponse({ status: 204, description: 'Collaboration deactivated' })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('collaboration', 'id')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -173,7 +168,6 @@ export class CollaborationsController {
   })
   @ApiResponse({ status: 204, description: 'Collaboration reactivated' })
   @ApiResponse({ status: 404, description: 'Collaboration not found' })
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('collaboration', 'id')
   @Patch(':id/reactivate')
   @HttpCode(HttpStatus.NO_CONTENT)

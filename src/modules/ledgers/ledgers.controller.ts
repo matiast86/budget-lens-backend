@@ -27,7 +27,6 @@ import { GetUser } from 'src/decorators/get-user/get-user.decorator';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
 import { LedgerResponseDto } from './dto/ledger-response.dto';
@@ -94,7 +93,6 @@ export class LedgersController {
 
   // FIND ONE
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('ledger')
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a ledger by its ID' })
@@ -114,7 +112,6 @@ export class LedgersController {
 
   // UPDATE
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('ledger')
   @Patch(':id')
   @ApiOperation({ summary: 'Update a ledger by ID' })
@@ -138,7 +135,6 @@ export class LedgersController {
 
   // DELETE
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('ledger')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a ledger by ID' })
