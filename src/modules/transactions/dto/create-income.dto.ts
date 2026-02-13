@@ -41,7 +41,7 @@ export class CreateIncomeDto {
     example: '2025-02-01T00:00:00.000Z',
   })
   @IsDateString()
-  transactionDate: Date;
+  transactionDate: string;
 
   @ApiPropertyOptional({
     description:
@@ -50,7 +50,7 @@ export class CreateIncomeDto {
   })
   @IsOptional()
   @IsDateString()
-  paymentMonthValue?: Date;
+  paymentMonthValue?: string;
 
   @ApiPropertyOptional({
     description: 'Optional comment or note related to this transaction.',

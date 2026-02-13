@@ -13,6 +13,14 @@ export const parsePeriod = (period: string): Date => {
   return parsed.startOf('month').toDate();
 };
 
+export const parseDate = (date: string): Date => {
+  const parsed = dayjs.utc(date, 'YYYY-MM-DD', true);
+  if (!parsed.isValid()) {
+    throw new BadRequestException('Invalid date format. Expected: YYYY-MM-DD');
+  }
+  return parsed.toDate();
+};
+
 export const periodMapper = (period: Date) => {
   return dayjs.utc(period).format('YYYY-MM');
 };

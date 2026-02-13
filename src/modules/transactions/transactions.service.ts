@@ -14,6 +14,7 @@ import {
   checkCurrentMonth,
   increaseMonthByInstallment,
   isPastMonth,
+  parseDate,
   parsePeriod,
 } from 'src/helpers/dates';
 import {
@@ -260,7 +261,7 @@ export class TransactionsService {
       throw new BadRequestException(`You must provide the exchange rate.`);
 
     // Current month + non-credit-card: merge into existing transaction.
-    if (checkCurrentMonth(parsePeriod(transactionDate))) {
+    if (checkCurrentMonth(parseDate(transactionDate))) {
       const method = await this.paymentMethodService.findById(paymentMethodId);
       const existing = await this.transactionsRepository.findByGroupAndCategory(
         categoryId,
@@ -328,7 +329,7 @@ export class TransactionsService {
     // Default payment month to transaction date when not provided.
     const paymentMonth = paymentMonthValue
       ? parsePeriod(paymentMonthValue)
-      : parsePeriod(transactionDate);
+      : parseDate(transactionDate);
     // If installments are provided, delegate to the installment flow.
     if (installments)
       return await this.handleInstallments(
@@ -337,7 +338,7 @@ export class TransactionsService {
         currency,
         ledger.currency,
         ledger.baseCpiIndex,
-        parsePeriod(transactionDate),
+        parseDate(transactionDate),
         paymentMonth,
         categoryId,
         ledgerId,
@@ -365,7 +366,7 @@ export class TransactionsService {
     // Single transaction with debt.
     if (debtAssignments.length != 0) {
       const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(parsePeriod(transactionDate)),
+        status: this.setTransactionStatus(parseDate(transactionDate)),
         entryType: EntryType.EXPENSE,
         transactionDate,
         paymentMonth,
@@ -398,7 +399,7 @@ export class TransactionsService {
     }
     // Single transaction without debt.
     const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(parsePeriod(transactionDate)),
+      status: this.setTransactionStatus(parseDate(transactionDate)),
       entryType: EntryType.EXPENSE,
       transactionDate,
       paymentMonth,
@@ -441,7 +442,9 @@ export class TransactionsService {
       throw new BadRequestException(`You must provide the exchange rate.`);
 
     // Default payment month to transaction date when not provided.
-    const paymentMonth = paymentMonthValue ?? transactionDate;
+    const paymentMonth = paymentMonthValue
+      ? parsePeriod(paymentMonthValue)
+      : parseDate(transactionDate);
 
     const totalAmount = this.assignTotalAmount(
       totalProvidedAmount,
@@ -457,9 +460,9 @@ export class TransactionsService {
     );
 
     const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(transactionDate),
+      status: this.setTransactionStatus(parseDate(transactionDate)),
       entryType: EntryType.INCOME,
-      transactionDate,
+      transactionDate: parseDate(transactionDate),
       paymentMonth,
       comment,
       currency,
