@@ -26,6 +26,13 @@ export class LedgerResponseDto {
   currency: Currency;
 
   @ApiProperty({
+    description:
+      'CPI index at ledger creation, used as base for inflation-adjusted amounts.',
+    example: 253.6538,
+  })
+  baseCpiIndex: number;
+
+  @ApiProperty({
     description: 'User id of the ledger owner',
     example: 'user-123',
   })

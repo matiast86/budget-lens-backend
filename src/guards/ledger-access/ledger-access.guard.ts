@@ -8,13 +8,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { CollaborationsService } from 'src/modules/collaborations/collaborations.service';
 import { CategoriesService } from 'src/modules/categories/categories.service';
+import { CollaborationsService } from 'src/modules/collaborations/collaborations.service';
 import { DebtOwnersService } from 'src/modules/debt-owners/debt-owners.service';
 import { DebtsService } from 'src/modules/debts/debts.service';
 import { GroupsService } from 'src/modules/groups/groups.service';
 import { LedgerRequest } from 'src/modules/ledgers/entities/ledger-request';
 import { LedgersService } from 'src/modules/ledgers/ledgers.service';
+import { TransactionsService } from 'src/modules/transactions/transactions.service';
 import { JwtPayload } from 'src/types/payload/payload';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class LedgerAccessGuard implements CanActivate {
     private readonly categoriesService: CategoriesService,
     private readonly debtOwnersService: DebtOwnersService,
     private readonly collaborationsService: CollaborationsService,
+    private readonly transactionsService: TransactionsService,
     private readonly debtsService: DebtsService,
   ) {}
 
@@ -38,6 +40,7 @@ export class LedgerAccessGuard implements CanActivate {
             | 'debtOwner'
             | 'ledger'
             | 'collaboration'
+            | 'transaction'
             | 'debt';
           param: string;
         }
@@ -98,15 +101,29 @@ export class LedgerAccessGuard implements CanActivate {
         return collaboration.ledgerId;
       }
 
+      if (meta.type === 'transaction') {
+        const transaction =
+          await this.transactionsService.findEntityById(entityId);
+        if (!transaction) throw new NotFoundException('Transaction not found');
+        // optional reuse:
+        (
+          request as LedgerRequest & { transaction?: typeof transaction }
+        ).transaction = transaction;
+        return transaction.ledgerId;
+      }
+
       if (meta.type === 'debt') {
-        const debt = await this.debtsService.findEntityById(entityId);
-        if (!debt) throw new NotFoundException('Collaboration not found');
+        const debtWithOwnerId =
+          await this.debtsService.findDebtWithOwnerId(entityId);
+        if (!debtWithOwnerId)
+          throw new NotFoundException('DebtOwnerId not found');
         const debtOwner = await this.debtOwnersService.findEntityById(
-          debt.debtOwnerId,
+          debtWithOwnerId.ownerId,
         );
+        const debt = debtWithOwnerId.debtResponseDto;
         if (!debtOwner) throw new NotFoundException('Debt owner not found');
         // optional reuse:
-        (request as LedgerRequest & { debt?: typeof debt }).debt = debt;
+        (request as LedgerRequest & { debt: typeof debt }).debt = debt;
         return debtOwner.ledgerId;
       }
 
@@ -127,8 +144,6 @@ export class LedgerAccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<LedgerRequest>();
-    const user: JwtPayload | undefined = request.user;
-    if (!user) throw new UnauthorizedException('Token not found.');
 
     const meta = this.reflector.getAllAndOverride<{
       type:
@@ -137,9 +152,17 @@ export class LedgerAccessGuard implements CanActivate {
         | 'debtOwner'
         | 'ledger'
         | 'collaboration'
+        | 'transaction'
         | 'debt';
       param: string;
     }>('ledgerFrom', [context.getHandler(), context.getClass()]);
+
+    // No @LedgerFrom metadata and no ledgerId in route params → skip guard.
+    if (!meta && !request.params?.ledgerId) return true;
+
+    const user: JwtPayload | undefined = request.user;
+
+    if (!user) throw new UnauthorizedException('Token not found.');
 
     const ledgerId = await this.resolveLedgerId(meta, request, context);
 

@@ -1,4 +1,4 @@
-import { PrismaClient } from 'prisma/generated/prisma/client';
+import { Currency, PrismaClient } from 'prisma/generated/prisma/client';
 
 export const seedLedgers = async (prisma: PrismaClient) => {
   console.log('  ➤ Seeding ledgers...');
@@ -12,13 +12,34 @@ export const seedLedgers = async (prisma: PrismaClient) => {
     return;
   }
 
+  const templates = await prisma.categoryTemplate.findMany();
+
+  const categoryData = templates.map((t) => ({
+    name: t.name,
+    description: t.description ?? undefined,
+    templateId: t.id,
+  }));
+
+  // Look up current month's CPI for the ledger's currency.
+  const now = new Date();
+  const currentPeriod = new Date(now.getFullYear(), now.getMonth(), 1);
+  const currency = Currency.ARS;
+
+  const inflationIndex = await prisma.inflationIndex.findUnique({
+    where: { currency_period: { currency, period: currentPeriod } },
+  });
+  const baseCpiIndex = inflationIndex ? Number(inflationIndex.cpiIndex) : 100;
+
   await prisma.ledger.upsert({
-    where: { id: 1 }, // might be replaced with unique name/owner constraint
+    where: { id: 1 },
     update: {},
     create: {
       name: 'Home Budget',
       description: 'Primary personal ledger',
+      currency,
+      baseCpiIndex,
       ownerId: user.id,
+      categories: { createMany: { data: categoryData } },
     },
   });
 

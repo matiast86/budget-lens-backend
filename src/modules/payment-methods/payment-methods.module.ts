@@ -8,5 +8,6 @@ import { PaymentMethodsRepository } from './payment-methods.repository';
   imports: [UsersModule],
   controllers: [PaymentMethodsController],
   providers: [PaymentMethodsService, PaymentMethodsRepository],
+  exports: [PaymentMethodsService],
 })
 export class PaymentMethodsModule {}

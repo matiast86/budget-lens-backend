@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth/auth.guard';
+import { LedgerAccessGuard } from './guards/ledger-access/ledger-access.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { CollaborationsModule } from './modules/collaborations/collaborations.module';
@@ -14,6 +17,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoryTemplatesModule } from './modules/category-templates/category-templates.module';
 import { DataCollectionService } from './services/data-collection/data-collection.service';
+import { InflationIndexesModule } from './modules/inflation-indexes/inflation-indexes.module';
 
 @Module({
   imports: [
@@ -31,8 +35,13 @@ import { DataCollectionService } from './services/data-collection/data-collectio
     TransactionsBreakDownModule,
     AuthModule,
     CategoryTemplatesModule,
+    InflationIndexesModule,
   ],
   controllers: [],
-  providers: [DataCollectionService],
+  providers: [
+    DataCollectionService,
+    { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: LedgerAccessGuard },
+  ],
 })
 export class AppModule {}

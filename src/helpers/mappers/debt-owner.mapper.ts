@@ -1,21 +1,34 @@
 import { DebtOwnerResponseDto } from 'src/modules/debt-owners/dto/debt-owner-response.dto';
-import { DebtOwnerWithDebts } from 'src/types/entities/debt.types';
+import { TransactionDebtOwnerResponseDto } from 'src/modules/transactions/dto/transaction-debt-owner-response.dto';
+import { DebtOwnerWithTransactions } from 'src/types/entities/debt.types';
 import { debtToResponseDto } from './debt.mapper';
 
 export const debtOwnerToResponseDto = (
-  debtOwner: DebtOwnerWithDebts,
+  debtOwner: DebtOwnerWithTransactions,
 ): DebtOwnerResponseDto => {
-  const { id, name, debts, ledgerId } = debtOwner;
+  const { id, name, ledgerId, transactions } = debtOwner;
   return new DebtOwnerResponseDto({
     id,
     name,
     ledgerId,
-    debts: debts ? debts.map(debtToResponseDto) : [],
+    transactions: transactions
+      ? transactions.map(
+          (tdo) =>
+            new TransactionDebtOwnerResponseDto({
+              transactionId: tdo.transactionId,
+              debtOwnerId: tdo.debtOwnerId,
+              debtOwnerName: name,
+              amount: Number(tdo.amount),
+              direction: tdo.direction,
+              debt: debtToResponseDto(tdo.debt),
+            }),
+        )
+      : [],
   });
 };
 
 export const debtOwnerArrayToArrayDto = (
-  debtOwnerArray: DebtOwnerWithDebts[],
+  debtOwnerArray: DebtOwnerWithTransactions[],
 ): DebtOwnerResponseDto[] => {
   return debtOwnerArray.map(debtOwnerToResponseDto);
 };

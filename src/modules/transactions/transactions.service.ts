@@ -3,10 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from 'prisma/generated/prisma/client';
+import { Prisma, Transaction } from 'prisma/generated/prisma/client';
 import {
   Currency,
-  DebtDirection,
   EntryType,
   PaymentType,
   Status,
@@ -15,21 +14,22 @@ import {
   checkCurrentMonth,
   increaseMonthByInstallment,
   isPastMonth,
-  periodMapper,
+  parseDate,
+  parsePeriod,
 } from 'src/helpers/dates';
 import {
   transactionArrayToArrayDto,
   transactionToResponseDto,
 } from 'src/helpers/mappers/transaction.mapper';
 import { TransactionRelation } from 'src/types/entities/transaction.types';
-import { DebtOwnersService } from '../debt-owners/debt-owners.service';
-import { DebtsService } from '../debts/debts.service';
+import { InflationIndexesService } from '../inflation-indexes/inflation-indexes.service';
 import { LedgersService } from '../ledgers/ledgers.service';
 import { PaymentMethodsService } from '../payment-methods/payment-methods.service';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { DebtAssignmentDto } from './dto/debt-assignment.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { TransactionsRepository } from './transactions.repository';
 
@@ -39,9 +39,8 @@ export class TransactionsService {
     private readonly transactionsRepository: TransactionsRepository,
     private readonly transactionBDService: TransactionsBreakDownService,
     private readonly paymentMethodService: PaymentMethodsService,
-    private readonly debtsService: DebtsService,
-    private readonly debtOwnersService: DebtOwnersService,
     private readonly ledgersService: LedgersService,
+    private readonly inflationIndexesService: InflationIndexesService,
   ) {}
 
   // Helper: create 4 weekly breakdown rows for a new transaction.
@@ -56,21 +55,23 @@ export class TransactionsService {
   }
 
   // Helper: record a debt entry tied to the transaction context.
-  async handleDebtOwner(
-    debtOwnerId: number,
-    direction: DebtDirection,
-    description: string,
-    debtAmount: number,
+  async handleDebtOwners(
+    transactionId: number,
     transactionDate: Date,
+    debtAssignmentsDto: DebtAssignmentDto[],
+    description?: string,
   ): Promise<void> {
-    const date = transactionDate ?? new Date();
-    const owner = await this.debtOwnersService.findById(debtOwnerId);
-    await this.debtsService.create(owner, {
-      direction,
-      amount: debtAmount,
-      periodString: periodMapper(date),
-      description,
-    });
+    for (const assigment of debtAssignmentsDto) {
+      const { debtOwnerId, direction, amount } = assigment;
+      await this.transactionsRepository.createTransactionDebtOwner(
+        transactionId,
+        debtOwnerId,
+        amount,
+        direction,
+        transactionDate,
+        description,
+      );
+    }
   }
 
   // Helper: merge existing and new comments into a single string.
@@ -100,16 +101,16 @@ export class TransactionsService {
     totalProvidedAmount: number,
     currency: Currency,
     ledgerCurrency: Currency,
+    ledgerBaseIndex: number,
     transactionDate: Date,
     paymentMonth: Date,
     categoryId: number,
     ledgerId: number,
     paymentMethodId: number,
     groupId: number,
+    debtAssigmentsDto: DebtAssignmentDto[],
+    impactsCashflow?: boolean,
     exchangeRate?: number,
-    debtOwnerId?: number,
-    debtAmount?: number,
-    debtDirection?: DebtDirection,
     comment?: string,
   ): Promise<TransactionResponseDto[]> {
     const newTransactions: TransactionResponseDto[] = [];
@@ -121,50 +122,75 @@ export class TransactionsService {
     );
     const monthlyAmount = totalAmount / installments;
     // If debt is provided, create a debt entry per installment.
-    if (debtOwnerId && debtDirection && debtAmount != undefined) {
+    if (debtAssigmentsDto.length != 0) {
       for (let installment = 1; installment <= installments; installment++) {
+        const installmentPaymentMonth = increaseMonthByInstallment(
+          paymentMonth,
+          installment,
+        );
+        const inflation = await this.getInflationData(
+          ledgerCurrency,
+          installmentPaymentMonth,
+          monthlyAmount,
+          ledgerBaseIndex,
+        );
         const newTransaction = await this.transactionsRepository.create({
           status: this.setTransactionStatus(transactionDate),
           entryType: EntryType.EXPENSE,
           transactionDate,
-          paymentMonth: increaseMonthByInstallment(paymentMonth, installment),
+          paymentMonth: installmentPaymentMonth,
           comment,
           currency,
           exchangeRate,
           totalAmount,
           monthlyAmount,
+          impactsCashflow,
+          ...inflation,
           category: { connect: { id: categoryId } },
           ledger: { connect: { id: ledgerId } },
-          debtOwner: { connect: { id: debtOwnerId } },
           group: { connect: { id: groupId } },
           paymentMethod: { connect: { id: paymentMethodId } },
         });
         await this.createTransactionsBD(newTransaction.id);
 
-        newTransactions.push(transactionToResponseDto(newTransaction));
-
-        await this.handleDebtOwner(
-          debtOwnerId,
-          debtDirection,
+        await this.handleDebtOwners(
+          newTransaction.id,
+          paymentMonth,
+          debtAssigmentsDto,
           newTransaction.group.name,
-          debtAmount,
-          newTransaction.paymentMonth,
         );
+        const refreshed = await this.transactionsRepository.findById(
+          newTransaction.id,
+        );
+        if (!refreshed) throw new NotFoundException(`Transaction not found.`);
+        newTransactions.push(transactionToResponseDto(refreshed));
       }
       return newTransactions;
     }
     // No debt: just create the installment transactions.
     for (let installment = 1; installment <= installments; installment++) {
+      const installmentPaymentMonth = increaseMonthByInstallment(
+        paymentMonth,
+        installment,
+      );
+      const inflation = await this.getInflationData(
+        ledgerCurrency,
+        installmentPaymentMonth,
+        monthlyAmount,
+        ledgerBaseIndex,
+      );
       const newTransaction = await this.transactionsRepository.create({
         status: this.setTransactionStatus(transactionDate),
         entryType: EntryType.EXPENSE,
         transactionDate,
-        paymentMonth: increaseMonthByInstallment(paymentMonth, installment),
+        paymentMonth: installmentPaymentMonth,
         comment,
         currency,
         exchangeRate,
         totalAmount,
         monthlyAmount,
+        impactsCashflow,
+        ...inflation,
         category: { connect: { id: categoryId } },
         ledger: { connect: { id: ledgerId } },
         group: { connect: { id: groupId } },
@@ -187,6 +213,25 @@ export class TransactionsService {
       : totalProvidedAmount;
   }
 
+  // Helper: fetch CPI and calculate inflation-adjusted amount.
+  // Returns empty object when no CPI data exists for the period.
+  private async getInflationData(
+    currency: Currency,
+    paymentMonth: Date,
+    monthlyAmount: number,
+    baseCpiIndex: number,
+  ): Promise<{ cpiIndex?: number; realMonthlyAmount?: number }> {
+    const cpiIndex = await this.inflationIndexesService.getCpiIndex(
+      currency,
+      paymentMonth,
+    );
+    if (!cpiIndex) return {};
+    return {
+      cpiIndex,
+      realMonthlyAmount: (monthlyAmount / cpiIndex) * baseCpiIndex,
+    };
+  }
+
   /////////////////////////////////////////////////////////////////////
 
   // Create an expense transaction, with merge-on-current-month behavior.
@@ -198,9 +243,6 @@ export class TransactionsService {
       categoryId,
       groupId,
       paymentMethodId,
-      debtOwnerId,
-      debtAmount,
-      debtDirection,
       transactionDate,
       paymentMonthValue,
       installments,
@@ -209,6 +251,8 @@ export class TransactionsService {
       exchangeRate,
       totalProvidedAmount,
       weekNumber,
+      impactsCashflow,
+      debtAssignments,
     } = createTransactionDto;
     const ledger = await this.ledgersService.findOne(ledgerId);
 
@@ -217,7 +261,7 @@ export class TransactionsService {
       throw new BadRequestException(`You must provide the exchange rate.`);
 
     // Current month + non-credit-card: merge into existing transaction.
-    if (checkCurrentMonth(transactionDate)) {
+    if (checkCurrentMonth(parseDate(transactionDate))) {
       const method = await this.paymentMethodService.findById(paymentMethodId);
       const existing = await this.transactionsRepository.findByGroupAndCategory(
         categoryId,
@@ -251,32 +295,41 @@ export class TransactionsService {
           existing.comment ?? undefined,
           comment,
         );
+        const inflation = await this.getInflationData(
+          ledger.currency,
+          existing.paymentMonth,
+          updatedTotal,
+          ledger.baseCpiIndex,
+        );
         const updated = await this.transactionsRepository.update(existing.id, {
           comment: updatedCommnent,
           totalAmount: updatedTotal,
+          ...inflation,
         });
         const debtDescription = existing.groupId
           ? existing.group.name
           : undefined;
 
-        if (
-          debtOwnerId &&
-          debtDirection &&
-          debtDescription &&
-          debtAmount != undefined
-        )
-          await this.handleDebtOwner(
-            debtOwnerId,
-            debtDirection,
+        if (debtAssignments.length != 0) {
+          await this.handleDebtOwners(
+            updated.id,
+            updated.paymentMonth,
+            debtAssignments,
             debtDescription,
-            debtAmount,
-            transactionDate,
           );
+          const refreshed = await this.transactionsRepository.findById(
+            updated.id,
+          );
+          if (!refreshed) throw new NotFoundException(`Transaction not found.`);
+          return transactionToResponseDto(refreshed);
+        }
         return transactionToResponseDto(updated);
       }
     }
     // Default payment month to transaction date when not provided.
-    const paymentMonth = paymentMonthValue ?? transactionDate;
+    const paymentMonth = paymentMonthValue
+      ? parsePeriod(paymentMonthValue)
+      : parseDate(transactionDate);
     // If installments are provided, delegate to the installment flow.
     if (installments)
       return await this.handleInstallments(
@@ -284,16 +337,16 @@ export class TransactionsService {
         totalProvidedAmount,
         currency,
         ledger.currency,
-        transactionDate,
+        ledger.baseCpiIndex,
+        parseDate(transactionDate),
         paymentMonth,
         categoryId,
         ledgerId,
         paymentMethodId,
         groupId,
+        debtAssignments,
+        impactsCashflow,
         exchangeRate,
-        debtOwnerId,
-        debtAmount,
-        debtDirection,
         comment,
       );
 
@@ -303,11 +356,17 @@ export class TransactionsService {
       ledger.currency,
       exchangeRate,
     );
+    const inflation = await this.getInflationData(
+      ledger.currency,
+      paymentMonth,
+      totalAmount,
+      ledger.baseCpiIndex,
+    );
 
     // Single transaction with debt.
-    if (debtOwnerId && debtDirection && debtAmount != undefined) {
+    if (debtAssignments.length != 0) {
       const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(transactionDate),
+        status: this.setTransactionStatus(parseDate(transactionDate)),
         entryType: EntryType.EXPENSE,
         transactionDate,
         paymentMonth,
@@ -316,25 +375,31 @@ export class TransactionsService {
         exchangeRate,
         totalAmount,
         monthlyAmount: totalAmount,
+        impactsCashflow,
+        ...inflation,
         category: { connect: { id: categoryId } },
         ledger: { connect: { id: ledgerId } },
-        debtOwner: { connect: { id: debtOwnerId } },
         group: { connect: { id: groupId } },
         paymentMethod: { connect: { id: paymentMethodId } },
       });
       await this.createTransactionsBD(newTransaction.id);
-      await this.handleDebtOwner(
-        debtOwnerId,
-        debtDirection,
-        newTransaction.group.name,
-        debtAmount,
+
+      await this.handleDebtOwners(
+        newTransaction.id,
         newTransaction.paymentMonth,
+        debtAssignments,
+        newTransaction.group.name,
       );
-      return transactionToResponseDto(newTransaction);
+      const refreshed = await this.transactionsRepository.findById(
+        newTransaction.id,
+      );
+      if (!refreshed) throw new NotFoundException(`Transaction not found.`);
+
+      return transactionToResponseDto(refreshed);
     }
     // Single transaction without debt.
     const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(transactionDate),
+      status: this.setTransactionStatus(parseDate(transactionDate)),
       entryType: EntryType.EXPENSE,
       transactionDate,
       paymentMonth,
@@ -343,6 +408,8 @@ export class TransactionsService {
       exchangeRate,
       totalAmount,
       monthlyAmount: totalAmount,
+      impactsCashflow,
+      ...inflation,
       category: { connect: { id: categoryId } },
       ledger: { connect: { id: ledgerId } },
       group: { connect: { id: groupId } },
@@ -366,6 +433,7 @@ export class TransactionsService {
       currency,
       exchangeRate,
       totalProvidedAmount,
+      impactsCashflow,
     } = createIncomeDto;
     const ledger = await this.ledgersService.findOne(ledgerId);
 
@@ -374,7 +442,9 @@ export class TransactionsService {
       throw new BadRequestException(`You must provide the exchange rate.`);
 
     // Default payment month to transaction date when not provided.
-    const paymentMonth = paymentMonthValue ?? transactionDate;
+    const paymentMonth = paymentMonthValue
+      ? parsePeriod(paymentMonthValue)
+      : parseDate(transactionDate);
 
     const totalAmount = this.assignTotalAmount(
       totalProvidedAmount,
@@ -382,17 +452,25 @@ export class TransactionsService {
       ledger.currency,
       exchangeRate,
     );
+    const inflation = await this.getInflationData(
+      ledger.currency,
+      paymentMonth,
+      totalAmount,
+      ledger.baseCpiIndex,
+    );
 
     const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(transactionDate),
+      status: this.setTransactionStatus(parseDate(transactionDate)),
       entryType: EntryType.INCOME,
-      transactionDate,
+      transactionDate: parseDate(transactionDate),
       paymentMonth,
       comment,
       currency,
       exchangeRate,
       totalAmount,
       monthlyAmount: totalAmount,
+      impactsCashflow,
+      ...inflation,
       category: { connect: { id: categoryId } },
       ledger: { connect: { id: ledgerId } },
       group: { connect: { id: groupId } },
@@ -460,6 +538,10 @@ export class TransactionsService {
     if (!transaction)
       throw new NotFoundException(`Transaction with id: ${id} not found.`);
     return transactionToResponseDto(transaction);
+  }
+
+  async findEntityById(id: number): Promise<Transaction | null> {
+    return await this.transactionsRepository.findById(id);
   }
 
   async changeRelation(

@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.1.0
- * Query Engine version: ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
+ * Prisma Client JS version: 7.3.0
+ * Query Engine version: 9d6ad21cbbceab97458517b147a6a09ff43aa735
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.1.0",
-  engine: "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba"
+  client: "7.3.0",
+  engine: "9d6ad21cbbceab97458517b147a6a09ff43aa735"
 }
 
 /**
@@ -395,7 +395,9 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
-  TransactionBreakDown: 'TransactionBreakDown'
+  TransactionDebtOwner: 'TransactionDebtOwner',
+  TransactionBreakDown: 'TransactionBreakDown',
+  InflationIndex: 'InflationIndex'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -411,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionBreakDown"
+    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionDebtOwner" | "transactionBreakDown" | "inflationIndex"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1229,6 +1231,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TransactionDebtOwner: {
+      payload: Prisma.$TransactionDebtOwnerPayload<ExtArgs>
+      fields: Prisma.TransactionDebtOwnerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TransactionDebtOwnerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TransactionDebtOwnerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>
+        }
+        findFirst: {
+          args: Prisma.TransactionDebtOwnerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TransactionDebtOwnerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>
+        }
+        findMany: {
+          args: Prisma.TransactionDebtOwnerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>[]
+        }
+        create: {
+          args: Prisma.TransactionDebtOwnerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>
+        }
+        createMany: {
+          args: Prisma.TransactionDebtOwnerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TransactionDebtOwnerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>[]
+        }
+        delete: {
+          args: Prisma.TransactionDebtOwnerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>
+        }
+        update: {
+          args: Prisma.TransactionDebtOwnerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>
+        }
+        deleteMany: {
+          args: Prisma.TransactionDebtOwnerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TransactionDebtOwnerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TransactionDebtOwnerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>[]
+        }
+        upsert: {
+          args: Prisma.TransactionDebtOwnerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDebtOwnerPayload>
+        }
+        aggregate: {
+          args: Prisma.TransactionDebtOwnerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTransactionDebtOwner>
+        }
+        groupBy: {
+          args: Prisma.TransactionDebtOwnerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionDebtOwnerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TransactionDebtOwnerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionDebtOwnerCountAggregateOutputType> | number
+        }
+      }
+    }
     TransactionBreakDown: {
       payload: Prisma.$TransactionBreakDownPayload<ExtArgs>
       fields: Prisma.TransactionBreakDownFieldRefs
@@ -1303,6 +1379,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    InflationIndex: {
+      payload: Prisma.$InflationIndexPayload<ExtArgs>
+      fields: Prisma.InflationIndexFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InflationIndexFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InflationIndexFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        findFirst: {
+          args: Prisma.InflationIndexFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InflationIndexFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        findMany: {
+          args: Prisma.InflationIndexFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>[]
+        }
+        create: {
+          args: Prisma.InflationIndexCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        createMany: {
+          args: Prisma.InflationIndexCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InflationIndexCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>[]
+        }
+        delete: {
+          args: Prisma.InflationIndexDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        update: {
+          args: Prisma.InflationIndexUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        deleteMany: {
+          args: Prisma.InflationIndexDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InflationIndexUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InflationIndexUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>[]
+        }
+        upsert: {
+          args: Prisma.InflationIndexUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InflationIndexPayload>
+        }
+        aggregate: {
+          args: Prisma.InflationIndexAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInflationIndex>
+        }
+        groupBy: {
+          args: Prisma.InflationIndexGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InflationIndexGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InflationIndexCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InflationIndexCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1363,6 +1513,7 @@ export const LedgerScalarFieldEnum = {
   name: 'name',
   description: 'description',
   currency: 'currency',
+  baseCpiIndex: 'baseCpiIndex',
   ownerId: 'ownerId',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -1410,9 +1561,6 @@ export type LedgerPaymentMethodScalarFieldEnum = (typeof LedgerPaymentMethodScal
 
 export const DebtScalarFieldEnum = {
   id: 'id',
-  debtOwnerId: 'debtOwnerId',
-  direction: 'direction',
-  amount: 'amount',
   period: 'period',
   description: 'description'
 } as const
@@ -1476,12 +1624,26 @@ export const TransactionScalarFieldEnum = {
   exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
+  isPaid: 'isPaid',
+  impactsCashflow: 'impactsCashflow',
+  cpiIndex: 'cpiIndex',
+  realMonthlyAmount: 'realMonthlyAmount',
   type: 'type',
-  debtOwnerId: 'debtOwnerId',
   paymentMethodId: 'paymentMethodId'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const TransactionDebtOwnerScalarFieldEnum = {
+  transactionId: 'transactionId',
+  debtOwnerId: 'debtOwnerId',
+  amount: 'amount',
+  direction: 'direction',
+  debtId: 'debtId'
+} as const
+
+export type TransactionDebtOwnerScalarFieldEnum = (typeof TransactionDebtOwnerScalarFieldEnum)[keyof typeof TransactionDebtOwnerScalarFieldEnum]
 
 
 export const TransactionBreakDownScalarFieldEnum = {
@@ -1492,6 +1654,19 @@ export const TransactionBreakDownScalarFieldEnum = {
 } as const
 
 export type TransactionBreakDownScalarFieldEnum = (typeof TransactionBreakDownScalarFieldEnum)[keyof typeof TransactionBreakDownScalarFieldEnum]
+
+
+export const InflationIndexScalarFieldEnum = {
+  id: 'id',
+  currency: 'currency',
+  period: 'period',
+  monthlyRate: 'monthlyRate',
+  cpiIndex: 'cpiIndex',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InflationIndexScalarFieldEnum = (typeof InflationIndexScalarFieldEnum)[keyof typeof InflationIndexScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1616,6 +1791,20 @@ export type ListEnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
  * Reference to a field of type 'PaymentType'
  */
 export type EnumPaymentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentType'>
@@ -1640,34 +1829,6 @@ export type EnumCreditBrandFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'CreditBrand[]'
  */
 export type ListEnumCreditBrandFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreditBrand[]'>
-    
-
-
-/**
- * Reference to a field of type 'DebtDirection'
- */
-export type EnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection'>
-    
-
-
-/**
- * Reference to a field of type 'DebtDirection[]'
- */
-export type ListEnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -1714,20 +1875,6 @@ export type ListEnumEntryTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
- * Reference to a field of type 'Decimal'
- */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal[]'
- */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
-
-
-/**
  * Reference to a field of type 'TransactionType'
  */
 export type EnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionType'>
@@ -1738,6 +1885,34 @@ export type EnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'TransactionType[]'
  */
 export type ListEnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DebtDirection'
+ */
+export type EnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection'>
+    
+
+
+/**
+ * Reference to a field of type 'DebtDirection[]'
+ */
+export type ListEnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1846,7 +2021,9 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   group?: Prisma.GroupOmit
   transaction?: Prisma.TransactionOmit
+  transactionDebtOwner?: Prisma.TransactionDebtOwnerOmit
   transactionBreakDown?: Prisma.TransactionBreakDownOmit
+  inflationIndex?: Prisma.InflationIndexOmit
 }
 
 /* Types for Logging */

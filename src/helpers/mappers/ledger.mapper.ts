@@ -32,6 +32,7 @@ export const ledgerToDetailsResponseDto = (
     name,
     description: description ?? undefined,
     currency,
+    baseCpiIndex: Number(ledger.baseCpiIndex),
     ownerId,
     collaborations: collaborationArrayToArrayDto(collaborations),
     groups: groupArrayToArrayDto(groups),
@@ -54,12 +55,21 @@ export const ledgerArrayToArrayDto = (
 export const ledgerToDashboardView = (
   ledger: LedgerDashboardView,
 ): LedgerDashboardResponseDto => {
-  const { id, name, description, currency, createdAt, updatedAt } = ledger;
+  const {
+    id,
+    name,
+    description,
+    currency,
+    baseCpiIndex,
+    createdAt,
+    updatedAt,
+  } = ledger;
   return new LedgerDashboardResponseDto({
     id,
     name,
     description: description ?? undefined,
     currency,
+    baseCpiIndex: Number(baseCpiIndex),
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   });

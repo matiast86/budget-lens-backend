@@ -10,6 +10,7 @@ import { GroupEntity } from 'src/modules/groups/entities/group.entity';
 import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
+import { TransactionDebtOwnerEntity } from './transaction-debt-owner.entity';
 
 export class TransactionEntity {
   @ApiProperty({
@@ -100,6 +101,12 @@ export class TransactionEntity {
   })
   totalAmount: number;
 
+  @ApiProperty({
+    enum: TransactionType,
+    description: 'Type of transaction (FIXED or VARIABLE).',
+    example: TransactionType.VARIABLE,
+    default: TransactionType.VARIABLE,
+  })
   type: TransactionType;
 
   @ApiProperty({
@@ -109,12 +116,35 @@ export class TransactionEntity {
   monthlyAmount: number;
 
   @ApiProperty({
+    description: 'Whether the transaction/statement has been paid.',
+    example: false,
+    default: false,
+  })
+  isPaid: boolean;
+
+  @ApiProperty({
     description:
-      'Optional reference to a debt owner if this transaction involves shared debt.',
-    example: 10,
+      'Whether this transaction impacts cashflow analysis. For credit cards: indicates if charge has been billed.',
+    example: true,
+    default: true,
+  })
+  impactsCashflow: boolean;
+
+  @ApiProperty({
+    description:
+      'CPI index value at the time of payment month (base 100 = Jan 2024).',
+    example: 550.0,
     required: false,
   })
-  debtOwnerId?: number;
+  cpiIndex?: number;
+
+  @ApiProperty({
+    description:
+      'Inflation-adjusted monthly amount in constant Jan 2024 pesos.',
+    example: 5000.0,
+    required: false,
+  })
+  realMonthlyAmount?: number;
 
   @ApiProperty({
     description: "The id of the transaction's payment method.",
@@ -141,6 +171,14 @@ export class TransactionEntity {
     required: false,
   })
   transactionsBreakDown: TransactionsBreakDownEntity[];
+
+  @ApiProperty({
+    type: () => TransactionDebtOwnerEntity,
+    isArray: true,
+    description: 'Debt owner assignments linked to this transaction.',
+    required: false,
+  })
+  debtOwners: TransactionDebtOwnerEntity[];
 
   constructor(partial: Partial<TransactionEntity>) {
     Object.assign(this, partial);

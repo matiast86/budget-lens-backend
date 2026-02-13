@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DebtEntity } from 'src/modules/debts/entities/debt.entity';
-import { TransactionEntity } from 'src/modules/transactions/entities/transaction.entity';
+import { TransactionDebtOwnerEntity } from 'src/modules/transactions/entities/transaction-debt-owner.entity';
 
 export class DebtOwnerEntity {
   @ApiProperty({
@@ -15,17 +14,19 @@ export class DebtOwnerEntity {
   })
   name: string;
 
-  ledgerId: string;
+  @ApiProperty({
+    description: 'Ledger ID this debt owner belongs to.',
+    example: 3,
+  })
+  ledgerId: number;
 
   @ApiProperty({
-    type: () => DebtEntity,
+    type: () => TransactionDebtOwnerEntity,
     isArray: true,
-    description: 'List of debts linked to this owner.',
+    description: 'Transaction-debt assignments linked to this owner.',
     required: false,
   })
-  debts: DebtEntity[];
-
-  transactions: TransactionEntity[];
+  transactions: TransactionDebtOwnerEntity[];
 
   constructor(partial: Partial<DebtOwnerEntity>) {
     Object.assign(this, partial);

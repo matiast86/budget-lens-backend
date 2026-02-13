@@ -11,6 +11,8 @@ export type UserDashboardView = Prisma.UserGetPayload<{
         id: true;
         name: true;
         description: true;
+        currency: true;
+        baseCpiIndex: true;
         createdAt: true;
         updatedAt: true;
       };

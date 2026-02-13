@@ -9,7 +9,7 @@ import {
 export class SignInAuthDto {
   @ApiProperty({
     description: 'The email of the user.',
-    example: 'johndoe@example.com',
+    example: 'matias@mail.com',
   })
   @IsNotEmpty()
   @IsEmail()
@@ -19,7 +19,7 @@ export class SignInAuthDto {
     type: String,
     required: true,
     description: 'The password of the user',
-    example: 'Alice1234$',
+    example: 'Password123!',
   })
   @IsNotEmpty()
   @IsStrongPassword({

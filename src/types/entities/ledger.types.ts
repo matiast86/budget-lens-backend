@@ -7,6 +7,7 @@ export const LedgerIncludes = {
       name: true,
       description: true,
       currency: true,
+      baseCpiIndex: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -18,9 +19,14 @@ export const LedgerIncludes = {
         include: {
           category: true,
           paymentMethod: true,
-          debtOwner: true,
           group: true,
           transactionsBreakDown: true,
+          debtOwners: {
+            include: {
+              debtOwner: true,
+              debt: true,
+            },
+          },
         },
         orderBy: { transactionDate: 'desc' },
       },

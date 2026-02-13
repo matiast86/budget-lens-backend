@@ -38,14 +38,15 @@ model Ledger {
   name           String
   description    String?
   currency       Currency
+  baseCpiIndex   Decimal          @default(100) @db.Decimal(10, 4)
   ownerId        String           @db.Uuid
   debtOwners     DebtOwner[]      @relation("LedgerDebtOwners")
   owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])
   collaborations Collaboration[]  @relation("LedgerCollaborations")
   groups         Group[]          @relation("LedgerGroups")
   categories     Category[]         @relation("LedgerCategories")
-  transactions   Transaction[]    @relation("LedgerTransactions")
-  paymentMethods LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
+  transactions      Transaction[]       @relation("LedgerTransactions")
+  paymentMethods    LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
   isActive       Boolean         @default(true)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -102,12 +103,9 @@ model LedgerPaymentMethod {
 
 model Debt {
   id           Int         @id @default(autoincrement())
-  debtOwner    DebtOwner   @relation("DebtOwner", fields: [debtOwnerId], references: [id])
-  debtOwnerId  Int
-  direction    DebtDirection
-  amount       Float
   period       DateTime
   description  String?
+  transactionDebtOwner TransactionDebtOwner? @relation("DebtToTransactionDebtOwner")
 
   @@map("debts")
 }
@@ -118,8 +116,7 @@ model DebtOwner {
   ledgerId Int
 
   ledger Ledger @relation("LedgerDebtOwners", fields: [ledgerId], references: [id])
-  debts  Debt[]  @relation("DebtOwner")
-  transactions Transaction[] @relation("TransactionDebtOwner")
+  transactions TransactionDebtOwner[]
 
   @@unique([ledgerId, name])
 
@@ -185,8 +182,11 @@ model Transaction {
   exchangeRate          Decimal?
   totalAmount           Decimal
   monthlyAmount         Decimal
+  isPaid                Boolean                @default(false)
+  impactsCashflow       Boolean                 @default(true)
+  cpiIndex              Decimal?
+  realMonthlyAmount     Decimal?
   type                  TransactionType        @default(VARIABLE)
-  debtOwnerId           Int?
   paymentMethodId       Int
   transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
 
@@ -194,9 +194,23 @@ model Transaction {
   category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
   group       Group      @relation("TransactionGroup", fields: [groupId], references: [id])
   paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
-  debtOwner   DebtOwner? @relation("TransactionDebtOwner", fields: [debtOwnerId], references: [id])
+  debtOwners   TransactionDebtOwner[] @relation("TransactionsDebtOwners")
 
   @@map("transactions")
+}
+
+model TransactionDebtOwner {
+  transaction   Transaction @relation("TransactionsDebtOwners", fields: [transactionId], references:[id])
+  transactionId Int
+  debtOwner     DebtOwner   @relation(fields: [debtOwnerId], references: [id])
+  debtOwnerId   Int
+  amount        Decimal
+  direction     DebtDirection
+  debtId        Int          @unique
+  debt          Debt         @relation("DebtToTransactionDebtOwner", fields: [debtId], references: [id])
+
+  @@id([transactionId,debtOwnerId])
+  @@map("transactions_debt_owners")
 }
 
 model TransactionBreakDown {
@@ -208,6 +222,19 @@ model TransactionBreakDown {
   transaction    Transaction  @relation("TransactionsBreakDown", fields: [transactionId], references: [id])
 
   @@map("transactions_break_down")
+}
+
+model InflationIndex {
+  id          Int      @id @default(autoincrement())
+  currency    Currency
+  period      DateTime
+  monthlyRate Decimal  @db.Decimal(10, 6)
+  cpiIndex    Decimal  @db.Decimal(10, 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([currency, period])
+  @@map("inflation_indexes")
 }
 
 // =====================================================

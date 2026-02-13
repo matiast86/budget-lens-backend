@@ -11,12 +11,12 @@ import {
   Post,
   Query,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -24,10 +24,7 @@ import {
 } from '@nestjs/swagger';
 
 import { GetUser } from 'src/decorators/get-user/get-user.decorator';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
-
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
-import { LedgerAccessGuard } from 'src/guards/ledger-access/ledger-access.guard';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
 import { LedgerResponseDto } from './dto/ledger-response.dto';
@@ -38,7 +35,6 @@ import { LedgersService } from './ledgers.service';
 @ApiTags('Ledgers')
 @ApiBearerAuth()
 @Controller('ledgers')
-@UseGuards(AuthGuard)
 export class LedgersController {
   constructor(private readonly ledgersService: LedgersService) {}
 
@@ -94,10 +90,10 @@ export class LedgersController {
 
   // FIND ONE
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('ledger')
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a ledger by its ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'Ledger ID' })
   @ApiResponse({
     status: 200,
     description: 'Ledger found',
@@ -114,10 +110,10 @@ export class LedgersController {
 
   // UPDATE
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('ledger')
   @Patch(':id')
   @ApiOperation({ summary: 'Update a ledger by ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'Ledger ID' })
   @ApiResponse({
     status: 200,
     description: 'Ledger updated',
@@ -138,10 +134,10 @@ export class LedgersController {
 
   // DELETE
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LedgerAccessGuard)
   @LedgerFrom('ledger')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a ledger by ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'Ledger ID' })
   @ApiResponse({ status: 200, description: 'Ledger successfully removed' })
   @ApiResponse({ status: 404, description: 'Ledger not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

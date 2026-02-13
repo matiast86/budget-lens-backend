@@ -93,7 +93,17 @@ export type Group = Prisma.GroupModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model TransactionDebtOwner
+ * 
+ */
+export type TransactionDebtOwner = Prisma.TransactionDebtOwnerModel
+/**
  * Model TransactionBreakDown
  * 
  */
 export type TransactionBreakDown = Prisma.TransactionBreakDownModel
+/**
+ * Model InflationIndex
+ * 
+ */
+export type InflationIndex = Prisma.InflationIndexModel

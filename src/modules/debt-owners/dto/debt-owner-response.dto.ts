@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { DebtResponseDto } from 'src/modules/debts/dto/debt-response.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { TransactionDebtOwnerResponseDto } from 'src/modules/transactions/dto/transaction-debt-owner-response.dto';
 
 export class DebtOwnerResponseDto {
   @ApiProperty({
@@ -10,7 +10,7 @@ export class DebtOwnerResponseDto {
 
   @ApiProperty({
     description: 'Name identifying the person or entity associated with debts.',
-    example: 'Ana PAcrez',
+    example: 'Ana Pérez',
   })
   name: string;
 
@@ -21,14 +21,14 @@ export class DebtOwnerResponseDto {
   })
   ledgerId: number;
 
-  @ApiProperty({
-    type: () => DebtResponseDto,
+  @ApiPropertyOptional({
+    type: () => TransactionDebtOwnerResponseDto,
     isArray: true,
-    required: false,
     description:
-      'List of debts associated with this owner; empty when none exist.',
+      'Transaction-debt assignments linked to this owner; empty when none exist.',
   })
-  debts: DebtResponseDto[];
+  transactions?: TransactionDebtOwnerResponseDto[];
+
   constructor(partial: Partial<DebtOwnerResponseDto>) {
     Object.assign(this, partial);
   }

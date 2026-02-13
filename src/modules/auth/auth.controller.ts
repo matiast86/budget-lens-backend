@@ -1,9 +1,11 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
+import { Public } from 'src/decorators/public/public.decorator';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { SignInAuthDto } from './dto/signIn-auth.dto';
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

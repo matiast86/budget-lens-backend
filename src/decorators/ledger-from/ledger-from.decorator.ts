@@ -7,6 +7,7 @@ export const LedgerFrom = (
     | 'ledger'
     | 'collaboration'
     | 'debt'
+    | 'transaction'
     | 'category',
   param = 'id',
 ) => SetMetadata('ledgerFrom', { type, param });

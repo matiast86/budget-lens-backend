@@ -28,10 +28,12 @@ export type AggregateLedger = {
 
 export type LedgerAvgAggregateOutputType = {
   id: number | null
+  baseCpiIndex: runtime.Decimal | null
 }
 
 export type LedgerSumAggregateOutputType = {
   id: number | null
+  baseCpiIndex: runtime.Decimal | null
 }
 
 export type LedgerMinAggregateOutputType = {
@@ -39,6 +41,7 @@ export type LedgerMinAggregateOutputType = {
   name: string | null
   description: string | null
   currency: $Enums.Currency | null
+  baseCpiIndex: runtime.Decimal | null
   ownerId: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -50,6 +53,7 @@ export type LedgerMaxAggregateOutputType = {
   name: string | null
   description: string | null
   currency: $Enums.Currency | null
+  baseCpiIndex: runtime.Decimal | null
   ownerId: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -61,6 +65,7 @@ export type LedgerCountAggregateOutputType = {
   name: number
   description: number
   currency: number
+  baseCpiIndex: number
   ownerId: number
   isActive: number
   createdAt: number
@@ -71,10 +76,12 @@ export type LedgerCountAggregateOutputType = {
 
 export type LedgerAvgAggregateInputType = {
   id?: true
+  baseCpiIndex?: true
 }
 
 export type LedgerSumAggregateInputType = {
   id?: true
+  baseCpiIndex?: true
 }
 
 export type LedgerMinAggregateInputType = {
@@ -82,6 +89,7 @@ export type LedgerMinAggregateInputType = {
   name?: true
   description?: true
   currency?: true
+  baseCpiIndex?: true
   ownerId?: true
   isActive?: true
   createdAt?: true
@@ -93,6 +101,7 @@ export type LedgerMaxAggregateInputType = {
   name?: true
   description?: true
   currency?: true
+  baseCpiIndex?: true
   ownerId?: true
   isActive?: true
   createdAt?: true
@@ -104,6 +113,7 @@ export type LedgerCountAggregateInputType = {
   name?: true
   description?: true
   currency?: true
+  baseCpiIndex?: true
   ownerId?: true
   isActive?: true
   createdAt?: true
@@ -202,6 +212,7 @@ export type LedgerGroupByOutputType = {
   name: string
   description: string | null
   currency: $Enums.Currency
+  baseCpiIndex: runtime.Decimal
   ownerId: string
   isActive: boolean
   createdAt: Date
@@ -236,6 +247,7 @@ export type LedgerWhereInput = {
   name?: Prisma.StringFilter<"Ledger"> | string
   description?: Prisma.StringNullableFilter<"Ledger"> | string | null
   currency?: Prisma.EnumCurrencyFilter<"Ledger"> | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFilter<"Ledger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.UuidFilter<"Ledger"> | string
   isActive?: Prisma.BoolFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Ledger"> | Date | string
@@ -254,6 +266,7 @@ export type LedgerOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -275,6 +288,7 @@ export type LedgerWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Ledger"> | string
   description?: Prisma.StringNullableFilter<"Ledger"> | string | null
   currency?: Prisma.EnumCurrencyFilter<"Ledger"> | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFilter<"Ledger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.UuidFilter<"Ledger"> | string
   isActive?: Prisma.BoolFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Ledger"> | Date | string
@@ -293,6 +307,7 @@ export type LedgerOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -312,6 +327,7 @@ export type LedgerScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Ledger"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Ledger"> | string | null
   currency?: Prisma.EnumCurrencyWithAggregatesFilter<"Ledger"> | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalWithAggregatesFilter<"Ledger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.UuidWithAggregatesFilter<"Ledger"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Ledger"> | Date | string
@@ -322,6 +338,7 @@ export type LedgerCreateInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -339,6 +356,7 @@ export type LedgerUncheckedCreateInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -355,6 +373,7 @@ export type LedgerUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +391,7 @@ export type LedgerUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -389,6 +409,7 @@ export type LedgerCreateManyInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -399,6 +420,7 @@ export type LedgerUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -409,6 +431,7 @@ export type LedgerUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +453,7 @@ export type LedgerCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -438,6 +462,7 @@ export type LedgerCountOrderByAggregateInput = {
 
 export type LedgerAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
 }
 
 export type LedgerMaxOrderByAggregateInput = {
@@ -445,6 +470,7 @@ export type LedgerMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -456,6 +482,7 @@ export type LedgerMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -464,6 +491,7 @@ export type LedgerMinOrderByAggregateInput = {
 
 export type LedgerSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  baseCpiIndex?: Prisma.SortOrder
 }
 
 export type LedgerScalarRelationFilter = {
@@ -519,6 +547,14 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type EnumCurrencyFieldUpdateOperationsInput = {
   set?: $Enums.Currency
+}
+
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -617,6 +653,7 @@ export type LedgerCreateWithoutOwnerInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -633,6 +670,7 @@ export type LedgerUncheckedCreateWithoutOwnerInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -678,6 +716,7 @@ export type LedgerScalarWhereInput = {
   name?: Prisma.StringFilter<"Ledger"> | string
   description?: Prisma.StringNullableFilter<"Ledger"> | string | null
   currency?: Prisma.EnumCurrencyFilter<"Ledger"> | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFilter<"Ledger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.UuidFilter<"Ledger"> | string
   isActive?: Prisma.BoolFilter<"Ledger"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Ledger"> | Date | string
@@ -688,6 +727,7 @@ export type LedgerCreateWithoutCollaborationsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -704,6 +744,7 @@ export type LedgerUncheckedCreateWithoutCollaborationsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -735,6 +776,7 @@ export type LedgerUpdateWithoutCollaborationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -751,6 +793,7 @@ export type LedgerUncheckedUpdateWithoutCollaborationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -766,6 +809,7 @@ export type LedgerCreateWithoutPaymentMethodsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -782,6 +826,7 @@ export type LedgerUncheckedCreateWithoutPaymentMethodsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -813,6 +858,7 @@ export type LedgerUpdateWithoutPaymentMethodsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -829,6 +875,7 @@ export type LedgerUncheckedUpdateWithoutPaymentMethodsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -844,6 +891,7 @@ export type LedgerCreateWithoutDebtOwnersInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -860,6 +908,7 @@ export type LedgerUncheckedCreateWithoutDebtOwnersInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -891,6 +940,7 @@ export type LedgerUpdateWithoutDebtOwnersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -907,6 +957,7 @@ export type LedgerUncheckedUpdateWithoutDebtOwnersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -922,6 +973,7 @@ export type LedgerCreateWithoutCategoriesInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -938,6 +990,7 @@ export type LedgerUncheckedCreateWithoutCategoriesInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -969,6 +1022,7 @@ export type LedgerUpdateWithoutCategoriesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -985,6 +1039,7 @@ export type LedgerUncheckedUpdateWithoutCategoriesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1000,6 +1055,7 @@ export type LedgerCreateWithoutGroupsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1016,6 +1072,7 @@ export type LedgerUncheckedCreateWithoutGroupsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1047,6 +1104,7 @@ export type LedgerUpdateWithoutGroupsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1063,6 +1121,7 @@ export type LedgerUncheckedUpdateWithoutGroupsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1078,6 +1137,7 @@ export type LedgerCreateWithoutTransactionsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1094,6 +1154,7 @@ export type LedgerUncheckedCreateWithoutTransactionsInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1125,6 +1186,7 @@ export type LedgerUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1141,6 +1203,7 @@ export type LedgerUncheckedUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1157,6 +1220,7 @@ export type LedgerCreateManyOwnerInput = {
   name: string
   description?: string | null
   currency: $Enums.Currency
+  baseCpiIndex?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1166,6 +1230,7 @@ export type LedgerUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1182,6 +1247,7 @@ export type LedgerUncheckedUpdateWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1198,6 +1264,7 @@ export type LedgerUncheckedUpdateManyWithoutOwnerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  baseCpiIndex?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1284,6 +1351,7 @@ export type LedgerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name?: boolean
   description?: boolean
   currency?: boolean
+  baseCpiIndex?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1303,6 +1371,7 @@ export type LedgerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   description?: boolean
   currency?: boolean
+  baseCpiIndex?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1315,6 +1384,7 @@ export type LedgerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   name?: boolean
   description?: boolean
   currency?: boolean
+  baseCpiIndex?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1327,13 +1397,14 @@ export type LedgerSelectScalar = {
   name?: boolean
   description?: boolean
   currency?: boolean
+  baseCpiIndex?: boolean
   ownerId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LedgerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "currency" | "ownerId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["ledger"]>
+export type LedgerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "currency" | "baseCpiIndex" | "ownerId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["ledger"]>
 export type LedgerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   debtOwners?: boolean | Prisma.Ledger$debtOwnersArgs<ExtArgs>
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1367,6 +1438,7 @@ export type $LedgerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     name: string
     description: string | null
     currency: $Enums.Currency
+    baseCpiIndex: runtime.Decimal
     ownerId: string
     isActive: boolean
     createdAt: Date
@@ -1805,6 +1877,7 @@ export interface LedgerFieldRefs {
   readonly name: Prisma.FieldRef<"Ledger", 'String'>
   readonly description: Prisma.FieldRef<"Ledger", 'String'>
   readonly currency: Prisma.FieldRef<"Ledger", 'Currency'>
+  readonly baseCpiIndex: Prisma.FieldRef<"Ledger", 'Decimal'>
   readonly ownerId: Prisma.FieldRef<"Ledger", 'String'>
   readonly isActive: Prisma.FieldRef<"Ledger", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Ledger", 'DateTime'>

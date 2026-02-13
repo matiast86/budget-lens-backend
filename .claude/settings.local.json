@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:www.usinflationcalculator.com)",
+      "WebFetch(domain:fred.stlouisfed.org)",
+      "Bash(npx prisma generate)"
+    ]
+  }
+}

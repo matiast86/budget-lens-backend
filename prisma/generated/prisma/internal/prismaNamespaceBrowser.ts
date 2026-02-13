@@ -62,7 +62,9 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
-  TransactionBreakDown: 'TransactionBreakDown'
+  TransactionDebtOwner: 'TransactionDebtOwner',
+  TransactionBreakDown: 'TransactionBreakDown',
+  InflationIndex: 'InflationIndex'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -71,12 +73,12 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  * Enums
  */
 
-export const TransactionIsolationLevel = {
+export const TransactionIsolationLevel = runtime.makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
-} as const
+} as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
@@ -102,6 +104,7 @@ export const LedgerScalarFieldEnum = {
   name: 'name',
   description: 'description',
   currency: 'currency',
+  baseCpiIndex: 'baseCpiIndex',
   ownerId: 'ownerId',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -149,9 +152,6 @@ export type LedgerPaymentMethodScalarFieldEnum = (typeof LedgerPaymentMethodScal
 
 export const DebtScalarFieldEnum = {
   id: 'id',
-  debtOwnerId: 'debtOwnerId',
-  direction: 'direction',
-  amount: 'amount',
   period: 'period',
   description: 'description'
 } as const
@@ -215,12 +215,26 @@ export const TransactionScalarFieldEnum = {
   exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
+  isPaid: 'isPaid',
+  impactsCashflow: 'impactsCashflow',
+  cpiIndex: 'cpiIndex',
+  realMonthlyAmount: 'realMonthlyAmount',
   type: 'type',
-  debtOwnerId: 'debtOwnerId',
   paymentMethodId: 'paymentMethodId'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const TransactionDebtOwnerScalarFieldEnum = {
+  transactionId: 'transactionId',
+  debtOwnerId: 'debtOwnerId',
+  amount: 'amount',
+  direction: 'direction',
+  debtId: 'debtId'
+} as const
+
+export type TransactionDebtOwnerScalarFieldEnum = (typeof TransactionDebtOwnerScalarFieldEnum)[keyof typeof TransactionDebtOwnerScalarFieldEnum]
 
 
 export const TransactionBreakDownScalarFieldEnum = {
@@ -231,6 +245,19 @@ export const TransactionBreakDownScalarFieldEnum = {
 } as const
 
 export type TransactionBreakDownScalarFieldEnum = (typeof TransactionBreakDownScalarFieldEnum)[keyof typeof TransactionBreakDownScalarFieldEnum]
+
+
+export const InflationIndexScalarFieldEnum = {
+  id: 'id',
+  currency: 'currency',
+  period: 'period',
+  monthlyRate: 'monthlyRate',
+  cpiIndex: 'cpiIndex',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InflationIndexScalarFieldEnum = (typeof InflationIndexScalarFieldEnum)[keyof typeof InflationIndexScalarFieldEnum]
 
 
 export const SortOrder = {
