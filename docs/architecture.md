@@ -1,234 +1,284 @@
+# BudgetLens -- System Architecture
 
-# 🏗️ BudgetLens – System Architecture
-
-> **Stack:**  
-> Backend → NestJS + Prisma + PostgreSQL  
-> Frontend → React (Vite) + TailwindCSS  
-> Deployment → Backend on Render / Railway, Frontend on Vercel / Netlify
+**Stack:** NestJS 11 + Prisma 7 + PostgreSQL
 
 ---
 
-## ⚙️ 1. Overview
+## 1. Overview
 
-**BudgetLens** is a full-stack web application designed to help users **plan**, **analyze**, and **project** their personal finances ahead, adjusting for inflation and real purchasing power.  
+BudgetLens is a backend REST API for personal expense tracking, built for the Argentine economic context. It handles inflation-adjusted amounts, installment-based credit card purchases, multi-currency transactions, weekly cashflow breakdowns, and inter-family debt tracking.
 
-The system consists of two independent services:
-- A **Backend REST API** (`budgetlens-backend`)
-- A **Frontend PWA** (`budgetlens-frontend`)
-
-They communicate via HTTPS, using JSON for all API responses.
+The API is a single NestJS application that communicates with a PostgreSQL database via Prisma ORM. All endpoints return JSON and are documented via Swagger.
 
 ---
 
-## 🧩 2. System Diagram
+## 2. System Diagram
 
 ```
+                          ┌─────────────────────────────────────────────┐
+                          │            NestJS Application               │
+                          │                                             │
+  Client (Swagger/App)    │  ┌─────────┐   ┌──────────┐   ┌────────┐  │
+  ───── HTTP/JSON ──────> │  │ Guards   │──>│Controllers│──>│Services│  │
+                          │  │(Auth,    │   │  (REST)   │   │(Logic) │  │
+                          │  │ Ledger,  │   └──────────┘   └───┬────┘  │
+                          │  │ Roles)   │                      │       │
+                          │  └─────────┘               ┌──────┴─────┐  │
+                          │                            │ Repository  │  │
+                          │                            │  (Prisma)   │  │
+                          │                            └──────┬─────┘  │
+                          └───────────────────────────────────┼────────┘
+                                                              │
+                                                              ▼
+                                                    ┌──────────────────┐
+                                                    │   PostgreSQL     │
+                                                    └──────────────────┘
+```
 
-┌──────────────────────────┐         ┌──────────────────────────┐
-│      Frontend (React)    │         │     Backend (NestJS)     │
-│--------------------------│         │--------------------------│
-│ - Vite + Tailwind        │  HTTPS  │ - Controllers (REST API) │
-│ - React Router            │ <──────>│ - Services (business)   │
-│ - Axios API client        │         │ - Prisma ORM (DB access) │
-│ - PWA support             │         │ - PostgreSQL database    │
-└──────────────────────────┘         └──────────────────────────┘
+---
+
+## 3. Request Lifecycle
+
+Every HTTP request passes through this pipeline:
+
+```
+Request
+  │
+  ▼
+Global Pipes (ValidationPipe: class-validator + class-transformer)
+  │
+  ▼
+AuthGuard (global APP_GUARD)
+  │── @Public() routes ──> skip
+  │── All other routes ──> validate JWT, attach user to request
+  │
+  ▼
+LedgerAccessGuard (global APP_GUARD)
+  │── No @LedgerFrom() and no :ledgerId param ──> skip
+  │── Resolves ledger from entity or route param
+  │── Verifies user is owner or collaborator
+  │── Attaches ledger to request
+  │
+  ▼
+RolesGuard (controller-level, only on admin endpoints)
+  │── Checks @Roles() metadata
+  │
+  ▼
+Controller ──> Service ──> Repository ──> Prisma ──> PostgreSQL
+  │
+  ▼
+Response (DTO mapped from entity)
+```
+
+---
+
+## 4. Module Architecture
+
+Each domain module follows the same layered pattern:
+
+```
+Module/
+├── module.ts              # NestJS module declaration
+├── controller.ts          # HTTP endpoints, Swagger annotations
+├── service.ts             # Business logic
+├── repository.ts          # Prisma queries
+├── dto/
+│   ├── create-*.dto.ts    # Input validation (class-validator)
+│   ├── update-*.dto.ts    # Partial update DTO
+│   └── *-response.dto.ts  # Output shape (Swagger + mapping target)
+└── entities/              # Typed Prisma includes, request interfaces
+```
+
+### Module Dependency Graph
+
+```
+AppModule
+├── AuthGuard (global)
+├── LedgerAccessGuard (global)
 │
-│ Prisma ORM
-▼
-┌───────────────────────┐
-│    PostgreSQL DB      │
-│ (Users, Expenses, etc.) │
-└───────────────────────┘
-
+├── AuthModule ──────────> UsersModule
+├── LedgersModule ───────> UsersModule, CategoryTemplatesModule, InflationIndexesModule
+├── TransactionsModule ──> LedgersModule, PaymentMethodsModule,
+│                          TransactionsBreakDownModule, InflationIndexesModule
+├── CollaborationsModule ─> (standalone)
+├── CategoriesModule ────> (standalone)
+├── GroupsModule ────────> (standalone)
+├── PaymentMethodsModule ─> (standalone)
+├── DebtOwnersModule ────> (standalone)
+├── DebtsModule ─────────> DebtOwnersModule
+├── InflationIndexesModule > (standalone)
+├── CategoryTemplatesModule > (standalone)
+└── SharedModule (global) ─> ConfigModule, JwtModule
 ```
 
 ---
 
-## 🧠 3. Backend Architecture (NestJS)
+## 5. Domain Modules
 
-### 📁 Folder Structure
+| Module                | Scope        | Description                                                                 |
+|-----------------------|--------------|-----------------------------------------------------------------------------|
+| **Auth**              | Public       | Sign up (bcrypt hash) and sign in (JWT issue)                              |
+| **Users**             | Public       | User CRUD with soft-delete                                                  |
+| **Ledgers**           | Owner/Collab | Core budget books; auto-seeds categories from templates on creation         |
+| **Transactions**      | Ledger       | Expenses and incomes with installment, merge, and debt assignment logic     |
+| **TransactionsBreakDown** | Auth     | Weekly W1--W4 amount updates per transaction                                |
+| **Categories**        | Ledger       | Ledger-scoped transaction categories (seeded from templates)               |
+| **CategoryTemplates** | Admin        | Global category templates seeded into new ledgers                          |
+| **Groups**            | Ledger       | Ledger-scoped transaction groupings                                        |
+| **PaymentMethods**    | User         | User-scoped payment methods (cash, bank, credit card, etc.)                |
+| **Collaborations**    | Ledger       | Share ledger access with other users                                       |
+| **DebtOwners**        | Ledger       | People involved in debt splits                                             |
+| **Debts**             | Ledger       | Individual debt records (created atomically via transactions)              |
+| **InflationIndexes**  | Admin/Auth   | Monthly CPI data per currency; used for real-amount calculations           |
+
+---
+
+## 6. Authentication and Authorization
+
+### Guards (execution order)
+
+| Guard              | Scope      | Responsibility                                            |
+|--------------------|------------|-----------------------------------------------------------|
+| `AuthGuard`        | Global     | JWT validation. Skips `@Public()` routes. Sets `request.user`. |
+| `LedgerAccessGuard`| Global     | Ledger ownership/collaboration check via `@LedgerFrom()` or `:ledgerId` param. |
+| `RolesGuard`       | Controller | Role-based access (`@Roles(Role.ADMIN)`) for admin endpoints. |
+
+### Custom Decorators
+
+| Decorator                  | Purpose                                                    |
+|----------------------------|------------------------------------------------------------|
+| `@Public()`                | Skip `AuthGuard` on route/controller                       |
+| `@Roles(...roles)`         | Restrict to specific roles                                 |
+| `@LedgerFrom(type, param?)` | Tell `LedgerAccessGuard` how to resolve the ledger        |
+| `@GetUser(field?)`         | Extract user or field from JWT payload on `request.user`   |
+
+---
+
+## 7. Key Business Logic
+
+### Transaction Creation (Expense)
+
+Three paths, determined automatically:
+
+1. **Current-month merge** -- If transaction date is current month, a matching transaction exists (same category + group + payment method + currency), and payment method is not `CREDIT_CARD`: merges into the existing transaction by updating weekly breakdown and totals.
+
+2. **Installment flow** -- If `installments > 1`: creates N separate transactions, each with `paymentMonth` incremented by one month. Debt assignments are duplicated per installment.
+
+3. **Single transaction** -- Default. One transaction with optional debt assignments.
+
+All paths create 4 `TransactionBreakDown` rows (W1--W4, initialized to 0).
+
+### Inflation Adjustment
 
 ```
+realMonthlyAmount = (monthlyAmount / cpiIndex) * baseCpiIndex
+```
 
+- `cpiIndex` is looked up from `InflationIndex` for the payment month and currency
+- `baseCpiIndex` is stored on the ledger at creation time (defaults to 100)
+
+### Date Conventions
+
+| Field              | Format       | Parser         | Example        |
+|--------------------|-------------|----------------|----------------|
+| `transactionDate`  | `YYYY-MM-DD`| `parseDate()`  | `2026-02-13`   |
+| `paymentMonthValue`| `YYYY-MM`   | `parsePeriod()`| `2026-02`      |
+
+Both are parsed into UTC `Date` objects before any database operation. When `paymentMonthValue` is omitted, it defaults to `transactionDate`.
+
+### Status Lifecycle
+
+Determined automatically from `transactionDate`:
+
+| Status    | Condition                    |
+|-----------|------------------------------|
+| `CURRENT` | Same month as today          |
+| `CLOSED`  | Past month                   |
+| `FUTURE`  | Future month (installments)  |
+
+---
+
+## 8. Data Model Summary
+
+Core entities and their relationships:
+
+```
+User (UUID)
+├── owns: Ledger[]
+├── owns: PaymentMethod[]
+├── owns: Group[]
+└── participates: Collaboration[]
+
+Ledger (auto-increment)
+├── has: Transaction[]
+├── has: Category[] (seeded from CategoryTemplate[])
+├── has: Group[]
+├── has: DebtOwner[]
+├── has: Collaboration[]
+└── linked: PaymentMethod[] (M:N via LedgerPaymentMethod)
+
+Transaction (auto-increment)
+├── belongs to: Ledger, Category, Group, PaymentMethod
+├── has: TransactionBreakDown[4] (W1--W4)
+└── has: TransactionDebtOwner[] ──> each has one Debt
+
+InflationIndex
+└── unique on: (currency, period)
+```
+
+Full schema details are in the Prisma schema file (`prisma/schema.prisma`) and documented in `CLAUDE.md`.
+
+---
+
+## 9. Project Structure
+
+```
 src/
-├── main.ts                 # Entry point
-├── app.module.ts           # Root module
-├── prisma/
-│    ├── prisma.module.ts   # Exposes Prisma client
-│    └── prisma.service.ts  # Handles DB access
-├── users/                  # User module
-├── expenses/               # Expense module
-├── contracts/              # Contract module
-├── projections/            # Inflation & projections logic
-├── reports/                # Aggregated summaries
-└── common/                 # DTOs, pipes, guards, utils
-
-````
-
-### 🧱 Core Modules
-
-| Module | Responsibility |
-|---------|----------------|
-| **UsersModule** | Manage user profiles, authentication, ownership of expenses. |
-| **ExpensesModule** | CRUD operations for expenses (description, category, amount, date). |
-| **ContractsModule** | Handle recurring or installment-based expenses (e.g., rent, credit). |
-| **ProjectionsModule** | Calculate future expenses based on inflation or custom rate. |
-| **ReportsModule** | Summarize data: monthly totals, categories, trends. |
-| **CommonModule** | Shared DTOs, exception filters, validation, and guards. |
-
-### 🧮 Database (Prisma + PostgreSQL)
-
-**Example schema:**
-```prisma
-model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  name      String
-  expenses  Expense[]
-}
-
-model Expense {
-  id          Int      @id @default(autoincrement())
-  description String
-  amount      Decimal  @db.Decimal(12, 2)
-  category    String
-  date        DateTime
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-}
-````
-
-Prisma handles schema migrations (`npx prisma migrate dev`) and generates a fully type-safe client.
-
----
-
-## 🎨 4. Frontend Architecture (React + Vite + Tailwind)
-
-### 📁 Folder Structure
-
-```
-src/
- ├── main.jsx
- ├── App.jsx
- ├── pages/
- │    ├── Dashboard.jsx
- │    ├── Expenses.jsx
- │    ├── Projections.jsx
- │    └── Contracts.jsx
- ├── components/
- │    ├── ExpenseForm.jsx
- │    ├── ExpenseTable.jsx
- │    ├── ChartCard.jsx
- │    └── Navbar.jsx
- ├── services/
- │    └── api.js             # Axios client for backend
- ├── context/
- │    ├── AuthContext.jsx
- │    └── ExpensesContext.jsx
- ├── hooks/
- │    └── useFetch.js
- ├── utils/
- │    └── formatters.js
- ├── styles/
- │    └── globals.css
+├── decorators/              @GetUser, @LedgerFrom, @Public, @Roles
+├── guards/                  AuthGuard (global), LedgerAccessGuard (global), RolesGuard
+├── helpers/
+│   ├── dates.ts             Date parsing and period utilities (Day.js UTC)
+│   ├── errors.ts            Prisma error handlers
+│   └── mappers/             Entity-to-DTO mappers per domain
+├── modules/
+│   ├── auth/                Sign up / sign in (JWT + bcrypt)
+│   ├── categories/          Ledger-scoped CRUD
+│   ├── category-templates/  Global templates (admin-only)
+│   ├── collaborations/      Ledger sharing between users
+│   ├── debt-owners/         Ledger-scoped CRUD
+│   ├── debts/               Read/update/delete (created via transactions)
+│   ├── groups/              Ledger-scoped CRUD
+│   ├── inflation-indexes/   CPI data management (admin)
+│   ├── ledgers/             Core budget books
+│   ├── payment-methods/     User-scoped CRUD
+│   ├── shared/              ConfigModule, JwtModule (global)
+│   ├── transactions/        Expenses, incomes, installments, merge logic
+│   ├── transactions-break-down/  Weekly W1--W4 amounts
+│   └── users/               User CRUD with soft-delete
+├── prisma/                  PrismaService, PrismaModule (global)
+├── seed/                    Database seeders (users, ledgers, groups, etc.)
+├── services/
+│   └── data-collection/     DataCollectionService
+├── types/
+│   ├── entities/            Prisma typed includes
+│   └── payload/             JwtPayload interface
+└── app.module.ts            Root module, global guard registration
 ```
 
-### 🧭 Frontend Flow
+---
 
-1. User interacts with React UI.
-2. Components send requests through `api.js`:
+## 10. Environment Variables
 
-   ```js
-   axios.get(`${import.meta.env.VITE_API_URL}/expenses`);
-   ```
-3. Backend responds with JSON data.
-4. React updates UI (tables, charts, forms).
-5. Tailwind handles responsive design and theme.
+| Variable       | Required | Description                  |
+|----------------|----------|------------------------------|
+| `DATABASE_URL` | Yes      | PostgreSQL connection string |
+| `JWT_SECRET`   | Yes      | Secret for signing JWT tokens|
+| `PORT`         | No       | API port (default: 3000)     |
 
 ---
 
-## 🔄 5. Data Flow Summary
+## 11. API Documentation
 
-| Step | Action                      | Component                                 |
-| ---- | --------------------------- | ----------------------------------------- |
-| 1️⃣  | User submits an expense     | Frontend form → `/api/expenses`           |
-| 2️⃣  | NestJS validates and stores | `ExpensesController` + `ExpensesService`  |
-| 3️⃣  | Prisma writes to DB         | PostgreSQL                                |
-| 4️⃣  | User requests projections   | `GET /api/projections?months=6&rate=0.05` |
-| 5️⃣  | Backend calculates values   | `ProjectionService`                       |
-| 6️⃣  | React displays chart        | via Recharts or Chart.js                  |
+All endpoints are annotated with `@nestjs/swagger` decorators. Swagger UI is served at `/api` when the application is running.
 
----
-
-## 🧱 6. Communication Pattern
-
-* **REST API**
-
-  * Simpler and faster for MVP.
-  * Endpoints prefixed with `/api`:
-
-    ```
-    GET /api/expenses
-    POST /api/expenses
-    GET /api/projections
-    ```
-* **Auth**
-
-  * Phase 1: Local JWT.
-  * Phase 2: Optionally switch to Auth0 for hosted login.
-
----
-
-## ☁️ 7. Deployment Overview
-
-| Component    | Platform                            | Notes                                       |
-| ------------ | ----------------------------------- | ------------------------------------------- |
-| **Backend**  | Render / Railway                    | Auto-deploy from `budgetlens-backend` repo  |
-| **Database** | Render PostgreSQL / Supabase / Neon | Persistent managed DB                       |
-| **Frontend** | Vercel / Netlify                    | Auto-deploy from `budgetlens-frontend` repo |
-| **Domain**   | `budgetlens.app` (future)           | Connect both frontend + backend subdomains  |
-
----
-
-## 🔐 8. Environment Variables
-
-| Variable       | Used In  | Description                  |
-| -------------- | -------- | ---------------------------- |
-| `DATABASE_URL` | backend  | PostgreSQL connection string |
-| `PORT`         | backend  | API port (default: 3000)     |
-| `JWT_SECRET`   | backend  | For signing JWT tokens       |
-| `VITE_API_URL` | frontend | Base URL of backend API      |
-| `NODE_ENV`     | both     | `development` / `production` |
-
----
-
-## 🚀 9. Future Scalability
-
-* Add **GraphQL** layer if analytics become complex.
-* Add **Redis caching** for projections or reports.
-* Add **microservices** later (notifications, email reports).
-* Integrate **worker queues** for scheduled projections (BullMQ).
-
----
-
-## 🧱 10. Summary
-
-**BudgetLens** combines a modular NestJS backend with a modern React frontend, allowing users to:
-
-* Track and plan expenses.
-* Simulate inflation impact over time.
-* Visualize data through responsive dashboards.
-* Eventually manage recurring contracts and real purchasing power.
-
-The architecture ensures:
-
-* Clear separation of concerns (API vs UI).
-* Type safety (TypeScript end-to-end).
-* Scalable deployment (containerized via Docker).
-* Easy developer experience (simple local setup via Docker Compose).
-
----
-
-```
-
+Full endpoint reference with DTOs, guard requirements, and examples is available in `CLAUDE.md`.

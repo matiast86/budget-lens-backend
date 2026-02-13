@@ -135,20 +135,21 @@ InflationIndex (auto-increment PK)
 
 ### Guard Chain
 
-Three guards, applied in order:
+Three global/controller-level guards. The first two are registered as `APP_GUARD` in `AppModule` (order matters):
 
-1. **`AuthGuard`** — Validates JWT token, attaches `user` (JwtPayload) to `request.user`. Applied via `@UseGuards(AuthGuard)` on each controller.
+1. **`AuthGuard`** *(global `APP_GUARD`)* — Validates JWT token, attaches `user` (JwtPayload) to `request.user`. Skips routes decorated with `@Public()`. Runs first so `request.user` is available to downstream guards.
 
-2. **`RolesGuard`** — Checks `@Roles()` decorator metadata. If no `@Roles()` present, passes through. Used alongside `AuthGuard` on InflationIndexes controller for ADMIN-only mutation endpoints.
-
-3. **`LedgerAccessGuard`** — Registered globally as `APP_GUARD` in `AppModule`. Resolves ledger ownership from route context, verifying the user is ledger owner or collaborator.
-   - **Skip logic**: If no `@LedgerFrom()` metadata AND no `:ledgerId` route param → skips silently (returns `true`).
+2. **`LedgerAccessGuard`** *(global `APP_GUARD`)* — Resolves ledger ownership from route context, verifying the user is ledger owner or collaborator.
+   - **Skip logic**: If no `@LedgerFrom()` metadata AND no `:ledgerId` route param → skips silently (returns `true`). Also skips `@Public()` routes since `AuthGuard` already skipped.
    - **Resolution via `@LedgerFrom(type, param?)`** (param defaults to `'id'`): Loads entity by ID from route param, derives `ledgerId`. Supported types: `ledger`, `group`, `category`, `debtOwner`, `collaboration`, `transaction`, `debt`.
    - **Resolution via route param**: Falls back to `request.params.ledgerId` for ledger-scoped routes like `POST ledgers/:ledgerId/expenses`.
    - Attaches the loaded `ledger` to `request.ledger` for downstream use.
 
+3. **`RolesGuard`** *(controller-level)* — Checks `@Roles()` decorator metadata. If no `@Roles()` present, passes through. Applied via `@UseGuards(RolesGuard)` on InflationIndexes and CategoryTemplates controllers for ADMIN-only endpoints.
+
 ### Custom Decorators
 
+- **`@Public()`** — Marks route/controller as public; `AuthGuard` skips token validation. Applied to `AuthController` and `UsersController`.
 - **`@Roles(...roles: Role[])`** — Sets metadata for `RolesGuard`
 - **`@LedgerFrom(type, param?)`** — Sets metadata for `LedgerAccessGuard` to resolve ledger from entity
 - **`@GetUser(field?)`** — Extracts user or specific field from JWT payload on `request.user`
@@ -159,14 +160,14 @@ Three guards, applied in order:
 
 All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is configurable.
 
-### Auth (`/auth`) — No auth required
+### Auth (`/auth`) — `@Public()`
 
 | Method | Route | Body | Response | Description |
 |--------|-------|------|----------|-------------|
 | POST | `/auth/signup` | `CreateUserDto` | `{ message, user: UserResponseDto }` | Register new user |
 | POST | `/auth/signin` | `{ email, password }` | `{ token, user }` | Login, get JWT |
 
-### Users (`/users`) — No auth guard (public)
+### Users (`/users`) — `@Public()`
 
 | Method | Route | Body | Response | Description |
 |--------|-------|------|----------|-------------|
@@ -179,54 +180,54 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 **CreateUserDto**: `{ name, email, birthDate, rawPassword, repeatPassword, gender }`
 **UserResponseDto**: `{ id, name, email, birthDate, gender, role, createdAt, updatedAt, isActive }`
 
-### Ledgers (`/ledgers`) — AuthGuard + LedgerAccessGuard on `:id` routes
+### Ledgers (`/ledgers`) — LedgerAccessGuard on `:id` routes
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| POST | `/` | `CreateLedgerDto` | `LedgerDashboardResponseDto` | Auth | Create ledger |
-| GET | `/` | `?skip&take` | `LedgerDashboardResponseDto[]` | Auth | List user's ledgers |
-| GET | `/:id` | — | `LedgerResponseDto` | Auth+Ledger | Full ledger detail |
-| PATCH | `/:id` | `UpdateLedgerDto` | `LedgerDashboardResponseDto` | Auth+Ledger | Update ledger |
-| DELETE | `/:id` | — | 200 | Auth+Ledger | Delete ledger |
+| POST | `/` | `CreateLedgerDto` | `LedgerDashboardResponseDto` | — | Create ledger |
+| GET | `/` | `?skip&take` | `LedgerDashboardResponseDto[]` | — | List user's ledgers |
+| GET | `/:id` | — | `LedgerResponseDto` | Ledger | Full ledger detail |
+| PATCH | `/:id` | `UpdateLedgerDto` | `LedgerDashboardResponseDto` | Ledger | Update ledger |
+| DELETE | `/:id` | — | 200 | Ledger | Delete ledger |
 
 **CreateLedgerDto**: `{ name, currency, description? }`
 **LedgerResponseDto** (detail): `{ id, name, description, currency, ownerId, collaborations[], groups[], transactions[], paymentMethods[], categories[], createdAt, updatedAt }`
 
-### Collaborations (`/collaborations`) — AuthGuard + LedgerAccessGuard on ledger-scoped and mutation routes
+### Collaborations (`/collaborations`) — LedgerAccessGuard on ledger-scoped and mutation routes
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| POST | `/ledgers/:ledgerId` | `{ email }` | `CollaborationResponseDto` | Auth+Ledger | Invite collaborator |
-| GET | `/users/:userId` | — | `CollaborationResponseDto[]` | Auth | List user's collaborations |
-| GET | `/ledgers/:ledgerId` | — | `CollaborationResponseDto[]` | Auth+Ledger | List ledger's collaborations |
-| GET | `/:id` | — | `CollaborationResponseDto` | Auth | Get collaboration |
-| PATCH | `/:id` | `UpdateCollaborationDto` | `CollaborationResponseDto` | Auth+Ledger | Update collaboration |
-| DELETE | `/:id` | — | 204 | Auth+Ledger | Soft-delete collaboration |
-| PATCH | `/:id/reactivate` | — | 204 | Auth+Ledger | Reactivate collaboration |
+| POST | `/ledgers/:ledgerId` | `{ email }` | `CollaborationResponseDto` | Ledger | Invite collaborator |
+| GET | `/users/:userId` | — | `CollaborationResponseDto[]` | — | List user's collaborations |
+| GET | `/ledgers/:ledgerId` | — | `CollaborationResponseDto[]` | Ledger | List ledger's collaborations |
+| GET | `/:id` | — | `CollaborationResponseDto` | — | Get collaboration |
+| PATCH | `/:id` | `UpdateCollaborationDto` | `CollaborationResponseDto` | Ledger | Update collaboration |
+| DELETE | `/:id` | — | 204 | Ledger | Soft-delete collaboration |
+| PATCH | `/:id/reactivate` | — | 204 | Ledger | Reactivate collaboration |
 
-### Categories (`/categories`) — AuthGuard + LedgerAccessGuard on ledger-scoped and `:id` routes
-
-| Method | Route | Body | Response | Guard | Description |
-|--------|-------|------|----------|-------|-------------|
-| POST | `/ledgers/:ledgerId` | `CreateCategoryDto` | `CategoryResponseDto` | Auth+Ledger | Create category |
-| GET | `/ledgers/:ledgerId` | — | `CategoryResponseDto[]` | Auth+Ledger | List ledger categories |
-| GET | `/ledgers/:ledgerId/search?name=` | — | `CategoryResponseDto` | Auth+Ledger | Find by name |
-| GET | `/:id` | — | `CategoryResponseDto` | Auth+Ledger | Get by ID |
-| PATCH | `/:id` | `UpdateCategoryDto` | `CategoryResponseDto` | Auth+Ledger | Update |
-| DELETE | `/:id` | — | 204 | Auth+Ledger | Delete |
-
-### Groups (`/groups`) — AuthGuard + LedgerAccessGuard on ledger-scoped and `:id` routes
+### Categories (`/categories`) — LedgerAccessGuard on ledger-scoped and `:id` routes
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| POST | `/ledgers/:ledgerId` | `CreateGroupDto` | `GroupResponseDto` | Auth+Ledger | Create group |
-| GET | `/ledgers/:ledgerId` | — | `GroupResponseDto[]` | Auth+Ledger | List ledger groups |
-| GET | `/ledgers/:ledgerId/search?name=` | — | `GroupResponseDto` | Auth+Ledger | Find by name |
-| GET | `/:id` | — | `GroupResponseDto` | Auth+Ledger | Get by ID |
-| PATCH | `/:id` | `UpdateGroupDto` | `GroupResponseDto` | Auth+Ledger | Update |
-| DELETE | `/:id` | — | 204 | Auth+Ledger | Delete |
+| POST | `/ledgers/:ledgerId` | `CreateCategoryDto` | `CategoryResponseDto` | Ledger | Create category |
+| GET | `/ledgers/:ledgerId` | — | `CategoryResponseDto[]` | Ledger | List ledger categories |
+| GET | `/ledgers/:ledgerId/search?name=` | — | `CategoryResponseDto` | Ledger | Find by name |
+| GET | `/:id` | — | `CategoryResponseDto` | Ledger | Get by ID |
+| PATCH | `/:id` | `UpdateCategoryDto` | `CategoryResponseDto` | Ledger | Update |
+| DELETE | `/:id` | — | 204 | Ledger | Delete |
 
-### Payment Methods (`/payment-methods`) — AuthGuard, user-scoped
+### Groups (`/groups`) — LedgerAccessGuard on ledger-scoped and `:id` routes
+
+| Method | Route | Body | Response | Guard | Description |
+|--------|-------|------|----------|-------|-------------|
+| POST | `/ledgers/:ledgerId` | `CreateGroupDto` | `GroupResponseDto` | Ledger | Create group |
+| GET | `/ledgers/:ledgerId` | — | `GroupResponseDto[]` | Ledger | List ledger groups |
+| GET | `/ledgers/:ledgerId/search?name=` | — | `GroupResponseDto` | Ledger | Find by name |
+| GET | `/:id` | — | `GroupResponseDto` | Ledger | Get by ID |
+| PATCH | `/:id` | `UpdateGroupDto` | `GroupResponseDto` | Ledger | Update |
+| DELETE | `/:id` | — | 204 | Ledger | Delete |
+
+### Payment Methods (`/payment-methods`) — user-scoped
 
 | Method | Route | Body | Response | Description |
 |--------|-------|------|----------|-------------|
@@ -240,18 +241,18 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 
 **CreatePaymentMethodDto**: `{ name, type (PaymentType), brand? (CreditBrand), color?, icon?, currency? (Currency) }`
 
-### Transactions (`/transactions`) — AuthGuard + LedgerAccessGuard
+### Transactions (`/transactions`) — LedgerAccessGuard
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| POST | `/ledgers/:ledgerId/expenses` | `CreateTransactionDto` | `TransactionResponseDto` or `[]` | Auth+Ledger | Create expense |
-| POST | `/ledgers/:ledgerId/incomes` | `CreateIncomeDto` | `TransactionResponseDto` | Auth+Ledger | Create income |
-| GET | `/ledgers/:ledgerId` | `?skip&take` | `TransactionResponseDto[]` | Auth+Ledger | List by ledger |
-| GET | `/:id` | — | `TransactionResponseDto` | Auth+Ledger | Get by ID |
-| PATCH | `/:id/breakdown` | `AssignBreakDownDto` | `TransactionResponseDto` | Auth+Ledger | Assign W1-W4 |
-| PATCH | `/:id/category/:targetId` | — | `TransactionResponseDto` | Auth+Ledger | Change category |
-| PATCH | `/:id/group/:targetId` | — | `TransactionResponseDto` | Auth+Ledger | Change group |
-| PATCH | `/:id/payment-method/:targetId` | — | `TransactionResponseDto` | Auth+Ledger | Change payment method |
+| POST | `/ledgers/:ledgerId/expenses` | `CreateTransactionDto` | `TransactionResponseDto` or `[]` | Ledger | Create expense |
+| POST | `/ledgers/:ledgerId/incomes` | `CreateIncomeDto` | `TransactionResponseDto` | Ledger | Create income |
+| GET | `/ledgers/:ledgerId` | `?skip&take` | `TransactionResponseDto[]` | Ledger | List by ledger |
+| GET | `/:id` | — | `TransactionResponseDto` | Ledger | Get by ID |
+| PATCH | `/:id/breakdown` | `AssignBreakDownDto` | `TransactionResponseDto` | Ledger | Assign W1-W4 |
+| PATCH | `/:id/category/:targetId` | — | `TransactionResponseDto` | Ledger | Change category |
+| PATCH | `/:id/group/:targetId` | — | `TransactionResponseDto` | Ledger | Change group |
+| PATCH | `/:id/payment-method/:targetId` | — | `TransactionResponseDto` | Ledger | Change payment method |
 
 **CreateTransactionDto** (expense):
 ```
@@ -275,35 +276,35 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
   transactionsBreakDown?: TransactionBreakDownResponseDto[] }
 ```
 
-### Transactions Break Down (`/transactions-break-down`) — AuthGuard only
+### Transactions Break Down (`/transactions-break-down`)
 
 | Method | Route | Body | Response | Description |
 |--------|-------|------|----------|-------------|
 | PATCH | `/:id` | `UpdateTransactionBreakDownDto` | `TransactionBreakDownResponseDto` | Update single breakdown |
 
-### Debt Owners (`/debt-owners`) — AuthGuard + LedgerAccessGuard
+### Debt Owners (`/debt-owners`) — LedgerAccessGuard
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| POST | `/ledgers/:ledgerId` | `CreateDebtOwnerDto` | `DebtOwnerResponseDto` | Auth+Ledger | Create |
-| GET | `/ledgers/:ledgerId` | `?skip&take` | `DebtOwnerResponseDto[]` | Auth+Ledger | List by ledger |
-| GET | `/:id` | — | `DebtOwnerResponseDto` | Auth+Ledger | Get by ID |
-| GET | `/ledgers/:ledgerId/by-name/:name` | — | `DebtOwnerResponseDto` | Auth+Ledger | Find by name |
-| PATCH | `/:id` | `UpdateDebtOwnerDto` | `DebtOwnerResponseDto` | Auth+Ledger | Update |
-| DELETE | `/:id` | — | 204 | Auth+Ledger | Delete |
+| POST | `/ledgers/:ledgerId` | `CreateDebtOwnerDto` | `DebtOwnerResponseDto` | Ledger | Create |
+| GET | `/ledgers/:ledgerId` | `?skip&take` | `DebtOwnerResponseDto[]` | Ledger | List by ledger |
+| GET | `/:id` | — | `DebtOwnerResponseDto` | Ledger | Get by ID |
+| GET | `/ledgers/:ledgerId/by-name/:name` | — | `DebtOwnerResponseDto` | Ledger | Find by name |
+| PATCH | `/:id` | `UpdateDebtOwnerDto` | `DebtOwnerResponseDto` | Ledger | Update |
+| DELETE | `/:id` | — | 204 | Ledger | Delete |
 
-### Debts (`/debts`) — AuthGuard + LedgerAccessGuard
+### Debts (`/debts`) — LedgerAccessGuard
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| GET | `/owner/:ownerId` | `?skip&take&orderBy` | `DebtResponseDto[]` | Auth+Ledger | List by owner |
-| GET | `/:id` | — | `DebtResponseDto` | Auth+Ledger | Get by ID |
-| PATCH | `/:id` | `UpdateDebtDto` | `DebtResponseDto` | Auth+Ledger | Update |
-| DELETE | `/:id` | — | 204 | Auth+Ledger | Delete |
+| GET | `/owner/:ownerId` | `?skip&take&orderBy` | `DebtResponseDto[]` | Ledger | List by owner |
+| GET | `/:id` | — | `DebtResponseDto` | Ledger | Get by ID |
+| PATCH | `/:id` | `UpdateDebtDto` | `DebtResponseDto` | Ledger | Update |
+| DELETE | `/:id` | — | 204 | Ledger | Delete |
 
 **DebtResponseDto**: `{ id, period, description? }`
 
-### Inflation Indexes (`/inflation-indexes`) — AuthGuard + RolesGuard
+### Inflation Indexes (`/inflation-indexes`) — RolesGuard
 
 | Method | Route | Body | Response | Roles | Description |
 |--------|-------|------|----------|-------|-------------|
@@ -347,8 +348,9 @@ A single transaction can have multiple debt owners (e.g., splitting a dinner bil
 ### Inflation Adjustment
 
 When a transaction is created, the service looks up the `InflationIndex` for the payment month and currency. If found:
-- `cpiIndex` = the CPI value (base 100 = Jan 2024)
-- `realMonthlyAmount` = `(monthlyAmount / cpiIndex) * 100` — inflation-adjusted to constant Jan 2024 pesos
+- `cpiIndex` = the CPI value for the payment month
+- `realMonthlyAmount` = `(monthlyAmount / cpiIndex) * baseCpiIndex` — inflation-adjusted to constant pesos at ledger creation time
+- `baseCpiIndex` is stored on the `Ledger` at creation time (from the CPI of the current month, defaults to 100)
 
 ### Status Lifecycle
 
@@ -356,6 +358,14 @@ Transaction status is auto-determined from `transactionDate`:
 - `CURRENT` — same month as today
 - `CLOSED` — past month
 - `FUTURE` — future month (projected installments)
+
+### Date Parsing
+
+Two date formats are used in the API:
+- **`transactionDate`**: `YYYY-MM-DD` string → parsed via `parseDate()` into a UTC Date
+- **`paymentMonthValue`**: `YYYY-MM` string → parsed via `parsePeriod()` into the first of the month (UTC)
+
+When `paymentMonthValue` is omitted, it defaults to the `transactionDate` parsed as a Date. Both `createExpense` and `createIncome` parse string inputs into proper `Date` objects before passing to Prisma.
 
 ### Multi-Currency
 
@@ -367,10 +377,10 @@ Transactions can be in a different currency than the ledger. When `currency !== 
 
 ```
 src/
-├── decorators/         # @GetUser, @LedgerFrom, @Roles
+├── decorators/         # @GetUser, @LedgerFrom, @Public, @Roles
 ├── guards/             # AuthGuard, RolesGuard, LedgerAccessGuard
 ├── helpers/
-│   ├── dates.ts        # parsePeriod, checkCurrentMonth, isPastMonth, increaseMonthByInstallment
+│   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment
 │   ├── errors.ts       # handleP2025, handleLedgerFromRequest
 │   └── mappers/        # Entity → DTO mappers (transaction, debt, debt-owner, ledger, user, etc.)
 ├── modules/
@@ -389,12 +399,13 @@ src/
 │   ├── transactions-break-down/ # Weekly breakdown update
 │   └── users/          # CRUD with soft-delete
 ├── prisma/             # PrismaService, PrismaModule (global)
+├── seed/               # Database seeders (users, ledgers, categories, groups, payment-methods, debt-owners, inflation-indexes)
 ├── services/
 │   └── data-collection/ # DataCollectionService
 ├── types/
 │   ├── entities/       # Prisma typed includes (TransactionDetailView, DebtOwnerWithTransactions, etc.)
 │   └── payload/        # JwtPayload interface
-└── app.module.ts       # Root module, APP_GUARD registration
+└── app.module.ts       # Root module, APP_GUARD registration (AuthGuard → LedgerAccessGuard)
 ```
 
 ---

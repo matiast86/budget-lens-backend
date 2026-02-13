@@ -1,163 +1,182 @@
-# 🧭 BudgetLens – MVP Roadmap
+# BudgetLens -- Roadmap
 
-> **Goal:** Build a finance app that helps users plan and project expenses ahead, adjusting for inflation and real purchasing power.
-
----
-
-## ⚙️ Phase 1 – Project Foundation & Setup
-**🎯 Goal:** Establish a solid technical foundation for both backend and frontend.
-
-### 🔧 Backend
-- [ ] Initialize NestJS project (`budgetlens-backend`)
-- [ ] Integrate Prisma with PostgreSQL
-- [ ] Configure `.env`, Dockerfile, and Docker Compose
-- [ ] Create base modules (`AppModule`, `PrismaModule`)
-- [ ] Add global exception filters and validation pipes
-- [ ] Add Swagger for API documentation
-
-### 🎨 Frontend
-- [ ] Initialize Vite + React project (`budgetlens-frontend`)
-- [ ] Configure TailwindCSS
-- [ ] Set up basic routing (`react-router-dom`)
-- [ ] Add `.env` with `VITE_API_URL`
-- [ ] Create base layout (navbar, container, footer placeholders)
-
-✅ **Deliverable:**  
-Both servers run locally and display basic hello-world messages.
+> **Goal:** Backend REST API for personal expense tracking in the Argentine economic context, replicating and extending an Excel-based finance tracker.
 
 ---
 
-## 💵 Phase 2 – Core Entities & CRUD
-**🎯 Goal:** Create and manage basic user and expense data.
+## Phase 1 -- Project Foundation (Completed)
 
-### 🔧 Backend
-- [ ] Create `User` and `Expense` models in Prisma
-  - `User`: id, email, password, name
-  - `Expense`: id, description, category, amount, date, userId
-- [ ] Implement CRUD for `expenses` module
-- [ ] Establish 1→many relation between `User` and `Expense`
-- [ ] Seed database with sample data
-- [ ] Expose endpoints:  
-  - `GET /expenses`  
-  - `POST /expenses`  
-  - `PATCH /expenses/:id`  
-  - `DELETE /expenses/:id`
+**Goal:** Establish the technical foundation and core infrastructure.
 
-### 🎨 Frontend
-- [ ] Create Expense List page (table view)
-- [ ] Create “Add Expense” form
-- [ ] Connect to API using Axios
-- [ ] Display and update expenses dynamically
-- [ ] Apply Tailwind for basic styling
-
-✅ **Deliverable:**  
-Users can view, add, edit, and delete expenses.
+- [x] Initialize NestJS 11 project with TypeScript
+- [x] Integrate Prisma 7 with PostgreSQL (`@prisma/adapter-pg`)
+- [x] Configure global validation pipes (`class-validator` + `class-transformer`)
+- [x] Set up Swagger API documentation (`@nestjs/swagger`)
+- [x] Create base modules (`AppModule`, `PrismaModule`, `SharedModule`)
+- [x] Configure environment variables (`DATABASE_URL`, `JWT_SECRET`, `PORT`)
 
 ---
 
-## 📈 Phase 3 – Projections & Inflation
-**🎯 Goal:** Introduce core BudgetLens feature — expense projections.
+## Phase 2 -- Authentication & User Management (Completed)
 
-### 🔧 Backend
-- [ ] Add `ProjectionService`
-  - Calculate inflation-adjusted expense projections
-  - Support parameters: months, inflationRate
-- [ ] Create endpoint:  
-  `GET /projections?months=6&inflationRate=0.05`
+**Goal:** Secure multi-user access with JWT-based authentication.
 
-### 🎨 Frontend
-- [ ] Create “Projections” page
-- [ ] Form inputs for months and inflation rate
-- [ ] Display charts (Recharts or Chart.js)
-  - X-axis: months  
-  - Y-axis: projected total expense
-- [ ] Display both **nominal** and **real** values
-
-✅ **Deliverable:**  
-Users can simulate future spending adjusted for inflation.
+- [x] Implement User model with UUID primary key, soft-delete support
+- [x] User CRUD endpoints (`/users`) with `class-validator` DTOs
+- [x] Password hashing with `bcrypt`
+- [x] JWT authentication (`@nestjs/jwt`) -- sign up and sign in
+- [x] Global `AuthGuard` registered as `APP_GUARD` with `@Public()` opt-out
+- [x] Role-based access control (`ADMIN`/`USER`) with `RolesGuard`
+- [x] Custom decorators: `@GetUser()`, `@Public()`, `@Roles()`
 
 ---
 
-## 💳 Phase 4 – Contracts & Installments
-**🎯 Goal:** Model recurring or installment-based expenses.
+## Phase 3 -- Ledger System & Collaboration (Completed)
 
-### 🔧 Backend
-- [ ] Add `Contract` model:
-  - `id`, `name`, `type`, `startDate`, `endDate`, `frequency`
-  - `amount`, `adjustmentRate`
-- [ ] Link expenses to contracts
-- [ ] Generate projections based on contract type
+**Goal:** Core budget book structure with multi-user sharing.
 
-### 🎨 Frontend
-- [ ] Add “Contracts” page (list + create form)
-- [ ] Integrate with projections view
-- [ ] Display recurring payments visually
-
-✅ **Deliverable:**  
-App can plan and visualize recurring payments (e.g., rent, subscriptions).
+- [x] Ledger model with currency, base CPI index, and owner relationship
+- [x] Ledger CRUD endpoints with dashboard and detail response DTOs
+- [x] Global `LedgerAccessGuard` -- ownership and collaboration verification
+- [x] `@LedgerFrom()` decorator for resolving ledger from entity lookups
+- [x] Collaboration model -- invite users to shared ledger access
+- [x] Collaboration CRUD with soft-delete and reactivation
 
 ---
 
-## 📊 Phase 5 – Dashboard & Reports
-**🎯 Goal:** Provide data insights and visual clarity.
+## Phase 4 -- Categories, Groups & Payment Methods (Completed)
 
-### 🔧 Backend
-- [ ] Add `ReportsService` for:
-  - Monthly summaries (planned vs actual)
-  - Annual totals
-  - Category breakdowns
+**Goal:** Organization entities for multi-dimensional transaction categorization.
 
-### 🎨 Frontend
-- [ ] Create Dashboard page:
-  - Summary cards (total expenses, projections, differences)
-  - Line chart (monthly trend)
-  - Pie chart (category distribution)
-- [ ] Show “real value vs nominal value” comparison
-
-✅ **Deliverable:**  
-Users can visualize their finances clearly and compare trends.
+- [x] Category model (ledger-scoped) with CRUD and search-by-name
+- [x] CategoryTemplate model (admin-managed, global scope) for seeding new ledgers
+- [x] Auto-seed categories from templates on ledger creation
+- [x] Group model (ledger-scoped) with CRUD and search-by-name
+- [x] PaymentMethod model (user-scoped) with type, brand, currency, color, icon
+- [x] M:N relationship between Ledger and PaymentMethod via `LedgerPaymentMethod`
+- [x] Filter payment methods by type and name
 
 ---
 
-## 🔐 Phase 6 – Authentication & User Management
-**🎯 Goal:** Add multi-user support and secure data access.
+## Phase 5 -- Transaction Engine (Completed)
 
-- [ ] Implement Auth0 or NestJS JWT-based authentication
-- [ ] Secure routes and endpoints
-- [ ] Restrict data by user (each user sees only their data)
-- [ ] Add login/register flows in frontend
+**Goal:** Full expense and income tracking with Argentine economic context features.
 
-✅ **Deliverable:**  
-Secure multi-user access with personal expense tracking.
-
----
-
-## 🚀 Phase 7 – Deployment & CI/CD
-**🎯 Goal:** Make BudgetLens available online.
-
-### 🧰 Backend
-- [ ] Deploy to Render / Railway (NestJS + PostgreSQL)
-- [ ] Set environment variables for production
-- [ ] Run migrations automatically on deploy
-
-### 🎨 Frontend
-- [ ] Deploy to Vercel / Netlify
-- [ ] Set `VITE_API_URL` to production API
-- [ ] Test live integration
-
-### 🔄 CI/CD
-- [ ] Set up GitHub Actions (optional)
-  - Linting, testing, and deploy pipeline
-
-✅ **Final Deliverable:**  
-**BudgetLens MVP is live** – users can add expenses, simulate inflation-adjusted projections, and visualize data through an installable PWA.
+- [x] Transaction model with status lifecycle (CURRENT/CLOSED/FUTURE)
+- [x] Expense creation with three automatic paths:
+  - [x] Current-month merge (non-credit-card, matching category/group/payment method)
+  - [x] Installment flow (N transactions with incremented payment months)
+  - [x] Single transaction (default)
+- [x] Income creation with currency and inflation handling
+- [x] Weekly cashflow breakdown (W1-W4) per transaction
+- [x] Breakdown assignment endpoint for updating weekly amounts
+- [x] Relation change endpoints (category, group, payment method)
+- [x] Multi-currency support with exchange rate conversion
+- [x] Inflation adjustment via CPI index lookup (`realMonthlyAmount` calculation)
+- [x] Date parsing: `YYYY-MM-DD` for transaction dates, `YYYY-MM` for payment months
 
 ---
 
-## 🧱 Future Enhancements (Post-MVP Ideas)
-- [ ] Add shared expenses or “expense owner” feature
-- [ ] Add currency conversion or exchange rate adjustments
-- [ ] Offline mode with service worker caching
-- [ ] Notifications (e.g., rent increase reminders)
-- [ ] Export reports (PDF/CSV)
+## Phase 6 -- Debt Tracking (Completed)
+
+**Goal:** Inter-person debt ledger for shared expenses.
+
+- [x] DebtOwner model (ledger-scoped) with CRUD and search-by-name
+- [x] Debt model with period and description
+- [x] TransactionDebtOwner pivot with amount, direction (OWED_TO_ME/OWED_BY_ME)
+- [x] Atomic debt creation during transaction creation (nested Prisma create)
+- [x] Multi-person debt splits per transaction
+- [x] Debt duplication per installment in installment flow
+- [x] Debt CRUD endpoints (read, update, delete)
+
+---
+
+## Phase 7 -- Inflation Indexes (Completed)
+
+**Goal:** CPI data management for inflation-adjusted tracking.
+
+- [x] InflationIndex model with currency, period, monthly rate, CPI index
+- [x] Admin-only CRUD endpoints (via `RolesGuard`)
+- [x] Query filtering by currency, period range, and sort order
+- [x] Integration with transaction creation for automatic real-amount calculation
+- [x] Base CPI index stored on ledger at creation time
+
+---
+
+## Phase 8 -- Database Seeders (Completed)
+
+**Goal:** Reproducible development data for testing.
+
+- [x] User seeder (default user with known credentials)
+- [x] Ledger seeder with category auto-seeding from templates
+- [x] Group seeder (Hogar, Transporte, Salud, Entretenimiento, Educacion)
+- [x] Payment method seeder
+- [x] Debt owner seeder
+- [x] Inflation index seeder
+- [x] Unified seed runner (`npx tsx src/seed/index.ts`)
+
+---
+
+## Phase 9 -- Testing (Planned)
+
+**Goal:** Comprehensive test coverage for business logic and API endpoints.
+
+- [ ] Unit tests for transaction service (merge, installment, single creation)
+- [ ] Unit tests for date parsing helpers (`parseDate`, `parsePeriod`, `checkCurrentMonth`)
+- [ ] Unit tests for inflation calculation logic
+- [ ] Unit tests for entity-to-DTO mappers
+- [ ] Integration tests for auth flow (signup, signin, JWT validation)
+- [ ] Integration tests for ledger access guard (owner, collaborator, unauthorized)
+- [ ] E2E tests for expense creation (all three paths)
+- [ ] E2E tests for income creation
+- [ ] E2E tests for debt assignment flow
+
+---
+
+## Phase 10 -- Query & Reporting Endpoints (Planned)
+
+**Goal:** Analytical endpoints that replicate the Excel pivot tables and summaries.
+
+- [ ] Monthly cashflow summary (income vs expense by payment method)
+- [ ] Category evolution report (nominal + real amounts, % of total, by month)
+- [ ] Transaction filtering (by status, entry type, category, group, payment method, date range)
+- [ ] Debt summary by owner (total owed to me, total owed by me, net balance)
+- [ ] Ledger monthly totals (aggregate expenses and incomes per period)
+- [ ] Pagination improvements (cursor-based for large datasets)
+
+---
+
+## Phase 11 -- Transaction Management Enhancements (Planned)
+
+**Goal:** Complete CRUD operations and batch workflows.
+
+- [ ] Transaction update endpoint (edit amount, comment, date)
+- [ ] Transaction delete endpoint (cascade to breakdowns and debt records)
+- [ ] Bulk transaction creation (batch import from external sources)
+- [ ] Transaction duplication (copy to next month for recurring non-installment expenses)
+- [ ] Mark transactions as paid/unpaid
+- [ ] Recalculate inflation when CPI data is updated retroactively
+
+---
+
+## Phase 12 -- Deployment & CI/CD (Planned)
+
+**Goal:** Production-ready deployment with automated pipelines.
+
+- [ ] Deploy backend to Render / Railway (NestJS + PostgreSQL)
+- [ ] Configure production environment variables
+- [ ] Run Prisma migrations automatically on deploy
+- [ ] GitHub Actions CI pipeline (lint, type-check, test)
+- [ ] Automated deployment on merge to main
+
+---
+
+## Future Enhancements (Post-MVP)
+
+- [ ] Frontend application (React/Next.js) consuming the API
+- [ ] Export reports (CSV/PDF) for transactions and summaries
+- [ ] Scheduled jobs for automatic status transitions (FUTURE to CURRENT to CLOSED)
+- [ ] Notification system for upcoming installment payments
 - [ ] Multi-language support (English / Spanish)
+- [ ] Audit log for transaction modifications
+- [ ] Budget targets per category with variance tracking
