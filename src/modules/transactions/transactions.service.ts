@@ -17,6 +17,7 @@ import {
   parseDate,
   parsePeriod,
 } from 'src/helpers/dates';
+import { transactionBdToResponseDto } from 'src/helpers/mappers/transaction-bd.mapper';
 import {
   transactionArrayToArrayDto,
   transactionToResponseDto,
@@ -26,6 +27,7 @@ import { InflationIndexesService } from '../inflation-indexes/inflation-indexes.
 import { LedgersService } from '../ledgers/ledgers.service';
 import { PaymentMethodsService } from '../payment-methods/payment-methods.service';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
+import { TransactionBreakDownResponseDto } from '../transactions-break-down/dto/transaction-break-down-response.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -44,14 +46,19 @@ export class TransactionsService {
   ) {}
 
   // Helper: create 4 weekly breakdown rows for a new transaction.
-  async createTransactionsBD(transactionId: number): Promise<void> {
+  async createTransactionsBD(
+    transactionId: number,
+  ): Promise<TransactionBreakDownResponseDto[]> {
+    const tbdArray: TransactionBreakDownResponseDto[] = [];
     for (let weekNumber = 1; weekNumber <= 4; weekNumber++) {
-      await this.transactionBDService.create({
+      const tbd = await this.transactionBDService.create({
         weekNumber,
         amount: 0,
         transactionId,
       });
+      tbdArray.push(transactionBdToResponseDto(tbd));
     }
+    return tbdArray;
   }
 
   // Helper: record a debt entry tied to the transaction context.
@@ -121,6 +128,9 @@ export class TransactionsService {
       exchangeRate,
     );
     const monthlyAmount = totalAmount / installments;
+    console.log(`Installments: ${installments}`);
+    console.log(`Monthly amount: ${monthlyAmount}`);
+
     // If debt is provided, create a debt entry per installment.
     if (debtAssigmentsDto.length != 0) {
       for (let installment = 1; installment <= installments; installment++) {
@@ -196,8 +206,11 @@ export class TransactionsService {
         group: { connect: { id: groupId } },
         paymentMethod: { connect: { id: paymentMethodId } },
       });
-      await this.createTransactionsBD(newTransaction.id);
-      newTransactions.push(transactionToResponseDto(newTransaction));
+      const tbd = await this.createTransactionsBD(newTransaction.id);
+      const response = transactionToResponseDto(newTransaction);
+      response.transactionsBreakDown = tbd;
+
+      newTransactions.push(response);
     }
     return newTransactions;
   }
@@ -331,7 +344,11 @@ export class TransactionsService {
       ? parsePeriod(paymentMonthValue)
       : parseDate(transactionDate);
     // If installments are provided, delegate to the installment flow.
-    if (installments)
+    console.log(`Checking installments... ${installments}`);
+
+    if (installments) {
+      console.log(`Heading to installments`);
+
       return await this.handleInstallments(
         installments,
         totalProvidedAmount,
@@ -349,6 +366,7 @@ export class TransactionsService {
         exchangeRate,
         comment,
       );
+    }
 
     const totalAmount = this.assignTotalAmount(
       totalProvidedAmount,
@@ -415,8 +433,10 @@ export class TransactionsService {
       group: { connect: { id: groupId } },
       paymentMethod: { connect: { id: paymentMethodId } },
     });
-    await this.createTransactionsBD(newTransaction.id);
-    return transactionToResponseDto(newTransaction);
+    const tbd = await this.createTransactionsBD(newTransaction.id);
+    const response = transactionToResponseDto(newTransaction);
+    response.transactionsBreakDown = tbd;
+    return response;
   }
 
   async createIncome(
@@ -477,8 +497,10 @@ export class TransactionsService {
       paymentMethod: { connect: { id: paymentMethodId } },
     });
 
-    await this.createTransactionsBD(newTransaction.id);
-    return transactionToResponseDto(newTransaction);
+    const tbd = await this.createTransactionsBD(newTransaction.id);
+    const response = transactionToResponseDto(newTransaction);
+    response.transactionsBreakDown = tbd;
+    return response;
   }
 
   async assignBreakDown(
