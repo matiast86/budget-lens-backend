@@ -58,3 +58,11 @@ export const increaseMonthByInstallment = (
   const formatedDate = dayjs(date).startOf('month');
   return formatedDate.add(installment - 1, 'month').toDate();
 };
+
+export const getWeekofMonth = (date: Date): number => {
+  const day = dayjs.utc(date).date();
+  if (day <= 7) return 1;
+  if (day <= 14) return 2;
+  if (day <= 21) return 3;
+  return 4;
+};

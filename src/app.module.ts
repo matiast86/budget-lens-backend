@@ -18,6 +18,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { CategoryTemplatesModule } from './modules/category-templates/category-templates.module';
 import { DataCollectionService } from './services/data-collection/data-collection.service';
 import { InflationIndexesModule } from './modules/inflation-indexes/inflation-indexes.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { InflationIndexesModule } from './modules/inflation-indexes/inflation-in
     AuthModule,
     CategoryTemplatesModule,
     InflationIndexesModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [
