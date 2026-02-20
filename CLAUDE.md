@@ -380,8 +380,9 @@ src/
 ├── decorators/         # @GetUser, @LedgerFrom, @Public, @Roles
 ├── guards/             # AuthGuard, RolesGuard, LedgerAccessGuard
 ├── helpers/
-│   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment
+│   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment, getWeekofMonth
 │   ├── errors.ts       # handleP2025, handleLedgerFromRequest
+│   ├── reports.ts      # Pure report helpers: extractPeriods, getPlannedEffectiveAmount, getBalanceEffectiveAmount, createCashflowPeriodAmount, extractPaymentMethods, extractCategories, extractGroups
 │   └── mappers/        # Entity → DTO mappers (transaction, debt, debt-owner, ledger, user, etc.)
 ├── modules/
 │   ├── auth/           # AuthController, AuthService (signup/signin)
@@ -394,16 +395,22 @@ src/
 │   ├── inflation-indexes/ # CRUD, admin-managed CPI data
 │   ├── ledgers/        # CRUD, owner-scoped
 │   ├── payment-methods/# CRUD, user-scoped (linked to ledgers via M:N)
+│   ├── reports/        # Analytical reports (cashflow, debt, category evolution)
+│   │   ├── reports.controller.ts  # GET /reports/ledgers/:ledgerId/{cashflow,debts,category-evolution}
+│   │   ├── reports.service.ts     # Orchestrates report assembly from repository data
+│   │   ├── reports.repository.ts  # Injects PrismaService directly; optimised select queries
+│   │   └── dto/
+│   │       ├── cashflow-report.dto.ts         # Root + cashflow/ subfolder (meta, entry-type, payment-method, category, group, period-amount)
+│   │       ├── debt-report.dto.ts             # Root + debt/ subfolder (meta, owner, detail, period-amount)
+│   │       └── category-evolution-report.dto.ts # Root + category-evolution/ subfolder (meta, row, period, total-period)
 │   ├── shared/         # Global module: ConfigModule, JwtModule
 │   ├── transactions/   # Complex CRUD with installments, merging, debt assignments
 │   ├── transactions-break-down/ # Weekly breakdown update
 │   └── users/          # CRUD with soft-delete
 ├── prisma/             # PrismaService, PrismaModule (global)
 ├── seed/               # Database seeders (users, ledgers, categories, groups, payment-methods, debt-owners, inflation-indexes)
-├── services/
-│   └── data-collection/ # DataCollectionService
 ├── types/
-│   ├── entities/       # Prisma typed includes (TransactionDetailView, DebtOwnerWithTransactions, etc.)
+│   ├── entities/       # Prisma typed includes: TransactionDetailView, TransactionBreakDownsAndGroups, TransactionReport (select shape for reports)
 │   └── payload/        # JwtPayload interface
 └── app.module.ts       # Root module, APP_GUARD registration (AuthGuard → LedgerAccessGuard)
 ```

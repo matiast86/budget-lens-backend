@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Currency } from 'prisma/generated/prisma/client';
+import { Currency } from 'prisma/generated/prisma/enums';
 
 export class CashflowMetaDto {
   @ApiProperty({
@@ -21,6 +21,13 @@ export class CashflowMetaDto {
   currentWeek: number;
 
   @ApiProperty({
+    enum: Currency,
+    description: 'Currency of all amounts in this report.',
+    example: Currency.ARS,
+  })
+  currency: Currency;
+
+  @ApiProperty({
     description: 'Start of the requested period range (YYYY-MM).',
     example: '2025-09',
   })
@@ -31,13 +38,6 @@ export class CashflowMetaDto {
     example: '2026-01',
   })
   to: string;
-
-  @ApiProperty({
-    enum: Currency,
-    description: 'Currency of all amounts in this report.',
-    example: Currency.ARS,
-  })
-  currency: Currency;
 
   constructor(partial: Partial<CashflowMetaDto>) {
     Object.assign(this, partial);

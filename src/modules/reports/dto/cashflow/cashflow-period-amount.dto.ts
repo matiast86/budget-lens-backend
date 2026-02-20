@@ -12,7 +12,7 @@ export class CashflowPeriodAmountDto {
       'Sum of monthlyAmount for all matching transactions in this period. Represents the full planned amount at the start of the month.',
     example: 150000,
   })
-  inicialMes: number;
+  planned: number;
 
   @ApiProperty({
     description:

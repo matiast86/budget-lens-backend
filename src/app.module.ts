@@ -16,7 +16,6 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoryTemplatesModule } from './modules/category-templates/category-templates.module';
-import { DataCollectionService } from './services/data-collection/data-collection.service';
 import { InflationIndexesModule } from './modules/inflation-indexes/inflation-indexes.module';
 import { ReportsModule } from './modules/reports/reports.module';
 
@@ -41,7 +40,6 @@ import { ReportsModule } from './modules/reports/reports.module';
   ],
   controllers: [],
   providers: [
-    DataCollectionService,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: LedgerAccessGuard },
   ],
