@@ -16,5 +16,5 @@ export const transactionBdToResponseDto = (
 export const transactionBdArrayToArrayDto = (
   tbdArray: TransactionBreakDown[],
 ): TransactionBreakDownResponseDto[] => {
-  return tbdArray ? tbdArray.map(transactionBdToResponseDto) : [];
+  return tbdArray.map(transactionBdToResponseDto);
 };

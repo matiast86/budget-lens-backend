@@ -77,5 +77,5 @@ export const transactionToResponseDto = (
 export const transactionArrayToArrayDto = (
   transactionArray: TransactionDetailView[],
 ): TransactionResponseDto[] => {
-  return transactionArray ? transactionArray.map(transactionToResponseDto) : [];
+  return transactionArray.map(transactionToResponseDto);
 };

@@ -78,5 +78,5 @@ export const ledgerToDashboardView = (
 export const ledgerDashboardArrayToArrayDto = (
   entityArray: LedgerDashboardView[],
 ): LedgerDashboardResponseDto[] => {
-  return entityArray ? entityArray.map(ledgerToDashboardView) : [];
+  return entityArray.map(ledgerToDashboardView);
 };

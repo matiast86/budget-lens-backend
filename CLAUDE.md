@@ -314,6 +314,32 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 | PATCH | `/:id` | `UpdateInflationIndexDto` | `InflationIndexResponseDto` | ADMIN | Update |
 | DELETE | `/:id` | — | 204 | ADMIN | Delete |
 
+### Reports (`/reports`) — LedgerAccessGuard (ledgerId from route param)
+
+All report endpoints accept `?from=YYYY-MM&to=YYYY-MM` query params.
+
+| Method | Route | Response | Description |
+|--------|-------|----------|-------------|
+| GET | `/ledgers/:ledgerId/cashflow` | `CashflowReportDto` | Income + expense pivot by payment method → category → group per period |
+| GET | `/ledgers/:ledgerId/debts` | `DebtReportDto` | Debt totals by owner + description per period |
+| GET | `/ledgers/:ledgerId/category-evolution` | `CategoryEvolutionReportDto` | Nominal + real amounts + share per category per period |
+
+**CategoryEvolutionReportDto**:
+```
+{
+  meta: { periods: string[], from: string, to: string, currency: Currency }
+  categories: [{ id, name, amounts: [{ period, nominalAmount, realAmount: number|null, share: 0-1 }] }]
+  totalPerPeriod: [{ period, totalNominalAmount, totalRealAmount: number|null }]
+}
+```
+
+Business rules for category evolution:
+- Only `EXPENSE` transactions included (no income)
+- `OWED_TO_ME` debt amounts subtracted from `monthlyAmount` before accumulation (effective cost)
+- `realAmount` / `totalRealAmount` = `null` for a period if **any** transaction in that period lacks `cpiIndex`
+- `share` = `nominalAmount / totalNominalAmount` for the period (0 if total is 0)
+- Categories with zero transactions in the range still appear with empty amounts arrays
+
 ---
 
 ## Key Business Logic
@@ -383,9 +409,14 @@ src/
 │   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment, getWeekofMonth
 │   ├── errors.ts       # handleP2025, handleLedgerFromRequest
 │   ├── reports.ts      # Pure report helpers — all use Map-based O(M) single-pass accumulation:
-│   │                   #   Cashflow: extractPeriodsFromTransactions, getPlannedEffectiveAmount,
-│   │                   #             getBalanceEffectiveAmount(tx, currentWeek), createCashflowPeriodAmount(periods, txs, currentWeek)
-│   │                   #   Debt:     extractPeriodsFromOwners, extractDebtPeriodAmount(txs, periods)
+│   │                   #   Cashflow:           extractPeriodsFromTransactions, getPlannedEffectiveAmount,
+│   │                   #                       getBalanceEffectiveAmount(tx, currentWeek), createCashflowPeriodAmount(periods, txs, currentWeek)
+│   │                   #   Debt:               extractPeriodsFromOwners, extractDebtPeriodAmount(txs, periods)
+│   │                   #   Category Evolution: extractPeriodsFromCategories(txs: TransactionByCategoryReport[])
+│   │                   #                       extractCategoryTotalPeriodDto(txs, periods, baseCpiIndex) → CategoryTotalPeriodDto[]
+│   │                   #                         subtracts OWED_TO_ME debt amounts; realAmount=null if any tx lacks cpiIndex
+│   │                   #                       extractCategoryEvolutionPeriodAmount(txs, periods, totalPerPeriod, baseCpiIndex) → CategoryEvolutionPeriodDto[]
+│   │                   #                         same debt/real logic; share = nominalAmount / periodTotal (0 if total is 0)
 │   └── mappers/        # Entity → DTO mappers (transaction, debt, debt-owner, ledger, user, etc.)
 ├── modules/
 │   ├── auth/           # AuthController, AuthService (signup/signin)
@@ -401,18 +432,26 @@ src/
 │   ├── reports/        # Analytical reports (cashflow, debt, category evolution)
 │   │   ├── reports.controller.ts  # GET /reports/ledgers/:ledgerId/{cashflow,debts,category-evolution}
 │   │   ├── reports.service.ts     # Orchestrates report assembly from repository data
-│   │   │                          #   Cashflow: currentWeek computed once, passed through call chain;
-│   │   │                          #             groups transactions via Map<pm,Map<cat,Map<grp,[]>>> in one pass
-│   │   │                          #             before iterating hierarchy — no filter calls at any level
+│   │   │                          #   Cashflow:           currentWeek computed once, passed through call chain;
+│   │   │                          #                       groups via Map<pm,Map<cat,Map<grp,[]>>> in one pass; no filter at any level
+│   │   │                          #   getCategoryEvolution: flattens category.transactions for period extraction + totals;
+│   │   │                          #                         loops per category → extractCategoryEvolutionPeriodAmount;
+│   │   │                          #                         returns CategoryEvolutionReportDto { meta, categories[], totalPerPeriod[] }
 │   │   ├── reports.repository.ts  # Injects PrismaService directly; optimised select queries
-│   │   │                          #   getCashflowData: paymentMonth filter, select only needed fields
-│   │   │                          #   getDebtData: queries debtOwner, filters transactions by debt.period
-│   │   │                          #   getCategoryEvolutionData: queries category (pre-grouped), filters
-│   │   │                          #     transactions by paymentMonth + EXPENSE, includes OWED_TO_ME debtOwners
+│   │   │                          #   getCashflowData:          paymentMonth filter, select only needed fields
+│   │   │                          #   getDebtData:              queries debtOwner, filters transactions by debt.period
+│   │   │                          #   getCategoryEvolutionData: parallel — ledger(currency+baseCpiIndex) + category.findMany;
+│   │   │                          #                             category pre-groups txs; filter: paymentMonth range + EXPENSE only;
+│   │   │                          #                             debtOwners filter: OWED_TO_ME + period range; returns {categories, currency, baseCpiIndex}
 │   │   └── dto/
-│   │       ├── cashflow-report.dto.ts         # Root + cashflow/ subfolder (meta, entry-type, payment-method, category, group, period-amount)
-│   │       ├── debt-report.dto.ts             # Root + debt/ subfolder (meta, owner, detail, period-amount)
-│   │       └── category-evolution-report.dto.ts # Root + category-evolution/ subfolder (meta, row, period, total-period)
+│   │       ├── cashflow-report.dto.ts              # Root + cashflow/ subfolder (meta, entry-type, payment-method, category, group, period-amount)
+│   │       ├── debt-report.dto.ts                  # Root + debt/ subfolder (meta, owner, detail, period-amount)
+│   │       └── category-evolution-report.dto.ts    # Root DTO: { meta: CategoryEvolutionMetaDto, categories: CategoryEvolutionRowDto[], totalPerPeriod: CategoryTotalPeriodDto[] }
+│   │           # category-evolution/ subfolder:
+│   │           #   category-evolution-meta.dto.ts     { periods: string[], from, to, currency }
+│   │           #   category-evolution-row.dto.ts      { id, name, amounts: CategoryEvolutionPeriodDto[] }
+│   │           #   category-evolution-period.dto.ts   { period, nominalAmount, realAmount (null if no CPI data), share (0-1) }
+│   │           #   category-total-period.dto.ts       { period, totalNominalAmount, totalRealAmount (null if no CPI data) }
 │   ├── shared/         # Global module: ConfigModule, JwtModule
 │   ├── transactions/   # Complex CRUD with installments, merging, debt assignments
 │   ├── transactions-break-down/ # Weekly breakdown update
@@ -421,7 +460,9 @@ src/
 ├── seed/               # Database seeders (users, ledgers, categories, groups, payment-methods, debt-owners, inflation-indexes)
 ├── types/
 │   ├── entities/       # Prisma typed includes:
-│   │                   #   transaction.types.ts: TransactionDetailView, TransactionBreakDownsAndGroups, TransactionReport
+│   │                   #   transaction.types.ts: TransactionDetailView, TransactionBreakDownsAndGroups, TransactionReport,
+│   │                   #                         TransactionCategoryReport (select: paymentMonth, monthlyAmount, cpiIndex, debtOwners{amount}),
+│   │                   #                         TransactionByCategoryReport (Prisma.TransactionGetPayload<typeof TransactionCategoryReport.detail>)
 │   │                   #   debt.types.ts: DebtOwnersReport (DebtOwner with nested TransactionDebtOwner + Debt)
 │   │                   #   transaction-debt-owner.ts: TransactionDebtOwnerWithBasicDebt
 │   └── payload/        # JwtPayload interface

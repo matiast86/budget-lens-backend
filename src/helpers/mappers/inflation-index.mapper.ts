@@ -20,5 +20,5 @@ export const inflationIndexToResponseDto = (
 export const inflationIndexArrayToArrayDto = (
   entityArray: InflationIndex[],
 ): InflationIndexResponseDto[] => {
-  return entityArray ? entityArray.map(inflationIndexToResponseDto) : [];
+  return entityArray.map(inflationIndexToResponseDto);
 };

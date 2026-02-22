@@ -17,5 +17,5 @@ export const categoryToResponseDto = (
 export const categoryArraytoArrayDto = (
   entityArray: Category[],
 ): CategoryResponseDto[] => {
-  return entityArray ? entityArray.map((c) => categoryToResponseDto(c)) : [];
+  return entityArray.map((c) => categoryToResponseDto(c));
 };

@@ -11,7 +11,5 @@ export const collaborationToResponseDto = (
 export const collaborationArrayToArrayDto = (
   collaborationArray: Collaboration[],
 ) => {
-  return collaborationArray
-    ? collaborationArray.map(collaborationToResponseDto)
-    : [];
+  return collaborationArray.map(collaborationToResponseDto);
 };

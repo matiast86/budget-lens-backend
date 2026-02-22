@@ -21,5 +21,5 @@ export const paymentMethodToResponseDto = (
 export const paymentMethodArrayToArrayDto = (
   entityArray: PaymentMethod[],
 ): PaymentMethodResponseDto[] => {
-  return entityArray ? entityArray.map(paymentMethodToResponseDto) : [];
+  return entityArray.map(paymentMethodToResponseDto);
 };

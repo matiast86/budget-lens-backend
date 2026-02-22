@@ -35,22 +35,11 @@ export class CategoriesRepository {
 
   async update(id: number, data: CategoryUpdateInput): Promise<Category> {
     return await this.prisma.category
-      .update({ where: { id }, data })
+      .update({
+        where: { id },
+        data: { ...data, template: { disconnect: true } },
+      })
       .catch(handleP2025(`Category with id: ${id} not found.`));
-  }
-
-  async removeTemplate(
-    id: number,
-    templateId: number,
-    data: CategoryUpdateInput,
-  ): Promise<Category> {
-    return await this.prisma.category.update({
-      where: { id },
-      data: {
-        ...data,
-        template: { disconnect: { id: templateId } },
-      },
-    });
   }
 
   async delete(id: number): Promise<void> {

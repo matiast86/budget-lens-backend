@@ -52,20 +52,6 @@ export class CategoriesService {
     id: number,
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
-    const category = await this.categoriesRepository.findById(id);
-    if (!category)
-      throw new NotFoundException(`Category with id: ${id} not found.`);
-    // remove template and update category as a new one
-    if (category.templateId) {
-      const updated = await this.categoriesRepository.removeTemplate(
-        id,
-        category.templateId,
-        { ...updateCategoryDto },
-      );
-
-      return categoryToResponseDto(updated);
-    }
-
     const updated = await this.categoriesRepository.update(id, {
       ...updateCategoryDto,
     });
