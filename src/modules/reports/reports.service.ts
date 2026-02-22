@@ -58,7 +58,6 @@ export class ReportsService {
     const cashflowPaymentMethods: CashflowPaymentMethodDto[] = [];
 
     for (const [pmName, catMap] of grouped) {
-      // flatten nested maps to get this PM's transactions — no filter on full list
       const pmTxs = [...catMap.values()].flatMap((gm) =>
         [...gm.values()].flat(),
       );
@@ -218,10 +217,10 @@ export class ReportsService {
     return new DebtReportDto({ meta, owners, grandTotal });
   }
 
-  getCategoryEvolution(
-    _ledgerId: number,
-    _from: string,
-    _to: string,
+  async getCategoryEvolution(
+    ledgerId: number,
+    from: string,
+    to: string,
   ): Promise<CategoryEvolutionReportDto> {
     return Promise.reject(new Error('Not implemented'));
   }

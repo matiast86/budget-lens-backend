@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DebtDirection, EntryType } from 'prisma/generated/prisma/enums';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TransactionReport } from 'src/types/entities/transaction.types';
 
@@ -83,6 +84,39 @@ export class ReportsRepository {
   // ---------------------------------------------------------------------------
 
   async getCategoryEvolutionData(ledgerId: number, from: Date, to: Date) {
-    // TODO: implement
+    const [ledger, categories] = await Promise.all([
+      this.prisma.ledger.findUniqueOrThrow({
+        where: { id: ledgerId },
+        select: { currency: true },
+      }),
+      this.prisma.category.findMany({
+        where: { ledgerId },
+        select: {
+          id: true,
+          name: true,
+          transactions: {
+            where: {
+              paymentMonth: { gte: from, lte: to },
+              entryType: EntryType.EXPENSE,
+            },
+            select: {
+              paymentMonth: true,
+              monthlyAmount: true,
+              realMonthlyAmount: true,
+              debtOwners: {
+                where: {
+                  direction: DebtDirection.OWED_TO_ME,
+                  debt: { period: { gte: from, lte: to } },
+                },
+                select: {
+                  amount: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+    return { categories, currency: ledger.currency };
   }
 }

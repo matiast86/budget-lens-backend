@@ -69,7 +69,7 @@ TransactionDebtOwner (composite PK: transactionId + debtOwnerId)
 └── 1:1 → Debt
 
 Debt (auto-increment PK)
-├── period, description?
+├── period, description (NOT NULL)
 └── 1:1 ← TransactionDebtOwner
 
 DebtOwner (auto-increment PK)
@@ -302,7 +302,7 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 | PATCH | `/:id` | `UpdateDebtDto` | `DebtResponseDto` | Ledger | Update |
 | DELETE | `/:id` | — | 204 | Ledger | Delete |
 
-**DebtResponseDto**: `{ id, period, description? }`
+**DebtResponseDto**: `{ id, period, description }`
 
 ### Inflation Indexes (`/inflation-indexes`) — RolesGuard
 
@@ -382,7 +382,10 @@ src/
 ├── helpers/
 │   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment, getWeekofMonth
 │   ├── errors.ts       # handleP2025, handleLedgerFromRequest
-│   ├── reports.ts      # Pure report helpers: extractPeriods, getPlannedEffectiveAmount, getBalanceEffectiveAmount, createCashflowPeriodAmount, extractPaymentMethods, extractCategories, extractGroups
+│   ├── reports.ts      # Pure report helpers — all use Map-based O(M) single-pass accumulation:
+│   │                   #   Cashflow: extractPeriodsFromTransactions, getPlannedEffectiveAmount,
+│   │                   #             getBalanceEffectiveAmount(tx, currentWeek), createCashflowPeriodAmount(periods, txs, currentWeek)
+│   │                   #   Debt:     extractPeriodsFromOwners, extractDebtPeriodAmount(txs, periods)
 │   └── mappers/        # Entity → DTO mappers (transaction, debt, debt-owner, ledger, user, etc.)
 ├── modules/
 │   ├── auth/           # AuthController, AuthService (signup/signin)
@@ -398,7 +401,14 @@ src/
 │   ├── reports/        # Analytical reports (cashflow, debt, category evolution)
 │   │   ├── reports.controller.ts  # GET /reports/ledgers/:ledgerId/{cashflow,debts,category-evolution}
 │   │   ├── reports.service.ts     # Orchestrates report assembly from repository data
+│   │   │                          #   Cashflow: currentWeek computed once, passed through call chain;
+│   │   │                          #             groups transactions via Map<pm,Map<cat,Map<grp,[]>>> in one pass
+│   │   │                          #             before iterating hierarchy — no filter calls at any level
 │   │   ├── reports.repository.ts  # Injects PrismaService directly; optimised select queries
+│   │   │                          #   getCashflowData: paymentMonth filter, select only needed fields
+│   │   │                          #   getDebtData: queries debtOwner, filters transactions by debt.period
+│   │   │                          #   getCategoryEvolutionData: queries category (pre-grouped), filters
+│   │   │                          #     transactions by paymentMonth + EXPENSE, includes OWED_TO_ME debtOwners
 │   │   └── dto/
 │   │       ├── cashflow-report.dto.ts         # Root + cashflow/ subfolder (meta, entry-type, payment-method, category, group, period-amount)
 │   │       ├── debt-report.dto.ts             # Root + debt/ subfolder (meta, owner, detail, period-amount)
@@ -410,7 +420,10 @@ src/
 ├── prisma/             # PrismaService, PrismaModule (global)
 ├── seed/               # Database seeders (users, ledgers, categories, groups, payment-methods, debt-owners, inflation-indexes)
 ├── types/
-│   ├── entities/       # Prisma typed includes: TransactionDetailView, TransactionBreakDownsAndGroups, TransactionReport (select shape for reports)
+│   ├── entities/       # Prisma typed includes:
+│   │                   #   transaction.types.ts: TransactionDetailView, TransactionBreakDownsAndGroups, TransactionReport
+│   │                   #   debt.types.ts: DebtOwnersReport (DebtOwner with nested TransactionDebtOwner + Debt)
+│   │                   #   transaction-debt-owner.ts: TransactionDebtOwnerWithBasicDebt
 │   └── payload/        # JwtPayload interface
 └── app.module.ts       # Root module, APP_GUARD registration (AuthGuard → LedgerAccessGuard)
 ```

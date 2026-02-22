@@ -46,31 +46,24 @@ export const createCashflowPeriodAmount = (
   periods: string[],
   transactions: TransactionReport[],
   currentWeek: number,
-) => {
-  const periodAmount: CashflowPeriodAmountDto[] = [];
-  for (const period of periods) {
-    const periodTransactions = transactions.filter(
-      (t) => periodMapper(t.paymentMonth) === period,
-    );
-    const planned: number = periodTransactions.reduce(
-      (sum, t) => sum + getPlannedEffectiveAmount(t),
-      0,
-    );
+): CashflowPeriodAmountDto[] => {
+  const byPeriod = new Map<string, { planned: number; balance: number }>(
+    periods.map((p) => [p, { planned: 0, balance: 0 }]),
+  );
 
-    const balance: number = periodTransactions.reduce(
-      (sum, t) => sum + getBalanceEffectiveAmount(t, currentWeek),
-      0,
-    );
-
-    const amount: CashflowPeriodAmountDto = new CashflowPeriodAmountDto({
-      period,
-      planned,
-      balance,
-    });
-
-    periodAmount.push(amount);
+  for (const t of transactions) {
+    const p = periodMapper(t.paymentMonth);
+    const entry = byPeriod.get(p);
+    if (entry) {
+      entry.planned += getPlannedEffectiveAmount(t);
+      entry.balance += getBalanceEffectiveAmount(t, currentWeek);
+    }
   }
-  return periodAmount;
+
+  return periods.map((p) => {
+    const { planned, balance } = byPeriod.get(p)!;
+    return new CashflowPeriodAmountDto({ period: p, planned, balance });
+  });
 };
 
 export const extractPeriodsFromOwners = (
