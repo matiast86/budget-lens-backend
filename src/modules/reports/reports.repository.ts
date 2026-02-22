@@ -87,7 +87,7 @@ export class ReportsRepository {
     const [ledger, categories] = await Promise.all([
       this.prisma.ledger.findUniqueOrThrow({
         where: { id: ledgerId },
-        select: { currency: true },
+        select: { currency: true, baseCpiIndex: true },
       }),
       this.prisma.category.findMany({
         where: { ledgerId },
@@ -102,7 +102,7 @@ export class ReportsRepository {
             select: {
               paymentMonth: true,
               monthlyAmount: true,
-              realMonthlyAmount: true,
+              cpiIndex: true,
               debtOwners: {
                 where: {
                   direction: DebtDirection.OWED_TO_ME,
@@ -117,6 +117,10 @@ export class ReportsRepository {
         },
       }),
     ]);
-    return { categories, currency: ledger.currency };
+    return {
+      categories,
+      currency: ledger.currency,
+      baseCpiIndex: ledger.baseCpiIndex,
+    };
   }
 }

@@ -3,7 +3,10 @@ import { EntryType } from 'prisma/generated/prisma/enums';
 import { getWeekofMonth, parsePeriod } from 'src/helpers/dates';
 import {
   createCashflowPeriodAmount,
+  extractCategoryEvolutionPeriodAmount,
+  extractCategoryTotalPeriodDto,
   extractDebtPeriodAmount,
+  extractPeriodsFromCategories,
   extractPeriodsFromOwners,
   extractPeriodsFromTransactions,
 } from 'src/helpers/reports';
@@ -15,6 +18,8 @@ import { CashflowGroupDto } from './dto/cashflow/cashflow-group.dto';
 import { CashflowMetaDto } from './dto/cashflow/cashflow-meta.dto';
 import { CashflowPaymentMethodDto } from './dto/cashflow/cashflow-payment-method.dto';
 import { CategoryEvolutionReportDto } from './dto/category-evolution-report.dto';
+import { CategoryEvolutionMetaDto } from './dto/category-evolution/category-evolution-meta.dto';
+import { CategoryEvolutionRowDto } from './dto/category-evolution/category-evolution-row.dto';
 import { DebtReportDto } from './dto/debt-report.dto';
 import { DebtDetailDto } from './dto/debt/debt-detail.dto';
 import { DebtOwnerReportDto } from './dto/debt/debt-owner-report.dto';
@@ -219,9 +224,53 @@ export class ReportsService {
 
   async getCategoryEvolution(
     ledgerId: number,
-    from: string,
-    to: string,
+    fromString: string,
+    toString: string,
   ): Promise<CategoryEvolutionReportDto> {
-    return Promise.reject(new Error('Not implemented'));
+    const from = parsePeriod(fromString);
+    const to = parsePeriod(toString);
+
+    const response = await this.reportsRepository.getCategoryEvolutionData(
+      ledgerId,
+      from,
+      to,
+    );
+    const currency = response.currency;
+    const baseCpiIndex = Number(response.baseCpiIndex);
+    const categoriesData = response.categories;
+    const transactions = categoriesData.flatMap((c) => c.transactions);
+
+    //get category evolution meta data
+    const periods: string[] = extractPeriodsFromCategories(transactions);
+    const meta = new CategoryEvolutionMetaDto({
+      periods,
+      from: fromString,
+      to: toString,
+      currency,
+    });
+
+    //getTotalAmounts
+    const totalPerPeriod = extractCategoryTotalPeriodDto(
+      transactions,
+      periods,
+      baseCpiIndex,
+    );
+
+    //get categories report information
+    const categories: CategoryEvolutionRowDto[] = [];
+    for (const c of categoriesData) {
+      const id = c.id;
+      const name = c.name;
+
+      const categoryTransactions = c.transactions;
+      const amounts = extractCategoryEvolutionPeriodAmount(
+        categoryTransactions,
+        periods,
+        totalPerPeriod,
+        baseCpiIndex,
+      );
+      categories.push(new CategoryEvolutionRowDto({ id, name, amounts }));
+    }
+    return new CategoryEvolutionReportDto({ meta, categories, totalPerPeriod });
   }
 }

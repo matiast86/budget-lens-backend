@@ -54,6 +54,21 @@ export const TransactionReportIncludes = {
   },
 };
 
+export const TransactionCategoryReport = {
+  detail: {
+    select: {
+      paymentMonth: true,
+      monthlyAmount: true,
+      cpiIndex: true,
+      debtOwners: {
+        select: {
+          amount: true,
+        },
+      },
+    },
+  },
+};
+
 /* ==========================================================================
    VIEW TYPES
    ========================================================================== */
@@ -68,6 +83,10 @@ export type TransactionBreakDownsAndGroups = Prisma.TransactionGetPayload<
 
 export type TransactionReport = Prisma.TransactionGetPayload<
   typeof TransactionReportIncludes.detail
+>;
+
+export type TransactionByCategoryReport = Prisma.TransactionGetPayload<
+  typeof TransactionCategoryReport.detail
 >;
 
 export type TransactionRelation = 'category' | 'group' | 'paymentMethod';

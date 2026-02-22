@@ -1,9 +1,14 @@
 import { DebtDirection } from 'prisma/generated/prisma/enums';
 import { CashflowPeriodAmountDto } from 'src/modules/reports/dto/cashflow/cashflow-period-amount.dto';
+import { CategoryEvolutionPeriodDto } from 'src/modules/reports/dto/category-evolution/category-evolution-period.dto';
+import { CategoryTotalPeriodDto } from 'src/modules/reports/dto/category-evolution/category-total-period.dto';
 import { DebtPeriodAmountDto } from 'src/modules/reports/dto/debt/debt-period-amount.dto';
 import { DebtOwnersReport } from 'src/types/entities/debt.types';
 import { TransactionDebtOwnerWithBasicDebt } from 'src/types/entities/transaction-debt-owner';
-import { TransactionReport } from 'src/types/entities/transaction.types';
+import {
+  TransactionByCategoryReport,
+  TransactionReport,
+} from 'src/types/entities/transaction.types';
 import { periodMapper } from './dates';
 
 export const extractPeriodsFromTransactions = (
@@ -100,4 +105,96 @@ export const extractDebtPeriodAmount = (
     (p) =>
       new DebtPeriodAmountDto({ period: p, amount: amountByPeriod.get(p)! }),
   );
+};
+
+export const extractPeriodsFromCategories = (
+  transactions: TransactionByCategoryReport[],
+): string[] => {
+  const seen = new Set<string>();
+  for (const t of transactions) {
+    seen.add(periodMapper(t.paymentMonth));
+  }
+  return Array.from(seen).sort();
+};
+
+export const extractCategoryTotalPeriodDto = (
+  transactions: TransactionByCategoryReport[],
+  periods: string[],
+  baseCpiIndex: number,
+): CategoryTotalPeriodDto[] => {
+  const byPeriod = new Map<
+    string,
+    { totalNominalAmount: number; totalRealAmount: number | null }
+  >(periods.map((p) => [p, { totalNominalAmount: 0, totalRealAmount: 0 }]));
+  for (const t of transactions) {
+    const p = periodMapper(t.paymentMonth);
+    const entry = byPeriod.get(p);
+    const debtAmount =
+      t.debtOwners.length > 0
+        ? t.debtOwners.reduce((sum, d) => sum + Number(d.amount), 0)
+        : 0;
+    const totalNominal = Number(t.monthlyAmount) - debtAmount;
+    const totalReal = t.cpiIndex
+      ? (totalNominal / Number(t.cpiIndex)) * baseCpiIndex
+      : null;
+    if (entry) {
+      entry.totalNominalAmount += totalNominal;
+      entry.totalRealAmount =
+        totalReal !== null && entry.totalRealAmount !== null
+          ? (entry.totalRealAmount += totalReal)
+          : (entry.totalRealAmount = null);
+    }
+  }
+  return periods.map((p) => {
+    const { totalNominalAmount, totalRealAmount } = byPeriod.get(p)!;
+    return new CategoryTotalPeriodDto({
+      period: p,
+      totalNominalAmount,
+      totalRealAmount,
+    });
+  });
+};
+
+export const extractCategoryEvolutionPeriodAmount = (
+  transactions: TransactionByCategoryReport[],
+  periods: string[],
+  totalPerPeriod: CategoryTotalPeriodDto[],
+  baseCpiIndex: number,
+): CategoryEvolutionPeriodDto[] => {
+  const byPeriod = new Map<
+    string,
+    { nominalAmount: number; realAmount: number | null; share: number }
+  >(periods.map((p) => [p, { nominalAmount: 0, realAmount: 0, share: 0 }]));
+  for (const t of transactions) {
+    const p = periodMapper(t.paymentMonth);
+
+    const entry = byPeriod.get(p);
+    const debtAmount =
+      t.debtOwners.length > 0
+        ? t.debtOwners.reduce((sum, d) => sum + Number(d.amount), 0)
+        : 0;
+    const totalNominal = Number(t.monthlyAmount) - debtAmount;
+    const totalReal = t.cpiIndex
+      ? (totalNominal / Number(t.cpiIndex)) * baseCpiIndex
+      : null;
+    if (entry) {
+      entry.nominalAmount += totalNominal;
+      entry.realAmount =
+        totalReal !== null && entry.realAmount !== null
+          ? (entry.realAmount += totalReal)
+          : (entry.realAmount = null);
+    }
+  }
+  return periods.map((p) => {
+    const { nominalAmount, realAmount } = byPeriod.get(p)!;
+    const periodTotal = totalPerPeriod.find(
+      (tp) => tp.period === p,
+    )!.totalNominalAmount;
+    return new CategoryEvolutionPeriodDto({
+      period: p,
+      nominalAmount,
+      realAmount,
+      share: periodTotal !== 0 ? nominalAmount / periodTotal : 0,
+    });
+  });
 };
