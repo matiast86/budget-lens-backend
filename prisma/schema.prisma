@@ -104,7 +104,7 @@ model LedgerPaymentMethod {
 model Debt {
   id           Int         @id @default(autoincrement())
   period       DateTime
-  description  String?
+  description  String
   transactionDebtOwner TransactionDebtOwner? @relation("DebtToTransactionDebtOwner")
 
   @@map("debts")

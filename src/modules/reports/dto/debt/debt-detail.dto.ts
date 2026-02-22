@@ -7,7 +7,7 @@ export class DebtDetailDto {
       'User-defined label for this debt. Multiple independent debt records sharing the same description (e.g. a recurring phone bill) are grouped into a single row. Null if no description was provided.',
     example: 'Celular Sofi',
   })
-  description: string | null;
+  description: string;
 
   @ApiProperty({
     type: () => DebtPeriodAmountDto,

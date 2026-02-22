@@ -1,9 +1,14 @@
 import { DebtDirection } from 'prisma/generated/prisma/enums';
 import { CashflowPeriodAmountDto } from 'src/modules/reports/dto/cashflow/cashflow-period-amount.dto';
+import { DebtPeriodAmountDto } from 'src/modules/reports/dto/debt/debt-period-amount.dto';
+import { DebtOwnersReport } from 'src/types/entities/debt.types';
+import { TransactionDebtOwnerWithBasicDebt } from 'src/types/entities/transaction-debt-owner';
 import { TransactionReport } from 'src/types/entities/transaction.types';
-import { getWeekofMonth, periodMapper } from './dates';
+import { periodMapper } from './dates';
 
-export const extractPeriods = (transactions: TransactionReport[]): string[] => {
+export const extractPeriodsFromTransactions = (
+  transactions: TransactionReport[],
+): string[] => {
   const seen = new Set<string>();
   for (const t of transactions) {
     seen.add(periodMapper(t.paymentMonth));
@@ -22,9 +27,10 @@ export const getPlannedEffectiveAmount = (
 
 export const getBalanceEffectiveAmount = (
   transaction: TransactionReport,
+  currentWeek: number,
 ): number => {
   const bd = transaction.transactionsBreakDown;
-  const currentWeek = getWeekofMonth(new Date());
+
   const owedToMe: number = transaction.debtOwners
     .filter((o) => o.direction === DebtDirection.OWED_TO_ME)
     .reduce((sum, o) => sum + Number(o.amount), 0);
@@ -39,6 +45,7 @@ export const getBalanceEffectiveAmount = (
 export const createCashflowPeriodAmount = (
   periods: string[],
   transactions: TransactionReport[],
+  currentWeek: number,
 ) => {
   const periodAmount: CashflowPeriodAmountDto[] = [];
   for (const period of periods) {
@@ -51,7 +58,7 @@ export const createCashflowPeriodAmount = (
     );
 
     const balance: number = periodTransactions.reduce(
-      (sum, t) => sum + getBalanceEffectiveAmount(t),
+      (sum, t) => sum + getBalanceEffectiveAmount(t, currentWeek),
       0,
     );
 
@@ -66,32 +73,38 @@ export const createCashflowPeriodAmount = (
   return periodAmount;
 };
 
-export const extractPaymentMethods = (
-  transactions: TransactionReport[],
+export const extractPeriodsFromOwners = (
+  owners: DebtOwnersReport[],
 ): string[] => {
-  const paymentMethods = new Set<string>();
-  for (const t of transactions) {
-    paymentMethods.add(t.paymentMethod.name);
+  const seen = new Set<string>();
+  for (const o of owners) {
+    const transactions = o.transactions;
+    for (const t of transactions) {
+      seen.add(periodMapper(t.debt.period));
+    }
   }
-
-  return Array.from(paymentMethods);
+  return Array.from(seen).sort();
 };
 
-export const extractCategories = (
-  transactions: TransactionReport[],
-): string[] => {
-  const categories = new Set<string>();
+export const extractDebtPeriodAmount = (
+  transactions: TransactionDebtOwnerWithBasicDebt[],
+  periods: string[],
+): DebtPeriodAmountDto[] => {
+  const amountByPeriod = new Map<string, number>(periods.map((p) => [p, 0]));
+
   for (const t of transactions) {
-    categories.add(t.category.name);
+    const p = periodMapper(t.debt.period);
+    if (amountByPeriod.has(p)) {
+      const signed =
+        t.direction === DebtDirection.OWED_TO_ME
+          ? Number(t.amount)
+          : -Number(t.amount);
+      amountByPeriod.set(p, amountByPeriod.get(p)! + signed);
+    }
   }
 
-  return Array.from(categories);
-};
-
-export const extractGroups = (transactions: TransactionReport[]): string[] => {
-  const groups = new Set<string>();
-  for (const t of transactions) {
-    groups.add(t.group.name);
-  }
-  return Array.from(groups);
+  return periods.map(
+    (p) =>
+      new DebtPeriodAmountDto({ period: p, amount: amountByPeriod.get(p)! }),
+  );
 };

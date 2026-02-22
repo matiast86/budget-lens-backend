@@ -170,7 +170,7 @@ export type DebtGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type DebtGroupByOutputType = {
   id: number
   period: Date
-  description: string | null
+  description: string
   _count: DebtCountAggregateOutputType | null
   _avg: DebtAvgAggregateOutputType | null
   _sum: DebtSumAggregateOutputType | null
@@ -199,14 +199,14 @@ export type DebtWhereInput = {
   NOT?: Prisma.DebtWhereInput | Prisma.DebtWhereInput[]
   id?: Prisma.IntFilter<"Debt"> | number
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  description?: Prisma.StringNullableFilter<"Debt"> | string | null
+  description?: Prisma.StringFilter<"Debt"> | string
   transactionDebtOwner?: Prisma.XOR<Prisma.TransactionDebtOwnerNullableScalarRelationFilter, Prisma.TransactionDebtOwnerWhereInput> | null
 }
 
 export type DebtOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   period?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
   transactionDebtOwner?: Prisma.TransactionDebtOwnerOrderByWithRelationInput
 }
 
@@ -216,14 +216,14 @@ export type DebtWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DebtWhereInput[]
   NOT?: Prisma.DebtWhereInput | Prisma.DebtWhereInput[]
   period?: Prisma.DateTimeFilter<"Debt"> | Date | string
-  description?: Prisma.StringNullableFilter<"Debt"> | string | null
+  description?: Prisma.StringFilter<"Debt"> | string
   transactionDebtOwner?: Prisma.XOR<Prisma.TransactionDebtOwnerNullableScalarRelationFilter, Prisma.TransactionDebtOwnerWhereInput> | null
 }, "id">
 
 export type DebtOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   period?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
   _count?: Prisma.DebtCountOrderByAggregateInput
   _avg?: Prisma.DebtAvgOrderByAggregateInput
   _max?: Prisma.DebtMaxOrderByAggregateInput
@@ -237,50 +237,50 @@ export type DebtScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DebtScalarWhereWithAggregatesInput | Prisma.DebtScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Debt"> | number
   period?: Prisma.DateTimeWithAggregatesFilter<"Debt"> | Date | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"Debt"> | string | null
+  description?: Prisma.StringWithAggregatesFilter<"Debt"> | string
 }
 
 export type DebtCreateInput = {
   period: Date | string
-  description?: string | null
+  description: string
   transactionDebtOwner?: Prisma.TransactionDebtOwnerCreateNestedOneWithoutDebtInput
 }
 
 export type DebtUncheckedCreateInput = {
   id?: number
   period: Date | string
-  description?: string | null
+  description: string
   transactionDebtOwner?: Prisma.TransactionDebtOwnerUncheckedCreateNestedOneWithoutDebtInput
 }
 
 export type DebtUpdateInput = {
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   transactionDebtOwner?: Prisma.TransactionDebtOwnerUpdateOneWithoutDebtNestedInput
 }
 
 export type DebtUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   transactionDebtOwner?: Prisma.TransactionDebtOwnerUncheckedUpdateOneWithoutDebtNestedInput
 }
 
 export type DebtCreateManyInput = {
   id?: number
   period: Date | string
-  description?: string | null
+  description: string
 }
 
 export type DebtUpdateManyMutationInput = {
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type DebtUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type DebtCountOrderByAggregateInput = {
@@ -330,13 +330,13 @@ export type DebtUpdateOneRequiredWithoutTransactionDebtOwnerNestedInput = {
 
 export type DebtCreateWithoutTransactionDebtOwnerInput = {
   period: Date | string
-  description?: string | null
+  description: string
 }
 
 export type DebtUncheckedCreateWithoutTransactionDebtOwnerInput = {
   id?: number
   period: Date | string
-  description?: string | null
+  description: string
 }
 
 export type DebtCreateOrConnectWithoutTransactionDebtOwnerInput = {
@@ -357,13 +357,13 @@ export type DebtUpdateToOneWithWhereWithoutTransactionDebtOwnerInput = {
 
 export type DebtUpdateWithoutTransactionDebtOwnerInput = {
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type DebtUncheckedUpdateWithoutTransactionDebtOwnerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   period?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -408,7 +408,7 @@ export type $DebtPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     period: Date
-    description: string | null
+    description: string
   }, ExtArgs["result"]["debt"]>
   composites: {}
 }

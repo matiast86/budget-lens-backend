@@ -48,7 +48,34 @@ export class ReportsRepository {
   // ---------------------------------------------------------------------------
 
   async getDebtData(ledgerId: number, from: Date, to: Date) {
-    // TODO: implement
+    const [ledger, owners] = await Promise.all([
+      this.prisma.ledger.findUniqueOrThrow({
+        where: { id: ledgerId },
+        select: { currency: true },
+      }),
+      this.prisma.debtOwner.findMany({
+        where: {
+          ledgerId,
+          transactions: {
+            some: { debt: { period: { gte: from, lte: to } } },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          transactions: {
+            where: { debt: { period: { gte: from, lte: to } } },
+            select: {
+              amount: true,
+              direction: true,
+              debt: { select: { period: true, description: true } },
+            },
+          },
+        },
+      }),
+    ]);
+
+    return { owners, currency: ledger.currency };
   }
 
   // ---------------------------------------------------------------------------
