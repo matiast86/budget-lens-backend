@@ -56,4 +56,10 @@ export class DebtOwnersRepository {
       .delete({ where: { id } })
       .catch(handleP2025(`Debt Owner with id: ${id} not found.`));
   }
+
+  async findEntityById(id: number): Promise<DebtOwner | null> {
+    return await this.prisma.debtOwner.findUnique({
+      where: { id },
+    });
+  }
 }

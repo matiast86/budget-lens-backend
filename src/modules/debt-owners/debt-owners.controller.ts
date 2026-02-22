@@ -106,10 +106,7 @@ export class DebtOwnersController {
     description: 'Debt owner not found',
   })
   async findOne(@Req() req: LedgerRequest): Promise<DebtOwnerResponseDto> {
-    return (
-      req.debtOwner ??
-      (await this.debtOwnersService.findById(Number(req.params.id)))
-    );
+    return await this.debtOwnersService.findById(Number(req.params.id));
   }
 
   @Get('ledgers/:ledgerId/by-name/:name')

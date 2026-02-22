@@ -82,12 +82,9 @@ export class CollaborationsService {
   }
 
   async reactivateCollaboration(id: number): Promise<void> {
-    const collaboration = await this.collaborationsRepository.findById(id);
-    if (!collaboration)
-      throw new NotFoundException(`Collaboration with id: ${id} not found.`);
-    if (collaboration.isActive)
-      throw new BadRequestException(`Collaboration is already active`);
-    await this.collaborationsRepository.update(id, { isActive: true });
+    await this.collaborationsRepository.update(id, {
+      isActive: true,
+    });
   }
 
   async findEntityById(id: number): Promise<Collaboration | null> {

@@ -4,8 +4,8 @@ import { CollaborationResponseDto } from 'src/modules/collaborations/dto/collabo
 export const collaborationToResponseDto = (
   collaboration: Collaboration,
 ): CollaborationResponseDto => {
-  const { id, userId, ledgerId } = collaboration;
-  return new CollaborationResponseDto({ id, userId, ledgerId });
+  const { id, name, isActive, userId, ledgerId } = collaboration;
+  return new CollaborationResponseDto({ id, name, isActive, userId, ledgerId });
 };
 
 export const collaborationArrayToArrayDto = (

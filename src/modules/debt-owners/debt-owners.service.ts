@@ -3,6 +3,7 @@ import { Prisma } from 'prisma/generated/prisma/client';
 import {
   debtOwnerArrayToArrayDto,
   debtOwnerToResponseDto,
+  minimumOwnerToResponseDto,
 } from 'src/helpers/mappers/debt-owner.mapper';
 import { DebtOwnersRepository } from './debt-owners.repository';
 import { CreateDebtOwnerDto } from './dto/create-debt-owner.dto';
@@ -26,7 +27,7 @@ export class DebtOwnersService {
     return new DebtOwnerResponseDto({
       id: owner.id,
       name: owner.name,
-      ledgerId: ledgerId,
+      ledgerId: owner.ledgerId,
     });
   }
 
@@ -78,8 +79,8 @@ export class DebtOwnersService {
   }
 
   async findEntityById(id: number): Promise<DebtOwnerResponseDto | undefined> {
-    const owner = await this.debtOwnersRepository.findById(id);
+    const owner = await this.debtOwnersRepository.findEntityById(id);
 
-    return owner ? debtOwnerToResponseDto(owner) : undefined;
+    return owner ? minimumOwnerToResponseDto(owner) : undefined;
   }
 }
