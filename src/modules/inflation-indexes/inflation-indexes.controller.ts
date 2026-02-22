@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
@@ -79,15 +80,15 @@ export class InflationIndexesController {
     name: 'startPeriod',
     type: String,
     required: false,
-    description: 'Start of period range (ISO 8601 date)',
-    example: '2024-01-01T00:00:00.000Z',
+    description: 'Start of period range (YYYY-MM)',
+    example: '2024-01',
   })
   @ApiQuery({
     name: 'endPeriod',
     type: String,
     required: false,
-    description: 'End of period range (ISO 8601 date)',
-    example: '2026-12-01T00:00:00.000Z',
+    description: 'End of period range (YYYY-MM)',
+    example: '2026-12',
   })
   @ApiQuery({
     name: 'orderBy',
@@ -100,16 +101,16 @@ export class InflationIndexesController {
   @ApiOkResponse({ type: InflationIndexResponseDto, isArray: true })
   async findMany(
     @Query('currency', new ParseEnumPipe(Currency)) currency: Currency,
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
+    @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
+    @Query('take', new DefaultValuePipe(50), ParseIntPipe) take: number,
     @Query('startPeriod') startPeriod?: string,
     @Query('endPeriod') endPeriod?: string,
     @Query('orderBy') orderBy?: string,
   ): Promise<InflationIndexResponseDto[]> {
     return await this.inflationIndexesService.findMany(
       currency,
-      skip ? +skip : 0,
-      take ? +take : 50,
+      skip,
+      take,
       startPeriod,
       endPeriod,
       orderBy,

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DebtUpdateInput } from 'prisma/generated/prisma/models';
-import { parsePeriod, periodMapper } from 'src/helpers/dates';
+import { parsePeriod } from 'src/helpers/dates';
 import {
   debtArrayToArrayDto,
   debtToResponseDto,
@@ -19,12 +19,12 @@ export class DebtsService {
     skip: number,
     take: number,
   ): Promise<DebtResponseDto[]> {
-    const debtOwner = await this.debtsRepository.findAllByOwnerId(
+    const debts = await this.debtsRepository.findAllByOwnerId(
       ownerId,
       skip,
       take,
     );
-    const debts = debtOwner.map((t) => t.debt);
+
     return debtArrayToArrayDto(debts);
   }
 
@@ -56,11 +56,7 @@ export class DebtsService {
   ): Promise<DebtResponseWithOwnerIdDto | undefined> {
     const debt = await this.debtsRepository.findWithOwnerById(id);
     if (debt) {
-      const debtResponseDto = new DebtResponseDto({
-        id: debt.id,
-        description: debt.description ?? undefined,
-        period: periodMapper(debt.period),
-      });
+      const debtResponseDto = debtToResponseDto(debt);
       const ownerId = debt.transactionDebtOwner?.debtOwnerId;
       return new DebtResponseWithOwnerIdDto({ debtResponseDto, ownerId });
     }

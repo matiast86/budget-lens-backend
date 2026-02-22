@@ -4,6 +4,7 @@ import {
   GroupCreateInput,
   GroupUpdateInput,
 } from 'prisma/generated/prisma/models';
+import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -29,10 +30,14 @@ export class GroupsRepository {
   }
 
   async update(id: number, data: GroupUpdateInput): Promise<Group> {
-    return await this.prisma.group.update({ where: { id }, data });
+    return await this.prisma.group
+      .update({ where: { id }, data })
+      .catch(handleP2025(`Group with id: ${id} not found.`));
   }
 
   async delete(id: number): Promise<void> {
-    await this.prisma.group.delete({ where: { id } });
+    await this.prisma.group
+      .delete({ where: { id } })
+      .catch(handleP2025(`Group with id: ${id} not found.`));
   }
 }

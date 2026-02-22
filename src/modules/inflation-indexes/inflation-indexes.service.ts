@@ -27,8 +27,7 @@ export class InflationIndexesService {
     if (!orderBy) return undefined;
     const [field, dirRaw] = orderBy.split(':');
     const allowedFields = ['period', 'cpiIndex'] as const;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (!allowedFields.includes(field as any)) {
+    if (!(allowedFields as readonly string[]).includes(field)) {
       throw new BadRequestException('Invalid sort field');
     }
     const direction = dirRaw === 'desc' ? 'desc' : 'asc'; // or throw if dirRaw && not valid

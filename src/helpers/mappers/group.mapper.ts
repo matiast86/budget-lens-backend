@@ -6,7 +6,7 @@ export const groupToResponseDto = (group: Group): GroupResponseDto => {
   return new GroupResponseDto({
     id,
     name,
-    ledgerId: ledgerId ?? undefined,
+    ledgerId,
     userId,
   });
 };

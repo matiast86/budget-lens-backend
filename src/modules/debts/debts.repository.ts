@@ -3,7 +3,6 @@ import { Debt, Prisma } from 'prisma/generated/prisma/client';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DebtWithOwner } from 'src/types/entities/debt.types';
-import { TransactionDebtOwnerWithDebt } from 'src/types/entities/transaction-debt-owner';
 
 @Injectable()
 export class DebtsRepository {
@@ -13,12 +12,11 @@ export class DebtsRepository {
     debtOwnerId: number,
     skip: number,
     take: number,
-  ): Promise<TransactionDebtOwnerWithDebt[]> {
-    return await this.prisma.transactionDebtOwner.findMany({
-      where: { debtOwnerId },
+  ): Promise<Debt[]> {
+    return await this.prisma.debt.findMany({
+      where: { transactionDebtOwner: { debtOwnerId } },
       skip,
       take,
-      include: { debt: true },
     });
   }
 

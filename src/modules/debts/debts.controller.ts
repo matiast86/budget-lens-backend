@@ -58,13 +58,6 @@ export class DebtsController {
     example: 10,
     description: 'Number of records to take',
   })
-  @ApiQuery({
-    name: 'orderBy',
-    required: false,
-    type: String,
-    example: 'amount:desc',
-    description: `Sorting format: "<field>:<direction>". Valid fields: amount, period, direction.`,
-  })
   @ApiResponse({
     status: 200,
     description: 'List of debts',

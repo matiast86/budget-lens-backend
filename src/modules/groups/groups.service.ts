@@ -59,9 +59,6 @@ export class GroupsService {
     id: number,
     updateGroupDto: UpdateGroupDto,
   ): Promise<GroupResponseDto> {
-    const group = await this.groupsRepository.findById(id);
-    if (!group) throw new NotFoundException(`Group with id: ${id} not found`);
-
     const updated = await this.groupsRepository.update(id, {
       ...updateGroupDto,
     });
@@ -69,9 +66,6 @@ export class GroupsService {
   }
 
   async remove(id: number): Promise<void> {
-    const group = await this.groupsRepository.findById(id);
-    if (!group) throw new NotFoundException(`Group with id: ${id} not found`);
-
     await this.groupsRepository.delete(id);
   }
 
