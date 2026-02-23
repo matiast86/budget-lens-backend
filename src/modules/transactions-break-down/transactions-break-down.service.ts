@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionBreakDown } from 'prisma/generated/prisma/client';
-import { CreateTransactionsBreakDownDto } from './dto/create-transactions-break-down.dto';
-import { TransactionsBDRepository } from './transactions-break-down-repository';
 import { TransactionBreakDownUpdateInput } from 'prisma/generated/prisma/models';
+import { transactionBdArrayToArrayDto } from 'src/helpers/mappers/transaction-bd.mapper';
+import { CreateTransactionsBreakDownDto } from './dto/create-transactions-break-down.dto';
+import { TransactionBreakDownResponseDto } from './dto/transaction-break-down-response.dto';
+import { TransactionsBDRepository } from './transactions-break-down-repository';
 
 @Injectable()
 export class TransactionsBreakDownService {
@@ -19,6 +21,13 @@ export class TransactionsBreakDownService {
       amount,
       transaction: { connect: { id: transactionId } },
     });
+  }
+
+  async createBundle(
+    transactionId: number,
+  ): Promise<TransactionBreakDownResponseDto[]> {
+    const bd = await this.transactionsBDRepository.createBundle(transactionId);
+    return transactionBdArrayToArrayDto(bd);
   }
 
   async update(

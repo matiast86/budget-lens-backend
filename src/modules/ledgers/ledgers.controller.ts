@@ -103,9 +103,7 @@ export class LedgersController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findOne(@Req() req: LedgerRequest): Promise<LedgerResponseDto> {
-    return (
-      req.ledger ?? (await this.ledgersService.findOne(Number(req.params.id)))
-    );
+    return await this.ledgersService.findOne(Number(req.params.id));
   }
 
   // UPDATE

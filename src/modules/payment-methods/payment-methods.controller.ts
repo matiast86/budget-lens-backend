@@ -44,15 +44,10 @@ export class PaymentMethodsController {
     @Body() createPaymentMethodDto: CreatePaymentMethodDto,
     @GetUser('id') userId: string,
   ): Promise<PaymentMethodResponseDto> {
-    const { name, type, brand, color, icon, currency } = createPaymentMethodDto;
-    return await this.paymentMethodsService.create(userId, {
-      name,
-      type,
-      brand,
-      color,
-      icon,
-      currency,
-    });
+    return await this.paymentMethodsService.create(
+      userId,
+      createPaymentMethodDto,
+    );
   }
 
   @HttpCode(HttpStatus.OK)

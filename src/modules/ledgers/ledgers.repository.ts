@@ -2,17 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Ledger, Prisma } from 'prisma/generated/prisma/client';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { LedgerDetailView } from 'src/types/entities/ledger.types';
+import {
+  LedgerDetailView,
+  LedgerMinimal,
+  LedgerWithCollaborations,
+} from 'src/types/entities/ledger.types';
 
 @Injectable()
 export class LedgersRepository {
   constructor(private readonly prisma: PrismaService) {}
-
-  async findAllByUserId(ownerId: string): Promise<Ledger[]> {
-    return await this.prisma.ledger.findMany({
-      where: { ownerId },
-    });
-  }
 
   async findAllPaginated(
     skip: number,
@@ -23,6 +21,13 @@ export class LedgersRepository {
       where,
       skip,
       take,
+    });
+  }
+
+  async findOneMinimal(id: number): Promise<LedgerMinimal | null> {
+    return await this.prisma.ledger.findUnique({
+      where: { id },
+      select: { id: true, currency: true, baseCpiIndex: true },
     });
   }
 
@@ -53,35 +58,6 @@ export class LedgersRepository {
     });
   }
 
-  async findLedgerByName(
-    name: string,
-    ownerId: string,
-  ): Promise<Ledger | null> {
-    return await this.prisma.ledger.findFirst({
-      where: { name, ownerId },
-      include: {
-        collaborations: true,
-        transactions: {
-          include: {
-            category: true,
-            paymentMethod: true,
-            group: true,
-            transactionsBreakDown: true,
-            debtOwners: {
-              include: {
-                debtOwner: true,
-                debt: true,
-              },
-            },
-          },
-        },
-        paymentMethods: { include: { paymentMethod: true } },
-        groups: true,
-        debtOwners: true,
-      },
-    });
-  }
-
   async update(id: number, data: Prisma.LedgerUpdateInput): Promise<Ledger> {
     return await this.prisma.ledger
       .update({
@@ -101,5 +77,12 @@ export class LedgersRepository {
     await this.prisma.ledger
       .delete({ where: { id } })
       .catch(handleP2025(`Ledger with id: ${id} not found.`));
+  }
+
+  async findEntityById(id: number): Promise<LedgerWithCollaborations | null> {
+    return await this.prisma.ledger.findUnique({
+      where: { id },
+      select: { id: true, name: true, ownerId: true, collaborations: true },
+    });
   }
 }

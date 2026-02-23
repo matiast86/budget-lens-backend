@@ -37,6 +37,12 @@ export const LedgerIncludes = {
       categories: true,
     },
   },
+  minimalWithCollaborations: {
+    select: { id: true, name: true, ownerId: true, collaborations: true },
+  },
+  minimal: {
+    select: { id: true, currency: true, baseCpiIndex: true },
+  },
 } as const;
 
 /* ==========================================================================
@@ -49,4 +55,12 @@ export type LedgerDashboardView = Prisma.LedgerGetPayload<
 
 export type LedgerDetailView = Prisma.LedgerGetPayload<
   typeof LedgerIncludes.detail
+>;
+
+export type LedgerWithCollaborations = Prisma.LedgerGetPayload<
+  typeof LedgerIncludes.minimalWithCollaborations
+>;
+
+export type LedgerMinimal = Prisma.LedgerGetPayload<
+  typeof LedgerIncludes.minimal
 >;

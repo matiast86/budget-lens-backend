@@ -23,7 +23,6 @@ export class PaymentMethodsService {
     createPaymentMethodDto: CreatePaymentMethodDto,
   ): Promise<PaymentMethodResponseDto> {
     const { name, type, brand, color, icon, currency } = createPaymentMethodDto;
-    await this.usersService.findOne(userId);
     const newPM = await this.paymentMethodsRepository.create({
       name,
       type,
@@ -38,13 +37,11 @@ export class PaymentMethodsService {
   }
 
   async findAllByUser(userId: string): Promise<PaymentMethodResponseDto[]> {
-    await this.usersService.findOne(userId);
     const methods = await this.paymentMethodsRepository.findAllByUser(userId);
     return paymentMethodArrayToArrayDto(methods);
   }
 
   async findOne(userId: string, id: number): Promise<PaymentMethodResponseDto> {
-    await this.usersService.findOne(userId);
     const paymentMethod = await this.paymentMethodsRepository.findById(
       id,
       userId,
@@ -58,7 +55,6 @@ export class PaymentMethodsService {
     userId: string,
     name: string,
   ): Promise<PaymentMethodResponseDto> {
-    await this.usersService.findOne(userId);
     const method = await this.paymentMethodsRepository.findByName(userId, name);
     if (!method)
       throw new NotFoundException(
@@ -71,7 +67,6 @@ export class PaymentMethodsService {
     userId: string,
     type: PaymentType,
   ): Promise<PaymentMethodResponseDto[]> {
-    await this.usersService.findOne(userId);
     const methods = await this.paymentMethodsRepository.findByType(
       userId,
       type,
@@ -84,7 +79,6 @@ export class PaymentMethodsService {
     id: number,
     updatePaymentMethodDto: UpdatePaymentMethodDto,
   ): Promise<PaymentMethodResponseDto> {
-    await this.usersService.findOne(userId);
     const updatedPM = await this.paymentMethodsRepository.update(
       id,
       userId,
@@ -95,7 +89,6 @@ export class PaymentMethodsService {
   }
 
   async remove(userId: string, id: number): Promise<void> {
-    await this.usersService.findOne(userId);
     await this.paymentMethodsRepository.delete(id, userId);
   }
 

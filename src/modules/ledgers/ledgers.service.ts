@@ -4,6 +4,7 @@ import {
   ledgerDashboardArrayToArrayDto,
   ledgerToDashboardView,
   ledgerToDetailsResponseDto,
+  minimumLedgerToDashboardResponseDto,
 } from 'src/helpers/mappers/ledger.mapper';
 import { LedgerDashboardView } from 'src/types/entities/ledger.types';
 import { CategoryTemplatesService } from '../category-templates/category-templates.service';
@@ -11,6 +12,7 @@ import { InflationIndexesService } from '../inflation-indexes/inflation-indexes.
 import { UsersService } from '../users/users.service';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
+import { LedgerMinimalDto } from './dto/ledger-minimal.dto';
 import { LedgerResponseDto } from './dto/ledger-response.dto';
 import { UpdateLedgerDto } from './dto/update-ledger.dto';
 import { LedgersRepository } from './ledgers.repository';
@@ -29,7 +31,6 @@ export class LedgersService {
     dto: CreateLedgerDto,
   ): Promise<LedgerDashboardResponseDto> {
     const { name, description, currency } = dto;
-    await this.usersService.findOne(ownerId);
 
     const templates = await this.templatesService.findAll();
     const categoriesData = templates.map((t) => ({
@@ -60,19 +61,11 @@ export class LedgersService {
     return ledgerToDashboardView(newLedger);
   }
 
-  async findAll(ownerId: string) {
-    await this.usersService.findOne(ownerId);
-    const ledgers: LedgerDashboardView[] =
-      await this.ledgersRepository.findAllByUserId(ownerId);
-    return ledgerDashboardArrayToArrayDto(ledgers);
-  }
-
   async findLedgersByOwner(
     ownerId: string,
     skip: number,
     take: number,
   ): Promise<LedgerDashboardResponseDto[]> {
-    await this.usersService.findOne(ownerId);
     const where: Prisma.LedgerWhereInput = { ownerId, isActive: true };
     const ledgers: LedgerDashboardView[] =
       await this.ledgersRepository.findAllPaginated(skip, take, where);
@@ -86,6 +79,17 @@ export class LedgersService {
       throw new NotFoundException(`Ledger with id: ${id} not found.`);
 
     return ledgerToDetailsResponseDto(ledger);
+  }
+
+  async findOneMinimal(id: number): Promise<LedgerMinimalDto> {
+    const ledger = await this.ledgersRepository.findOneMinimal(id);
+    if (!ledger)
+      throw new NotFoundException(`Ledger with id: ${id} not found.`);
+    return new LedgerMinimalDto({
+      id: ledger.id,
+      currency: ledger.currency,
+      baseCpiIndex: Number(ledger.baseCpiIndex),
+    });
   }
 
   async update(
@@ -108,8 +112,8 @@ export class LedgersService {
   }
 
   async getEntityById(id: number): Promise<LedgerResponseDto | undefined> {
-    const ledger = await this.ledgersRepository.findLedgerById(id);
+    const ledger = await this.ledgersRepository.findEntityById(id);
 
-    return ledger ? ledgerToDetailsResponseDto(ledger) : undefined;
+    return ledger ? minimumLedgerToDashboardResponseDto(ledger) : undefined;
   }
 }

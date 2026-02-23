@@ -17,7 +17,6 @@ import {
   parseDate,
   parsePeriod,
 } from 'src/helpers/dates';
-import { transactionBdToResponseDto } from 'src/helpers/mappers/transaction-bd.mapper';
 import {
   transactionArrayToArrayDto,
   transactionToResponseDto,
@@ -49,16 +48,7 @@ export class TransactionsService {
   async createTransactionsBD(
     transactionId: number,
   ): Promise<TransactionBreakDownResponseDto[]> {
-    const tbdArray: TransactionBreakDownResponseDto[] = [];
-    for (let weekNumber = 1; weekNumber <= 4; weekNumber++) {
-      const tbd = await this.transactionBDService.create({
-        weekNumber,
-        amount: 0,
-        transactionId,
-      });
-      tbdArray.push(transactionBdToResponseDto(tbd));
-    }
-    return tbdArray;
+    return await this.transactionBDService.createBundle(transactionId);
   }
 
   // Helper: record a debt entry tied to the transaction context.
@@ -66,19 +56,20 @@ export class TransactionsService {
     transactionId: number,
     transactionDate: Date,
     debtAssignmentsDto: DebtAssignmentDto[],
-    description?: string,
+    description: string,
   ): Promise<void> {
-    for (const assigment of debtAssignmentsDto) {
-      const { debtOwnerId, direction, amount } = assigment;
-      await this.transactionsRepository.createTransactionDebtOwner(
-        transactionId,
-        debtOwnerId,
-        amount,
-        direction,
-        transactionDate,
-        description,
-      );
-    }
+    await Promise.all(
+      debtAssignmentsDto.map(({ debtOwnerId, direction, amount }) =>
+        this.transactionsRepository.createTransactionDebtOwner(
+          transactionId,
+          debtOwnerId,
+          amount,
+          direction,
+          transactionDate,
+          description,
+        ),
+      ),
+    );
   }
 
   // Helper: merge existing and new comments into a single string.
@@ -128,8 +119,6 @@ export class TransactionsService {
       exchangeRate,
     );
     const monthlyAmount = totalAmount / installments;
-    console.log(`Installments: ${installments}`);
-    console.log(`Monthly amount: ${monthlyAmount}`);
 
     // If debt is provided, create a debt entry per installment.
     if (debtAssigmentsDto.length != 0) {
@@ -267,7 +256,7 @@ export class TransactionsService {
       impactsCashflow,
       debtAssignments,
     } = createTransactionDto;
-    const ledger = await this.ledgersService.findOne(ledgerId);
+    const ledger = await this.ledgersService.findOneMinimal(ledgerId);
 
     // Enforce exchange rate when currencies differ.
     if (currency != ledger.currency && !exchangeRate)
@@ -319,9 +308,7 @@ export class TransactionsService {
           totalAmount: updatedTotal,
           ...inflation,
         });
-        const debtDescription = existing.groupId
-          ? existing.group.name
-          : undefined;
+        const debtDescription = existing.group.name;
 
         if (debtAssignments.length != 0) {
           await this.handleDebtOwners(
@@ -455,7 +442,7 @@ export class TransactionsService {
       totalProvidedAmount,
       impactsCashflow,
     } = createIncomeDto;
-    const ledger = await this.ledgersService.findOne(ledgerId);
+    const ledger = await this.ledgersService.findOneMinimal(ledgerId);
 
     // Enforce exchange rate when currencies differ.
     if (currency != ledger.currency && !exchangeRate)
@@ -543,7 +530,7 @@ export class TransactionsService {
 
   async findAllByLedgerId(
     ledgerId: number,
-    skip: number = 1,
+    skip: number = 0,
     take: number = 20,
   ): Promise<TransactionResponseDto[]> {
     const ledgers = await this.transactionsRepository.findAllByPaginated(

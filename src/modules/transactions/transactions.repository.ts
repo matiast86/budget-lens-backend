@@ -108,7 +108,7 @@ export class TransactionsRepository {
     amount: number,
     direction: DebtDirection,
     period: Date,
-    description?: string,
+    description: string,
   ): Promise<void> {
     await this.prisma.transactionDebtOwner.create({
       data: {

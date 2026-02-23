@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   Param,
   ParseIntPipe,
@@ -101,8 +102,8 @@ export class TransactionsController {
   @ApiNotFoundResponse({ description: 'Ledger not found' })
   async findAllByLedger(
     @Param('ledgerId', ParseIntPipe) ledgerId: number,
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
+    @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip = 0,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take = 10,
   ): Promise<TransactionResponseDto[]> {
     return await this.transactionsService.findAllByLedgerId(
       ledgerId,

@@ -3,6 +3,7 @@ import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
 import {
   LedgerDashboardView,
   LedgerDetailView,
+  LedgerWithCollaborations,
 } from 'src/types/entities/ledger.types';
 import { categoryArraytoArrayDto } from './category.mapper';
 import { collaborationArrayToArrayDto } from './collaboration.mapper';
@@ -49,7 +50,7 @@ export const ledgerToDetailsResponseDto = (
 export const ledgerArrayToArrayDto = (
   entityArray: LedgerDetailView[],
 ): LedgerResponseDto[] => {
-  return entityArray ? entityArray.map(ledgerToDetailsResponseDto) : [];
+  return entityArray.map(ledgerToDetailsResponseDto);
 };
 
 export const ledgerToDashboardView = (
@@ -79,4 +80,16 @@ export const ledgerDashboardArrayToArrayDto = (
   entityArray: LedgerDashboardView[],
 ): LedgerDashboardResponseDto[] => {
   return entityArray.map(ledgerToDashboardView);
+};
+
+export const minimumLedgerToDashboardResponseDto = (
+  ledger: LedgerWithCollaborations,
+): LedgerResponseDto => {
+  const { id, name, ownerId, collaborations } = ledger;
+  return new LedgerResponseDto({
+    id,
+    name,
+    ownerId,
+    collaborations: collaborationArrayToArrayDto(collaborations),
+  });
 };
