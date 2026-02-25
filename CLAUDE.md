@@ -165,7 +165,12 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 | Method | Route | Body | Response | Description |
 |--------|-------|------|----------|-------------|
 | POST | `/auth/signup` | `CreateUserDto` | `{ message, user: UserResponseDto }` | Register new user |
-| POST | `/auth/signin` | `{ email, password }` | `{ token, user }` | Login, get JWT |
+| POST | `/auth/signin` | `SignInAuthDto` | `SignInResponseDto` | Login, get JWT |
+
+**SignInAuthDto**: `{ email, password }`
+**SignInResponseDto**: `{ token: string, user: UserDashboardViewDto }`
+- `token` — signed JWT, send as `Authorization: Bearer <token>`
+- `user` — full dashboard view including owned ledgers
 
 ### Users (`/users`) — `@Public()`
 
