@@ -1,0 +1,299 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String          @id @default(uuid()) @db.Uuid
+  name           String
+  email          String          @unique
+  birthDate      DateTime
+  password       String          @db.VarChar(64)
+  gender         Gender
+  role           Role            @default(USER)
+  ledgers        Ledger[]        @relation("UserLedgers")
+  collaborations Collaboration[] @relation("UserCollaborations")
+  paymentMethods  PaymentMethod[] @relation("UserPaymentMethods")
+  groups         Group[]         @relation("UserGroups")
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("users")
+}
+
+model Ledger {
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String?
+  currency       Currency
+  baseCpiIndex   Decimal          @default(100) @db.Decimal(10, 4)
+  ownerId        String           @db.Uuid
+  debtOwners     DebtOwner[]      @relation("LedgerDebtOwners")
+  owner          User             @relation("UserLedgers", fields: [ownerId], references: [id])
+  collaborations Collaboration[]  @relation("LedgerCollaborations")
+  groups         Group[]          @relation("LedgerGroups")
+  categories     Category[]         @relation("LedgerCategories")
+  transactions      Transaction[]       @relation("LedgerTransactions")
+  paymentMethods    LedgerPaymentMethod[] @relation("LedgerPaymentMethods")
+  isActive       Boolean         @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("ledgers")
+}
+
+model Collaboration {
+  id        Int               @id @default(autoincrement())
+  name      String
+  isActive  Boolean            @default(true)
+  userId    String             @db.Uuid
+  ledgerId  Int
+  user      User               @relation("UserCollaborations", fields: [userId], references: [id])
+  ledger    Ledger             @relation("LedgerCollaborations", fields: [ledgerId], references: [id])
+
+  @@unique([userId, ledgerId])
+
+  @@map("collaborations")
+}
+
+model PaymentMethod {
+  id        Int              @id @default(autoincrement())
+  name      String
+  type      PaymentType
+  brand     CreditBrand?
+  color String? 
+  icon  String?
+  currency Currency?
+  isActive Boolean @default(true)
+  userId    String           @db.Uuid
+  user      User             @relation("UserPaymentMethods", fields: [userId], references: [id])
+  transactions Transaction[] @relation("PaymentMethodTransactions")
+  ledgers   LedgerPaymentMethod[]
+
+  @@unique([userId, name])
+  @@unique([id, userId])
+
+
+  @@map("payment_methods")
+}
+
+model LedgerPaymentMethod {
+  paymentMethod  PaymentMethod  @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId Int
+  ledger       Ledger      @relation("LedgerPaymentMethods", fields: [ledgerId], references: [id])
+  ledgerId     Int
+  assignedAt   DateTime    @default(now())
+  assignedBy   String
+
+  @@id([paymentMethodId, ledgerId])
+  @@map("ledgers_payment_methods")
+}
+
+model Debt {
+  id           Int         @id @default(autoincrement())
+  period       DateTime
+  description  String
+  transactionDebtOwner TransactionDebtOwner? @relation("DebtToTransactionDebtOwner")
+
+  @@map("debts")
+}
+
+model DebtOwner {
+  id     Int     @id @default(autoincrement())
+  name   String
+  ledgerId Int
+
+  ledger Ledger @relation("LedgerDebtOwners", fields: [ledgerId], references: [id])
+  transactions TransactionDebtOwner[]
+
+  @@unique([ledgerId, name])
+
+  @@map("debt_owners")
+}
+
+model CategoryTemplate {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  description  String? 
+  scope      CategoryScope
+
+  categories   Category[]     @relation("TemplateCategories")
+
+  @@map("categories_template")
+}
+
+
+model Category {
+  id            Int             @id @default(autoincrement())
+  name          String          
+  description   String?
+  ledgerId      Int
+  templateId    Int?
+
+  ledger       Ledger           @relation("LedgerCategories", fields: [ledgerId], references: [id])
+  template     CategoryTemplate? @relation("TemplateCategories", fields: [templateId], references: [id])
+  transactions  Transaction[]   @relation("TransactionCategory")
+
+  @@unique([ledgerId, name])
+
+  @@map("categories")
+}
+
+model Group {
+  id            Int             @id @default(autoincrement())
+  name          String
+  ledgerId      Int
+  userId        String           @db.Uuid
+  ledger        Ledger          @relation("LedgerGroups", fields: [ledgerId], references: [id])
+  transactions  Transaction[]    @relation("TransactionGroup")
+  user          User             @relation("UserGroups", fields: [userId], references: [id])
+
+
+  @@unique([ledgerId, name])
+
+  @@map("groups")
+}
+
+model Transaction {
+  id                    Int                     @id @default(autoincrement())
+  ledgerId              Int
+  status                Status
+  entryType             EntryType
+  categoryId            Int
+  groupId               Int
+  transactionDate       DateTime
+  paymentMonth          DateTime
+  installments          Int                     @default(1)
+  installment           Int                     @default(1)
+  comment               String?
+  currency              Currency
+  exchangeRate          Decimal?
+  totalAmount           Decimal
+  monthlyAmount         Decimal
+  isPaid                Boolean                @default(false)
+  impactsCashflow       Boolean                 @default(true)
+  cpiIndex              Decimal?
+  realMonthlyAmount     Decimal?
+  type                  TransactionType        @default(VARIABLE)
+  paymentMethodId       Int
+  transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
+
+  ledger      Ledger      @relation("LedgerTransactions", fields: [ledgerId], references: [id])
+  category    Category    @relation("TransactionCategory", fields: [categoryId], references: [id])
+  group       Group      @relation("TransactionGroup", fields: [groupId], references: [id])
+  paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
+  debtOwners   TransactionDebtOwner[] @relation("TransactionsDebtOwners")
+
+  @@map("transactions")
+}
+
+model TransactionDebtOwner {
+  transaction   Transaction @relation("TransactionsDebtOwners", fields: [transactionId], references:[id])
+  transactionId Int
+  debtOwner     DebtOwner   @relation(fields: [debtOwnerId], references: [id])
+  debtOwnerId   Int
+  amount        Decimal
+  direction     DebtDirection
+  debtId        Int          @unique
+  debt          Debt         @relation("DebtToTransactionDebtOwner", fields: [debtId], references: [id])
+
+  @@id([transactionId,debtOwnerId])
+  @@map("transactions_debt_owners")
+}
+
+model TransactionBreakDown {
+  id             Int          @id @default(autoincrement())
+  transactionId  Int
+  weekNumber     Int
+  amount         Decimal
+
+  transaction    Transaction  @relation("TransactionsBreakDown", fields: [transactionId], references: [id])
+
+  @@map("transactions_break_down")
+}
+
+model InflationIndex {
+  id          Int      @id @default(autoincrement())
+  currency    Currency
+  period      DateTime
+  monthlyRate Decimal  @db.Decimal(10, 6)
+  cpiIndex    Decimal  @db.Decimal(10, 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([currency, period])
+  @@map("inflation_indexes")
+}
+
+// =====================================================
+// ENUMS
+// =====================================================
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+
+enum EntryType {
+  INCOME
+  EXPENSE
+}
+
+enum CreditBrand {
+  VISA
+  AMEX
+  MASTER
+  OTHER
+}
+
+enum PaymentType {
+  CASH
+  BANK
+  WALLET
+  CREDIT_CARD
+  OTHER
+}
+
+enum DebtDirection {
+  OWED_TO_ME   // They owe me
+  OWED_BY_ME   // I owe them
+}
+
+enum Currency {
+  ARS
+  USD
+}
+
+enum Status {
+  CLOSED
+  CURRENT
+  FUTURE
+}
+
+enum TransactionType {
+  FIXED
+  VARIABLE
+}
+
+enum CategoryScope {
+  GLOBAL
+}
+

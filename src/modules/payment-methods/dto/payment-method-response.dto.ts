@@ -1,0 +1,69 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  CreditBrand,
+  Currency,
+  PaymentType,
+} from 'prisma/generated/prisma/client';
+
+export class PaymentMethodResponseDto {
+  @ApiProperty({
+    description: 'Payment method ID.',
+    example: 12,
+  })
+  id: number;
+
+  @ApiProperty({
+    description: 'Name of the payment method.',
+    example: 'Mercado Pago',
+  })
+  name: string;
+
+  @ApiProperty({
+    enum: PaymentType,
+    description: 'Type of payment method.',
+    example: PaymentType.WALLET,
+  })
+  type: PaymentType;
+
+  @ApiPropertyOptional({
+    enum: CreditBrand,
+    description: 'Brand for credit cards. Null otherwise.',
+    example: CreditBrand.MASTER,
+  })
+  brand?: CreditBrand;
+
+  @ApiPropertyOptional({
+    example: '#4CAF50',
+    description: 'UI display color.',
+  })
+  color?: string;
+
+  @ApiPropertyOptional({
+    example: 'mdi-wallet-outline',
+    description: 'Icon identifier.',
+  })
+  icon?: string;
+
+  @ApiPropertyOptional({
+    enum: Currency,
+    description: 'Currency linked to this method.',
+    example: Currency.ARS,
+  })
+  currency?: Currency;
+
+  @ApiProperty({
+    description: 'Flag indicating if this method is active.',
+    example: true,
+  })
+  isActive: boolean;
+
+  @ApiProperty({
+    description: 'User ID who owns this method.',
+    example: 'c5f5b510-6bbd-4a3d-b4b2-30f67d5c9133',
+  })
+  userId: string;
+
+  constructor(partial: Partial<PaymentMethodResponseDto>) {
+    Object.assign(this, partial);
+  }
+}
