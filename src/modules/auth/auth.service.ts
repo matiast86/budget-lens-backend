@@ -1,12 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { userToDashboardResponseDto } from 'src/helpers/mappers/user.mapper';
-import { UserDashboardView } from 'src/types/entities/user.types';
 import { JwtPayload } from 'src/types/payload/payload';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { UsersService } from '../users/users.service';
+import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { SignInAuthDto } from './dto/signIn-auth.dto';
 
 @Injectable()
@@ -20,36 +20,27 @@ export class AuthService {
     return await this.usersService.create(createUserDto);
   }
 
-  async signIn(credentials: SignInAuthDto) {
+  async signIn(credentials: SignInAuthDto): Promise<SignInResponseDto> {
     const { email, password } = credentials;
+    const unauthorized = new UnauthorizedException(
+      'Email or password do not match.',
+    );
 
-    try {
-      const user: UserDashboardView =
-        await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneByEmail(email).catch(() => {
+      throw unauthorized;
+    });
 
-      const isPasswordMatching = await compare(password, user.password);
+    if (!(await compare(password, user.password))) throw unauthorized;
 
-      if (!isPasswordMatching) {
-        throw new Error();
-      }
-
-      const payload: JwtPayload = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      };
-
-      const token = await this.jwtService.signAsync(payload);
-
-      const safeUser = userToDashboardResponseDto(user);
-
-      return { token, user: safeUser };
-    } catch (e) {
-      console.error('SIGNIN ERROR:', e);
-      throw new HttpException(
-        'Email or password do not match.',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
+    const payload: JwtPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    const token = await this.jwtService.signAsync(payload);
+    return new SignInResponseDto({
+      token,
+      user: userToDashboardResponseDto(user),
+    });
   }
 }

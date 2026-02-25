@@ -107,8 +107,8 @@ export class TransactionsController {
   ): Promise<TransactionResponseDto[]> {
     return await this.transactionsService.findAllByLedgerId(
       ledgerId,
-      skip ? +skip : undefined,
-      take ? +take : undefined,
+      skip,
+      take,
     );
   }
 

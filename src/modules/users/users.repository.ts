@@ -9,32 +9,12 @@ export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAllUsers(): Promise<User[]> {
-    return await this.prisma.user.findMany({
-      include: {
-        ledgers: true,
-        collaborations: true,
-        paymentMethods: true,
-        groups: true,
-      },
-    });
+    return await this.prisma.user.findMany();
   }
 
-  async getUserById(id: string): Promise<UserDashboardView | null> {
+  async getUserById(id: string): Promise<User | null> {
     return await this.prisma.user.findUnique({
       where: { id },
-      include: {
-        ledgers: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            currency: true,
-            baseCpiIndex: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-      },
     });
   }
 

@@ -3,6 +3,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { Public } from 'src/decorators/public/public.decorator';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
+import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { SignInAuthDto } from './dto/signIn-auth.dto';
 
 @Public()
@@ -24,7 +25,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Authenticate user and generate token' })
   @Post('signin')
   @HttpCode(200)
-  async signIn(@Body() credentials: SignInAuthDto) {
+  async signIn(@Body() credentials: SignInAuthDto): Promise<SignInResponseDto> {
     return await this.authService.signIn(credentials);
   }
 }
