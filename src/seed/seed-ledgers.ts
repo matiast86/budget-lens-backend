@@ -12,15 +12,46 @@ export const seedLedgers = async (prisma: PrismaClient) => {
     return;
   }
 
-  const templates = await prisma.categoryTemplate.findMany();
+  const categoryData = [
+    {
+      name: 'Home Expenses',
+      description: 'Rent, utilities, maintenance and general household costs',
+    },
+    {
+      name: 'Dining Out',
+      description: 'Restaurants, cafes, takeaway, delivery',
+    },
+    {
+      name: 'Entertainment',
+      description: 'Streaming, cinema, hobbies, events',
+    },
+    {
+      name: 'Health',
+      description: 'Doctor visits, pharmacy, medical insurance',
+    },
+    {
+      name: 'Transport',
+      description: 'Taxi, rideshare, subway, bus, fuel',
+    },
+    {
+      name: 'Gifts',
+      description: 'Presents, celebrations',
+    },
+    {
+      name: 'Clothing',
+      description: 'Clothes, shoes, accessories',
+    },
+    {
+      name: 'Childcare',
+      description:
+        'Kindergarten, school, therapies and children related expenses',
+    },
+    {
+      name: 'Miscellaneous',
+      description: 'Uncategorized or one-off expenses',
+    },
+  ];
 
-  const categoryData = templates.map((t) => ({
-    name: t.name,
-    description: t.description ?? undefined,
-    templateId: t.id,
-  }));
-
-  // Look up current month's CPI for the ledger's currency.
   const now = new Date();
   const currentPeriod = new Date(now.getFullYear(), now.getMonth(), 1);
   const currency = Currency.ARS;

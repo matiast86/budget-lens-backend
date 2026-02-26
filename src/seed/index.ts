@@ -6,6 +6,7 @@ import { seedGroups } from './seed-groups';
 import { seedInflationIndexes } from './seed-inflation-indexes';
 import { seedLedgers } from './seed-ledgers';
 import { seedPaymentMethods } from './seed-payment-methods';
+import { seedTransactions } from './seed-transactions';
 import { seedUsers } from './seed-users';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
@@ -20,6 +21,7 @@ const main = async () => {
   await seedPaymentMethods(prisma);
   await seedGroups(prisma);
   await seedDebtOwners(prisma);
+  await seedTransactions(prisma);
 };
 
 main()
