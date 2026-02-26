@@ -49,6 +49,7 @@ export class LedgersRepository {
               },
             },
           },
+          orderBy: { transactionDate: 'desc' },
         },
         paymentMethods: { include: { paymentMethod: true } },
         groups: true,

@@ -5,7 +5,6 @@ import {
   paymentMethodArrayToArrayDto,
   paymentMethodToResponseDto,
 } from 'src/helpers/mappers/payment-method.mapper';
-import { UsersService } from '../users/users.service';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { PaymentMethodResponseDto } from './dto/payment-method-response.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
@@ -15,7 +14,6 @@ import { PaymentMethodsRepository } from './payment-methods.repository';
 export class PaymentMethodsService {
   constructor(
     private readonly paymentMethodsRepository: PaymentMethodsRepository,
-    private readonly usersService: UsersService,
   ) {}
 
   async create(

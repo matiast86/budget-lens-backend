@@ -72,10 +72,9 @@ export class CreateTransactionDto {
     description: 'Number of total installments; defaults to 1.',
     example: 3,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
-  installments?: number;
+  installments: number;
 
   @ApiPropertyOptional({
     description: 'Optional comment or note related to this transaction.',

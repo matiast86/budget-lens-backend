@@ -13,6 +13,14 @@ export const seedPaymentMethods = async (prisma: PrismaClient) => {
   });
 
   if (!user) return;
+  const ledger = await prisma.ledger.findFirst({
+    where: { name: 'Home Budget' },
+  });
+
+  if (!ledger) {
+    console.warn('  ⚠ Ledger not found, skipping payment method assignment.');
+    return;
+  }
 
   // Income only
   const incomeMethods = [
@@ -52,10 +60,25 @@ export const seedPaymentMethods = async (prisma: PrismaClient) => {
   ];
 
   for (const method of [...incomeMethods, ...expenseMethods]) {
-    await prisma.paymentMethod.upsert({
+    const pm = await prisma.paymentMethod.upsert({
       where: { userId_name: { userId: user.id, name: method.name } },
       update: {},
       create: { userId: user.id, ...method },
+    });
+
+    await prisma.ledgerPaymentMethod.upsert({
+      where: {
+        paymentMethodId_ledgerId: {
+          paymentMethodId: pm.id,
+          ledgerId: ledger.id,
+        },
+      },
+      update: {},
+      create: {
+        paymentMethodId: pm.id,
+        ledgerId: ledger.id,
+        assignedBy: user.id,
+      },
     });
   }
 

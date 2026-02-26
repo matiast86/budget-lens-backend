@@ -186,6 +186,8 @@ export class TransactionsService {
         comment,
         currency,
         exchangeRate,
+        installments,
+        installment,
         totalAmount,
         monthlyAmount,
         impactsCashflow,
@@ -333,7 +335,7 @@ export class TransactionsService {
     // If installments are provided, delegate to the installment flow.
     console.log(`Checking installments... ${installments}`);
 
-    if (installments) {
+    if (installments > 1) {
       console.log(`Heading to installments`);
 
       return await this.handleInstallments(
@@ -373,7 +375,7 @@ export class TransactionsService {
       const newTransaction = await this.transactionsRepository.create({
         status: this.setTransactionStatus(parseDate(transactionDate)),
         entryType: EntryType.EXPENSE,
-        transactionDate,
+        transactionDate: parseDate(transactionDate),
         paymentMonth,
         comment,
         currency,
@@ -406,7 +408,7 @@ export class TransactionsService {
     const newTransaction = await this.transactionsRepository.create({
       status: this.setTransactionStatus(parseDate(transactionDate)),
       entryType: EntryType.EXPENSE,
-      transactionDate,
+      transactionDate: parseDate(transactionDate),
       paymentMonth,
       comment,
       currency,
