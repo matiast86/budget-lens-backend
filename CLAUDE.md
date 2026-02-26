@@ -252,8 +252,11 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 |--------|-------|------|----------|-------|-------------|
 | POST | `/ledgers/:ledgerId/expenses` | `CreateTransactionDto` | `TransactionResponseDto` or `[]` | Ledger | Create expense |
 | POST | `/ledgers/:ledgerId/incomes` | `CreateIncomeDto` | `TransactionResponseDto` | Ledger | Create income |
-| GET | `/ledgers/:ledgerId` | `?skip&take` | `TransactionResponseDto[]` | Ledger | List by ledger |
+| GET | `/ledgers/:ledgerId` | `?skip&take&status&entryType&categoryId&groupId&paymentMethodId&paymentMonth&isPaid` | `TransactionResponseDto[]` | Ledger | List by ledger (filterable, default take=50) |
 | GET | `/:id` | — | `TransactionResponseDto` | Ledger | Get by ID |
+| PATCH | `/:id/flags` | `UpdateTransactionFlagsDto` | `TransactionResponseDto` | Ledger | Toggle isPaid / impactsCashflow |
+| PATCH | `/:id` | `UpdateTransactionCoreDto` | `TransactionResponseDto` | Ledger | Full core update; recalculates inflation if amount or paymentMonth changes |
+| DELETE | `/:id` | — | 204 | Ledger | Delete transaction |
 | PATCH | `/:id/breakdown` | `AssignBreakDownDto` | `TransactionResponseDto` | Ledger | Assign W1-W4 |
 | PATCH | `/:id/category/:targetId` | — | `TransactionResponseDto` | Ledger | Change category |
 | PATCH | `/:id/group/:targetId` | — | `TransactionResponseDto` | Ledger | Change group |
@@ -269,6 +272,15 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 **DebtAssignmentDto**: `{ debtOwnerId, amount, direction (OWED_TO_ME|OWED_BY_ME) }`
 
 **CreateIncomeDto**: Same as expense but without `installments`, `weekNumber`, `debtAssignments`.
+
+**UpdateTransactionFlagsDto**: `{ isPaid?: boolean, impactsCashflow?: boolean }`
+
+**UpdateTransactionCoreDto**: `{ comment?, totalProvidedAmount?, transactionDate?, paymentMonthValue?, categoryId?, groupId?, paymentMethodId? }`
+- `paymentMonth` filter uses `YYYY-MM` → converted to date range `[startOfMonth, startOfNextMonth)` in service
+- When `totalProvidedAmount` or `paymentMonthValue` change, `cpiIndex` and `realMonthlyAmount` are recalculated
+
+**FilterTransactionsDto** (query params for `GET /ledgers/:id`):
+`{ status?, entryType?, categoryId?, groupId?, paymentMethodId?, paymentMonth? (YYYY-MM), isPaid? (boolean string) }`
 
 **TransactionResponseDto**:
 ```
@@ -459,6 +471,15 @@ src/
 │   │           #   category-total-period.dto.ts       { period, totalNominalAmount, totalRealAmount (null if no CPI data) }
 │   ├── shared/         # Global module: ConfigModule, JwtModule
 │   ├── transactions/   # Complex CRUD with installments, merging, debt assignments
+│   │   ├── dto/
+│   │   │   ├── create-transaction.dto.ts        # expense creation
+│   │   │   ├── create-income.dto.ts             # income creation
+│   │   │   ├── filter-transactions.dto.ts        # GET query params: status, entryType, categoryId, groupId, paymentMethodId, paymentMonth, isPaid
+│   │   │   ├── update-transaction-flags.dto.ts   # PATCH :id/flags — isPaid?, impactsCashflow?
+│   │   │   └── update-transaction-core.dto.ts    # PATCH :id — comment?, totalProvidedAmount?, transactionDate?, paymentMonthValue?, relations
+│   │   ├── transactions.controller.ts           # all endpoints including new flags/core/delete
+│   │   ├── transactions.service.ts              # findAllByLedgerId(ledgerId, skip, take, filters), updateFlags, updateCore, deleteTransaction
+│   │   └── transactions.repository.ts
 │   ├── transactions-break-down/ # Weekly breakdown update
 │   └── users/          # CRUD with soft-delete
 ├── prisma/             # PrismaService, PrismaModule (global)

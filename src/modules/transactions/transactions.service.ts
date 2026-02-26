@@ -31,7 +31,10 @@ import { TransactionsBreakDownService } from '../transactions-break-down/transac
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { DebtAssignmentDto } from './dto/debt-assignment.dto';
+import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
+import { UpdateTransactionCoreDto } from './dto/update-transaction-core.dto';
+import { UpdateTransactionFlagsDto } from './dto/update-transaction-flags.dto';
 import { TransactionsRepository } from './transactions.repository';
 
 @Injectable()
@@ -533,15 +536,96 @@ export class TransactionsService {
   async findAllByLedgerId(
     ledgerId: number,
     skip: number = 0,
-    take: number = 20,
+    take: number = 50,
+    filters: FilterTransactionsDto = {},
   ): Promise<TransactionResponseDto[]> {
-    const ledgers = await this.transactionsRepository.findAllByPaginated(
-      { ledgerId },
+    const where: Prisma.TransactionWhereInput = { ledgerId };
+
+    if (filters.status) where.status = filters.status;
+    if (filters.entryType) where.entryType = filters.entryType;
+    if (filters.categoryId) where.categoryId = Number(filters.categoryId);
+    if (filters.groupId) where.groupId = Number(filters.groupId);
+    if (filters.paymentMethodId)
+      where.paymentMethodId = Number(filters.paymentMethodId);
+    if (filters.isPaid !== undefined) where.isPaid = filters.isPaid;
+
+    if (filters.paymentMonth) {
+      const startOfMonth = parsePeriod(filters.paymentMonth);
+      // Advance one month to build an exclusive upper bound
+      const startOfNextMonth = new Date(startOfMonth);
+      startOfNextMonth.setUTCMonth(startOfNextMonth.getUTCMonth() + 1);
+      where.paymentMonth = { gte: startOfMonth, lt: startOfNextMonth };
+    }
+
+    const transactions = await this.transactionsRepository.findAllByPaginated(
+      where,
       skip,
       take,
+      { paymentMonth: 'desc' },
     );
 
-    return transactionArrayToArrayDto(ledgers);
+    return transactionArrayToArrayDto(transactions);
+  }
+
+  async updateFlags(
+    id: number,
+    dto: UpdateTransactionFlagsDto,
+  ): Promise<TransactionResponseDto> {
+    const data: Prisma.TransactionUpdateInput = {};
+    if (dto.isPaid !== undefined) data.isPaid = dto.isPaid;
+    if (dto.impactsCashflow !== undefined)
+      data.impactsCashflow = dto.impactsCashflow;
+    const updated = await this.transactionsRepository.update(id, data);
+    return transactionToResponseDto(updated);
+  }
+
+  async updateCore(
+    id: number,
+    dto: UpdateTransactionCoreDto,
+  ): Promise<TransactionResponseDto> {
+    const transaction = await this.transactionsRepository.findById(id);
+    if (!transaction)
+      throw new NotFoundException(`Transaction with id: ${id} not found.`);
+
+    const data: Prisma.TransactionUpdateInput = {};
+
+    if (dto.comment !== undefined) data.comment = dto.comment || null;
+    if (dto.transactionDate) {
+      data.transactionDate = parseDate(dto.transactionDate);
+      data.status = this.setTransactionStatus(parseDate(dto.transactionDate));
+    }
+    if (dto.categoryId) data.category = { connect: { id: dto.categoryId } };
+    if (dto.groupId) data.group = { connect: { id: dto.groupId } };
+    if (dto.paymentMethodId)
+      data.paymentMethod = { connect: { id: dto.paymentMethodId } };
+
+    if (dto.totalProvidedAmount !== undefined || dto.paymentMonthValue) {
+      const ledger = await this.ledgersService.findOneMinimal(
+        transaction.ledgerId,
+      );
+      const newTotal =
+        dto.totalProvidedAmount ?? Number(transaction.totalAmount);
+      const paymentMonth = dto.paymentMonthValue
+        ? parsePeriod(dto.paymentMonthValue)
+        : transaction.paymentMonth;
+      const inflation = await this.getInflationData(
+        ledger.currency,
+        paymentMonth,
+        newTotal,
+        ledger.baseCpiIndex,
+      );
+      data.totalAmount = newTotal;
+      data.monthlyAmount = newTotal;
+      data.paymentMonth = paymentMonth;
+      Object.assign(data, inflation);
+    }
+
+    const updated = await this.transactionsRepository.update(id, data);
+    return transactionToResponseDto(updated);
+  }
+
+  async deleteTransaction(id: number): Promise<void> {
+    await this.transactionsRepository.delete(id);
   }
 
   async findById(id: number): Promise<TransactionResponseDto> {

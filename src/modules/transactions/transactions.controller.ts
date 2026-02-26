@@ -2,7 +2,10 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -13,6 +16,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -24,7 +28,10 @@ import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
+import { UpdateTransactionCoreDto } from './dto/update-transaction-core.dto';
+import { UpdateTransactionFlagsDto } from './dto/update-transaction-flags.dto';
 import { TransactionsService } from './transactions.service';
 
 @ApiBearerAuth()
@@ -78,7 +85,9 @@ export class TransactionsController {
   }
 
   @Get('ledgers/:ledgerId')
-  @ApiOperation({ summary: 'List transactions for a ledger' })
+  @ApiOperation({
+    summary: 'List transactions for a ledger with optional filters',
+  })
   @ApiParam({
     name: 'ledgerId',
     type: Number,
@@ -88,27 +97,29 @@ export class TransactionsController {
     name: 'skip',
     type: Number,
     required: false,
-    description: 'Number of records to skip (default: 1)',
-    example: 1,
+    description: 'Number of records to skip (default: 0)',
+    example: 0,
   })
   @ApiQuery({
     name: 'take',
     type: Number,
     required: false,
-    description: 'Number of records to return (default: 20)',
-    example: 20,
+    description: 'Number of records to return (default: 50)',
+    example: 50,
   })
   @ApiOkResponse({ type: TransactionResponseDto, isArray: true })
   @ApiNotFoundResponse({ description: 'Ledger not found' })
   async findAllByLedger(
     @Param('ledgerId', ParseIntPipe) ledgerId: number,
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip = 0,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take = 10,
+    @Query('take', new DefaultValuePipe(50), ParseIntPipe) take = 50,
+    @Query() filters: FilterTransactionsDto,
   ): Promise<TransactionResponseDto[]> {
     return await this.transactionsService.findAllByLedgerId(
       ledgerId,
       skip,
       take,
+      filters,
     );
   }
 
@@ -146,6 +157,21 @@ export class TransactionsController {
       id,
       assignBreakDownDto,
     );
+  }
+
+  @LedgerFrom('transaction', 'id')
+  @Patch(':id/flags')
+  @ApiOperation({
+    summary: 'Toggle isPaid and/or impactsCashflow flags on a transaction',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Transaction ID' })
+  @ApiOkResponse({ type: TransactionResponseDto })
+  @ApiNotFoundResponse({ description: 'Transaction not found' })
+  async updateFlags(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTransactionFlagsDto,
+  ): Promise<TransactionResponseDto> {
+    return await this.transactionsService.updateFlags(id, dto);
   }
 
   @LedgerFrom('transaction', 'id')
@@ -202,5 +228,34 @@ export class TransactionsController {
       'paymentMethod',
       targetId,
     );
+  }
+
+  @LedgerFrom('transaction', 'id')
+  @Patch(':id')
+  @ApiOperation({
+    summary:
+      'Update core fields of a transaction (amount, date, comment, relations)',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Transaction ID' })
+  @ApiOkResponse({ type: TransactionResponseDto })
+  @ApiNotFoundResponse({ description: 'Transaction not found' })
+  async updateTransaction(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTransactionCoreDto,
+  ): Promise<TransactionResponseDto> {
+    return await this.transactionsService.updateCore(id, dto);
+  }
+
+  @LedgerFrom('transaction', 'id')
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a transaction' })
+  @ApiParam({ name: 'id', type: Number, description: 'Transaction ID' })
+  @ApiNoContentResponse({ description: 'Transaction deleted' })
+  @ApiNotFoundResponse({ description: 'Transaction not found' })
+  async deleteTransaction(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return await this.transactionsService.deleteTransaction(id);
   }
 }
