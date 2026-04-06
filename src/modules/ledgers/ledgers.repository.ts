@@ -71,6 +71,7 @@ export class LedgersRepository {
   async create(data: Prisma.LedgerCreateInput): Promise<Ledger> {
     return await this.prisma.ledger.create({
       data,
+      include: { paymentMethods: true },
     });
   }
 

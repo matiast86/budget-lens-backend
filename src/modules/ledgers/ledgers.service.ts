@@ -9,7 +9,7 @@ import {
 import { LedgerDashboardView } from 'src/types/entities/ledger.types';
 import { CategoryTemplatesService } from '../category-templates/category-templates.service';
 import { InflationIndexesService } from '../inflation-indexes/inflation-indexes.service';
-import { UsersService } from '../users/users.service';
+import { PaymentMethodsService } from '../payment-methods/payment-methods.service';
 import { CreateLedgerDto } from './dto/create-ledger.dto';
 import { LedgerDashboardResponseDto } from './dto/ledger-dashboard-response.dto';
 import { LedgerMinimalDto } from './dto/ledger-minimal.dto';
@@ -21,7 +21,7 @@ import { LedgersRepository } from './ledgers.repository';
 export class LedgersService {
   constructor(
     private readonly ledgersRepository: LedgersRepository,
-    private readonly usersService: UsersService,
+    private readonly paymentMethodsService: PaymentMethodsService,
     private readonly templatesService: CategoryTemplatesService,
     private readonly inflationIndexesService: InflationIndexesService,
   ) {}
@@ -57,6 +57,7 @@ export class LedgersService {
     };
 
     const newLedger = await this.ledgersRepository.create(data);
+    await this.paymentMethodsService.addToLedger(ownerId, newLedger.id);
 
     return ledgerToDashboardView(newLedger);
   }

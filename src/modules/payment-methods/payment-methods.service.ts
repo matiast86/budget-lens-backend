@@ -39,6 +39,12 @@ export class PaymentMethodsService {
     return paymentMethodArrayToArrayDto(methods);
   }
 
+  async addToLedger(userId: string, ledgerId: number): Promise<void> {
+    const methods = await this.paymentMethodsRepository.findAllByUser(userId);
+    const pmIds = methods.map((pm) => pm.id);
+    await this.paymentMethodsRepository.addToLedger(userId, ledgerId, pmIds);
+  }
+
   async findOne(userId: string, id: number): Promise<PaymentMethodResponseDto> {
     const paymentMethod = await this.paymentMethodsRepository.findById(
       id,

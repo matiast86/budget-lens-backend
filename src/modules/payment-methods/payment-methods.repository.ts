@@ -18,7 +18,9 @@ export class PaymentMethodsRepository {
   }
 
   async findAllByUser(userId: string): Promise<PaymentMethod[]> {
-    return await this.prisma.paymentMethod.findMany({ where: { userId } });
+    return await this.prisma.paymentMethod.findMany({
+      where: { userId, isActive: true },
+    });
   }
 
   async findById(id: number, userId: string): Promise<PaymentMethod | null> {
@@ -68,5 +70,19 @@ export class PaymentMethodsRepository {
 
   async findOne(id: number): Promise<PaymentMethod | null> {
     return await this.prisma.paymentMethod.findUnique({ where: { id } });
+  }
+
+  async addToLedger(
+    userId: string,
+    ledgerId: number,
+    pmIds: number[],
+  ): Promise<void> {
+    await this.prisma.ledgerPaymentMethod.createMany({
+      data: pmIds.map((id) => ({
+        paymentMethodId: id,
+        ledgerId,
+        assignedBy: userId,
+      })),
+    });
   }
 }
