@@ -18,6 +18,25 @@ export class UsersRepository {
     });
   }
 
+  async getById(id: string): Promise<UserDashboardView | null> {
+    return await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        ledgers: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            currency: true,
+            baseCpiIndex: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+  }
+
   async findByEmail(email: string): Promise<UserDashboardView | null> {
     return await this.prisma.user.findUnique({
       where: { email },

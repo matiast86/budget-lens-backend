@@ -50,6 +50,14 @@ export class UsersService {
     return userToResponseDto(user);
   }
 
+  async findOneById(id: string): Promise<UserDashboardView> {
+    const user: UserDashboardView | null =
+      await this.usersRepository.getById(id);
+    if (!user) throw new NotFoundException(`User with email: ${id} not found.`);
+
+    return user;
+  }
+
   async findOneByEmail(email: string): Promise<UserDashboardView> {
     const user = await this.usersRepository.findByEmail(email);
     if (!user)

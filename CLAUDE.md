@@ -236,7 +236,7 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 
 | Method | Route | Body | Response | Description |
 |--------|-------|------|----------|-------------|
-| POST | `/` | `CreatePaymentMethodDto` | `PaymentMethodResponseDto` | Create |
+| POST | `/` | `CreatePaymentMethodDto` | `PaymentMethodResponseDto` | Create + auto-assign to all user ledgers |
 | GET | `/` | — | `PaymentMethodResponseDto[]` | List user's methods |
 | GET | `/:id` | — | `PaymentMethodResponseDto` | Get by ID |
 | GET | `/name/:name` | — | `PaymentMethodResponseDto` | Get by name |
@@ -245,6 +245,12 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 | DELETE | `/:id` | — | 204 | Delete |
 
 **CreatePaymentMethodDto**: `{ name, type (PaymentType), brand? (CreditBrand), color?, icon?, currency? (Currency) }`
+
+**PM auto-assignment invariant** — PMs belong to the user, not to individual ledgers. Two events keep `LedgerPaymentMethod` fully cross-joined:
+- **Ledger created** → `LedgersService.create` calls `PaymentMethodsService.addToLedger`, assigning all existing user PMs
+- **PM created** → `PaymentMethodsService.create` calls `UsersService.findOneById` (which includes `ledgers[]`), then calls `addToLedger` for each — new cards/wallets are immediately available across all ledgers
+
+`PaymentMethodsModule` imports `UsersModule` (which exports `UsersService`) to support this.
 
 ### Transactions (`/transactions`) — LedgerAccessGuard
 

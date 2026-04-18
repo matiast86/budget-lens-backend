@@ -5,6 +5,7 @@ import {
   paymentMethodArrayToArrayDto,
   paymentMethodToResponseDto,
 } from 'src/helpers/mappers/payment-method.mapper';
+import { UsersService } from '../users/users.service';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { PaymentMethodResponseDto } from './dto/payment-method-response.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
@@ -14,6 +15,7 @@ import { PaymentMethodsRepository } from './payment-methods.repository';
 export class PaymentMethodsService {
   constructor(
     private readonly paymentMethodsRepository: PaymentMethodsRepository,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(
@@ -21,6 +23,7 @@ export class PaymentMethodsService {
     createPaymentMethodDto: CreatePaymentMethodDto,
   ): Promise<PaymentMethodResponseDto> {
     const { name, type, brand, color, icon, currency } = createPaymentMethodDto;
+    const user = await this.usersService.findOneById(userId);
     const newPM = await this.paymentMethodsRepository.create({
       name,
       type,
@@ -30,6 +33,14 @@ export class PaymentMethodsService {
       currency,
       user: { connect: { id: userId } },
     });
+    const ledgers = user.ledgers;
+    await Promise.all(
+      ledgers.map((ledger) =>
+        this.paymentMethodsRepository.addToLedger(userId, ledger.id, [
+          newPM.id,
+        ]),
+      ),
+    );
 
     return paymentMethodToResponseDto(newPM);
   }
