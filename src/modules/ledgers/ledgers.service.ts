@@ -40,7 +40,9 @@ export class LedgersService {
     }));
 
     const now = new Date();
-    const currentPeriod = new Date(now.getFullYear(), now.getMonth(), 1);
+    const currentPeriod = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    );
     const baseCpiIndex =
       (await this.inflationIndexesService.getCpiIndex(
         currency,

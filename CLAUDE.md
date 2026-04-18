@@ -401,6 +401,8 @@ When a transaction is created, the service looks up the `InflationIndex` for the
 - `realMonthlyAmount` = `(monthlyAmount / cpiIndex) * baseCpiIndex` — inflation-adjusted to constant pesos at ledger creation time
 - `baseCpiIndex` is stored on the `Ledger` at creation time (from the CPI of the current month, defaults to 100)
 
+> **Timezone gotcha**: `baseCpiIndex` lookup in `ledgers.service.ts` must use UTC (`Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)`) to match CPI periods stored as UTC midnight via `parsePeriod`. Using `new Date(now.getFullYear(), now.getMonth(), 1)` (local time) causes a mismatch → `getCpiIndex` returns `null` → fallback `baseCpiIndex = 100` is stored. Transactions then inflate correctly but divide by real CPI × 100, producing a much smaller `realMonthlyAmount` than expected.
+
 ### Status Lifecycle
 
 Transaction status is auto-determined from `transactionDate`:
