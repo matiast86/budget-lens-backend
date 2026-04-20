@@ -36,6 +36,7 @@ import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { UpdateTransactionCoreDto } from './dto/update-transaction-core.dto';
 import { UpdateTransactionFlagsDto } from './dto/update-transaction-flags.dto';
 import { TransactionsRepository } from './transactions.repository';
+import { ApiNonAuthoritativeInformationResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class TransactionsService {
@@ -85,11 +86,11 @@ export class TransactionsService {
   }
 
   // Helper: determine transaction status based on its date.
-  private setTransactionStatus(transactionDate: Date): Status {
+  private setTransactionStatus(paymentMonth: Date): Status {
     switch (true) {
-      case checkCurrentMonth(transactionDate):
+      case checkCurrentMonth(paymentMonth):
         return Status.CURRENT;
-      case isPastMonth(transactionDate):
+      case isPastMonth(paymentMonth):
         return Status.CLOSED;
       default:
         return Status.FUTURE;
@@ -137,7 +138,7 @@ export class TransactionsService {
           ledgerBaseIndex,
         );
         const newTransaction = await this.transactionsRepository.create({
-          status: this.setTransactionStatus(transactionDate),
+          status: this.setTransactionStatus(paymentMonth),
           entryType: EntryType.EXPENSE,
           transactionDate,
           paymentMonth: installmentPaymentMonth,
@@ -182,7 +183,7 @@ export class TransactionsService {
         ledgerBaseIndex,
       );
       const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(transactionDate),
+        status: this.setTransactionStatus(installmentPaymentMonth),
         entryType: EntryType.EXPENSE,
         transactionDate,
         paymentMonth: installmentPaymentMonth,
@@ -336,7 +337,6 @@ export class TransactionsService {
       ? parsePeriod(paymentMonthValue)
       : parseDate(transactionDate);
     // If installments are provided, delegate to the installment flow.
-    console.log(`Checking installments... ${installments}`);
 
     if (installments > 1) {
       console.log(`Heading to installments`);
@@ -376,7 +376,7 @@ export class TransactionsService {
     // Single transaction with debt.
     if (debtAssignments.length != 0) {
       const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(parseDate(transactionDate)),
+        status: this.setTransactionStatus(paymentMonth),
         entryType: EntryType.EXPENSE,
         transactionDate: parseDate(transactionDate),
         paymentMonth,
@@ -408,8 +408,11 @@ export class TransactionsService {
       return transactionToResponseDto(refreshed);
     }
     // Single transaction without debt.
+
+    const status = this.setTransactionStatus(paymentMonth);
+
     const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(parseDate(transactionDate)),
+      status,
       entryType: EntryType.EXPENSE,
       transactionDate: parseDate(transactionDate),
       paymentMonth,
@@ -425,6 +428,7 @@ export class TransactionsService {
       group: { connect: { id: groupId } },
       paymentMethod: { connect: { id: paymentMethodId } },
     });
+
     const tbd = await this.createTransactionsBD(newTransaction.id);
     const response = transactionToResponseDto(newTransaction);
     response.transactionsBreakDown = tbd;
@@ -472,7 +476,7 @@ export class TransactionsService {
     );
 
     const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(parseDate(transactionDate)),
+      status: this.setTransactionStatus(paymentMonth),
       entryType: EntryType.INCOME,
       transactionDate: parseDate(transactionDate),
       paymentMonth,
@@ -588,17 +592,22 @@ export class TransactionsService {
       throw new NotFoundException(`Transaction with id: ${id} not found.`);
 
     const data: Prisma.TransactionUpdateInput = {};
+    const paymentMonth = dto.paymentMonthValue
+      ? parseDate(dto.paymentMonthValue)
+      : dto.transactionDate
+        ? parseDate(dto.transactionDate)
+        : transaction.paymentMonth;
 
     if (dto.comment !== undefined) data.comment = dto.comment || null;
     if (dto.transactionDate) {
       data.transactionDate = parseDate(dto.transactionDate);
-      data.status = this.setTransactionStatus(parseDate(dto.transactionDate));
     }
     if (dto.categoryId) data.category = { connect: { id: dto.categoryId } };
     if (dto.groupId) data.group = { connect: { id: dto.groupId } };
     if (dto.paymentMethodId)
       data.paymentMethod = { connect: { id: dto.paymentMethodId } };
-
+    if (dto.paymentMonthValue || dto.transactionDate)
+      data.status = this.setTransactionStatus(paymentMonth);
     if (dto.totalProvidedAmount !== undefined || dto.paymentMonthValue) {
       const ledger = await this.ledgersService.findOneMinimal(
         transaction.ledgerId,

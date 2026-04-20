@@ -26,16 +26,16 @@ export const periodMapper = (period: Date) => {
 };
 
 export const checkCurrentMonth = (date: Date): boolean => {
-  const today = dayjs();
-  const parsedDate = dayjs(date);
+  const today = dayjs.utc();
+  const parsedDate = dayjs.utc(date);
   return (
     parsedDate.month() === today.month() && parsedDate.year() === today.year()
   );
 };
 
 export const isFutureMonth = (date: Date): boolean => {
-  const today = dayjs();
-  const parsedDate = dayjs(date);
+  const today = dayjs.utc();
+  const parsedDate = dayjs.utc(date);
   return (
     parsedDate.year() > today.year() ||
     (parsedDate.month() > today.month() && parsedDate.year() === today.year())
@@ -43,8 +43,8 @@ export const isFutureMonth = (date: Date): boolean => {
 };
 
 export const isPastMonth = (date: Date): boolean => {
-  const today = dayjs();
-  const parsedDate = dayjs(date);
+  const today = dayjs.utc();
+  const parsedDate = dayjs.utc(date);
   return (
     parsedDate.year() < today.year() ||
     (parsedDate.month() < today.month() && parsedDate.year() === today.year())
@@ -55,7 +55,7 @@ export const increaseMonthByInstallment = (
   date: Date,
   installment: number,
 ): Date => {
-  const formatedDate = dayjs(date).startOf('month');
+  const formatedDate = dayjs.utc(date).startOf('month');
   return formatedDate.add(installment - 1, 'month').toDate();
 };
 
