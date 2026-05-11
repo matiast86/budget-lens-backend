@@ -401,14 +401,18 @@ When a transaction is created, the service looks up the `InflationIndex` for the
 - `realMonthlyAmount` = `(monthlyAmount / cpiIndex) * baseCpiIndex` — inflation-adjusted to constant pesos at ledger creation time
 - `baseCpiIndex` is stored on the `Ledger` at creation time (from the CPI of the current month, defaults to 100)
 
-> **Timezone gotcha**: `baseCpiIndex` lookup in `ledgers.service.ts` must use UTC (`Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)`) to match CPI periods stored as UTC midnight via `parsePeriod`. Using `new Date(now.getFullYear(), now.getMonth(), 1)` (local time) causes a mismatch → `getCpiIndex` returns `null` → fallback `baseCpiIndex = 100` is stored. Transactions then inflate correctly but divide by real CPI × 100, producing a much smaller `realMonthlyAmount` than expected.
+> **UTC rule (critical)**: All date construction and comparison must use UTC. CPI periods are stored as UTC midnight via `parsePeriod`. A local-time `new Date(year, month, 1)` on UTC-3 produces `T03:00:00.000Z`, which does not match `T00:00:00.000Z` — causing `getCpiIndex` to return `null`. The same applies to the comparison helpers in `dates.ts`: `checkCurrentMonth`, `isPastMonth`, `isFutureMonth`, and `increaseMonthByInstallment` all use `dayjs.utc()`. Never use `new Date(...)` with local year/month parts or bare `dayjs(date)` for anything touching DB-stored dates.
 
 ### Status Lifecycle
 
-Transaction status is auto-determined from `transactionDate`:
+Transaction status is auto-determined from `paymentMonth` (not `transactionDate`):
 - `CURRENT` — same month as today
 - `CLOSED` — past month
 - `FUTURE` — future month (projected installments)
+
+This is intentional: an installment purchase made today but billed in June must be `FUTURE`, not `CURRENT`. Using `transactionDate` was a bug.
+
+On `updateCore`, status is recalculated whenever `paymentMonthValue` or `transactionDate` is provided. Falls back to `transaction.paymentMonth` from DB when neither is provided — so a comment-only patch leaves status untouched.
 
 ### Date Parsing
 
@@ -432,6 +436,7 @@ src/
 ├── guards/             # AuthGuard, RolesGuard, LedgerAccessGuard
 ├── helpers/
 │   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment, getWeekofMonth
+│   │                   # ALL comparison helpers use dayjs.utc() — never bare dayjs() — to avoid UTC-3 local-time mismatch against UTC-midnight DB dates
 │   ├── errors.ts       # handleP2025, handleLedgerFromRequest
 │   ├── reports.ts      # Pure report helpers — all use Map-based O(M) single-pass accumulation:
 │   │                   #   Cashflow:           extractPeriodsFromTransactions, getPlannedEffectiveAmount,
