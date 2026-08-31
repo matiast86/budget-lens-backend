@@ -182,11 +182,12 @@ model Transaction {
   exchangeRate          Decimal?
   totalAmount           Decimal
   monthlyAmount         Decimal
+  plannedAmount         Decimal?
   isPaid                Boolean                @default(false)
   impactsCashflow       Boolean                 @default(true)
   cpiIndex              Decimal?
   realMonthlyAmount     Decimal?
-  type                  TransactionType        @default(VARIABLE)
+  transactionType       TransactionType        @default(VARIABLE)
   paymentMethodId       Int
   transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
 
