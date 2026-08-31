@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
+    "baseUrl": "./",
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
