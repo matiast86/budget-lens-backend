@@ -57,7 +57,7 @@ Transaction (auto-increment PK)
 ├── ledgerId, status, entryType, categoryId, groupId, paymentMethodId
 ├── transactionDate, paymentMonth, installments, installment
 ├── comment?, currency, exchangeRate?, totalAmount, monthlyAmount
-├── isPaid, impactsCashflow, cpiIndex?, realMonthlyAmount?, type (FIXED/VARIABLE)
+├── isPaid, impactsCashflow, cpiIndex?, realMonthlyAmount?, plannedAmount?, transactionType (FIXED/VARIABLE, default VARIABLE)
 ├── N:1 → Ledger, Category, Group, PaymentMethod
 ├── 1:N → TransactionBreakDown (weekly W1-W4)
 └── 1:N → TransactionDebtOwner (many-to-many with DebtOwner via pivot)
@@ -256,8 +256,8 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 
 | Method | Route | Body | Response | Guard | Description |
 |--------|-------|------|----------|-------|-------------|
-| POST | `/ledgers/:ledgerId/expenses` | `CreateTransactionDto` | `TransactionResponseDto` or `[]` | Ledger | Create expense |
-| POST | `/ledgers/:ledgerId/incomes` | `CreateIncomeDto` | `TransactionResponseDto` | Ledger | Create income |
+| POST | `/ledgers/:ledgerId/expenses` | `CreateFixedExpenseDto` | `TransactionResponseDto` or `[]` | Ledger | Create expense (or a FIXED bundle → `[]`) |
+| POST | `/ledgers/:ledgerId/incomes` | `CreateFixedIncomeDto` | `TransactionResponseDto` or `[]` | Ledger | Create income (or a FIXED bundle → `[]`) |
 | GET | `/ledgers/:ledgerId` | `?skip&take&status&entryType&categoryId&groupId&paymentMethodId&paymentMonth&isPaid` | `TransactionResponseDto[]` | Ledger | List by ledger (filterable, default take=50) |
 | GET | `/:id` | — | `TransactionResponseDto` | Ledger | Get by ID |
 | PATCH | `/:id/flags` | `UpdateTransactionFlagsDto` | `TransactionResponseDto` | Ledger | Toggle isPaid / impactsCashflow |
@@ -272,12 +272,24 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 ```
 { categoryId, groupId, paymentMethodId, transactionDate, currency, totalProvidedAmount,
   paymentMonthValue?, installments?, comment?, exchangeRate?, weekNumber? (1-4),
+  transactionTypeEntry? (FIXED|VARIABLE — maps to Transaction.transactionType; default VARIABLE),
   impactsCashflow?, debtAssignments?: DebtAssignmentDto[] }
 ```
 
 **DebtAssignmentDto**: `{ debtOwnerId, amount, direction (OWED_TO_ME|OWED_BY_ME) }`
 
 **CreateIncomeDto**: Same as expense but without `installments`, `weekNumber`, `debtAssignments`.
+
+**CreateFixedExpenseDto / CreateFixedIncomeDto** — the real `@Body()` type of the two POST endpoints: `IntersectionType(CreateTransactionDto|CreateIncomeDto, FixedBundleDto)`. The controller passes the same object to the service twice (as the create DTO and as the bundle DTO).
+
+**FixedBundleDto** (all fields optional; only read when `transactionTypeEntry === FIXED`):
+```
+{ bundleTo?   (YYYY-MM end period — currently END-EXCLUSIVE; DTO validates @IsDateString, parser wants YYYY-MM),
+  increaseRate?        (fraction, 0.1 = +10% per step; default 0 → no escalation),
+  increaseEveryMonths? (>= 1; default 1 → escalate every month) }
+```
+
+> **NestJS has no global `ValidationPipe`** (`main.ts` / no `APP_PIPE`), so none of the `class-validator` decorators run at runtime yet — DTO constraints are documentation + Swagger only.
 
 **UpdateTransactionFlagsDto**: `{ isPaid?: boolean, impactsCashflow?: boolean }`
 
@@ -369,15 +381,19 @@ Business rules for category evolution:
 
 ### Transaction Creation (Expense)
 
-The `createExpense` flow has three paths:
+The `createExpense` flow has four paths (checked in this order):
 
 1. **Current-month merge** — If `transactionDate` is current month AND a matching transaction exists (same category + group + payment method + currency + entry type) AND payment method is NOT `CREDIT_CARD`: merges into existing transaction by updating the weekly breakdown amount and total. Debt assignments are still created independently.
 
 2. **Installment flow** — If `installments > 1`: creates N separate transactions (one per installment), each with a `paymentMonth` incremented by one month. If `debtAssignments` provided, creates `TransactionDebtOwner` + `Debt` records for each assignment per installment.
 
-3. **Single transaction** — Default path. Creates one transaction with optional debt assignments.
+3. **FIXED bundle** — If `transactionTypeEntry === FIXED` (requires `fixedBundleDto.bundleTo`, else 400): delegates to `createBundle`, which generates one standalone 1-of-1 transaction per month from `paymentMonth` up to (exclusive of) `bundleTo`. Per-month amount = `bundleAmountForMonth(base, monthOffset, increaseRate, increaseEveryMonths)` = `base * (1 + increaseRate) ** floor(monthOffset / max(increaseEveryMonths, 1))` — month 0 stays at `base`. All bundle rows are forced `impactsCashflow: false`. `createIncome` has the same FIXED branch (no debt assignments). Checked AFTER paths 1–2, so a current-month FIXED can still merge, and FIXED + `installments > 1` goes to the installment path instead.
+
+4. **Single transaction** — Default path. Creates one transaction with optional debt assignments.
 
 All paths create 4 `TransactionBreakDown` rows (W1-W4, initialized to 0) per transaction.
+
+> **Known bugs in `createBundle`** (feature is wired end-to-end but not production-correct): debt branch calls `handleDebtOwners` twice per row → second insert hits the `TransactionDebtOwner` composite PK → Prisma **P2002**; `periods` is computed with local-time `upto.getFullYear()/getMonth()` on UTC-midnight dates (violates the UTC rule — off by a month on non-UTC servers); `bundleTo` month is excluded and `bundleTo <= paymentMonth` silently yields `[]`; no `assignTotalAmount` so `exchangeRate` is stored but never applied; `getInflationData` is passed `totalProvidedAmount` (not the escalated `totalAmount`) and the tx currency instead of `ledger.currency`; the whole bundle runs as unbounded `Promise.all` with no `$transaction` wrapper.
 
 ### Debt Model
 
@@ -485,13 +501,17 @@ src/
 │   ├── shared/         # Global module: ConfigModule, JwtModule
 │   ├── transactions/   # Complex CRUD with installments, merging, debt assignments
 │   │   ├── dto/
-│   │   │   ├── create-transaction.dto.ts        # expense creation
-│   │   │   ├── create-income.dto.ts             # income creation
+│   │   │   ├── create-transaction.dto.ts        # expense creation (+ transactionTypeEntry?)
+│   │   │   ├── create-income.dto.ts             # income creation (+ transactionTypeEntry?)
+│   │   │   ├── bundle-dtos/                      # FIXED recurring-transaction ("bundle") DTOs
+│   │   │   │   ├── fixed-bundle.dto.ts          # bundleTo?, increaseRate?, increaseEveryMonths? (all optional)
+│   │   │   │   ├── create-fixed-expense.dto.ts  # IntersectionType(CreateTransactionDto, FixedBundleDto) — @Body() of POST expenses
+│   │   │   │   └── create-fixed-income.dto.ts   # IntersectionType(CreateIncomeDto, FixedBundleDto) — @Body() of POST incomes
 │   │   │   ├── filter-transactions.dto.ts        # GET query params: status, entryType, categoryId, groupId, paymentMethodId, paymentMonth, isPaid
 │   │   │   ├── update-transaction-flags.dto.ts   # PATCH :id/flags — isPaid?, impactsCashflow?
 │   │   │   └── update-transaction-core.dto.ts    # PATCH :id — comment?, totalProvidedAmount?, transactionDate?, paymentMonthValue?, relations
 │   │   ├── transactions.controller.ts           # all endpoints including new flags/core/delete
-│   │   ├── transactions.service.ts              # findAllByLedgerId(ledgerId, skip, take, filters), updateFlags, updateCore, deleteTransaction
+│   │   ├── transactions.service.ts              # createExpense/createIncome (4 paths incl. FIXED bundle), createBundle, bundleAmountForMonth, findAllByLedgerId, updateFlags, updateCore, deleteTransaction
 │   │   └── transactions.repository.ts
 │   ├── transactions-break-down/ # Weekly breakdown update
 │   └── users/          # CRUD with soft-delete
