@@ -17,8 +17,11 @@ import {
 export class TransactionsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: TransactionCreateInput): Promise<TransactionDetailView> {
-    return await this.prisma.transaction.create({
+  async create(
+    data: TransactionCreateInput,
+    client: Prisma.TransactionClient = this.prisma,
+  ): Promise<TransactionDetailView> {
+    return await client.transaction.create({
       data,
       include: {
         category: true,
@@ -109,8 +112,9 @@ export class TransactionsRepository {
     direction: DebtDirection,
     period: Date,
     description: string,
+    client: Prisma.TransactionClient = this.prisma,
   ): Promise<void> {
-    await this.prisma.transactionDebtOwner.create({
+    await client.transactionDebtOwner.create({
       data: {
         transaction: { connect: { id: transactionId } },
         debtOwner: { connect: { id: debtOwnerId } },
@@ -124,5 +128,12 @@ export class TransactionsRepository {
         },
       },
     });
+  }
+
+  async runInTransaction<T>(
+    fn: (tx: Prisma.TransactionClient) => Promise<T>,
+    options?: { timeout?: number; maxWait?: number },
+  ) {
+    return await this.prisma.$transaction(fn, options);
   }
 }
