@@ -9,11 +9,13 @@ import {
   EntryType,
   PaymentType,
   Status,
+  TransactionType,
 } from 'prisma/generated/prisma/enums';
 import {
   checkCurrentMonth,
   increaseMonthByInstallment,
   isPastMonth,
+  monthRange,
   parseDate,
   parsePeriod,
 } from 'src/helpers/dates';
@@ -28,6 +30,7 @@ import { PaymentMethodsService } from '../payment-methods/payment-methods.servic
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { TransactionBreakDownResponseDto } from '../transactions-break-down/dto/transaction-break-down-response.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
+import { FixedBundleDto } from './dto/bundle-dtos/fixed-bundle.dto';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { DebtAssignmentDto } from './dto/debt-assignment.dto';
@@ -36,7 +39,6 @@ import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { UpdateTransactionCoreDto } from './dto/update-transaction-core.dto';
 import { UpdateTransactionFlagsDto } from './dto/update-transaction-flags.dto';
 import { TransactionsRepository } from './transactions.repository';
-import { ApiNonAuthoritativeInformationResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class TransactionsService {
@@ -51,8 +53,9 @@ export class TransactionsService {
   // Helper: create 4 weekly breakdown rows for a new transaction.
   async createTransactionsBD(
     transactionId: number,
+    client: Prisma.TransactionClient,
   ): Promise<TransactionBreakDownResponseDto[]> {
-    return await this.transactionBDService.createBundle(transactionId);
+    return await this.transactionBDService.createBundle(transactionId, client);
   }
 
   // Helper: record a debt entry tied to the transaction context.
@@ -61,19 +64,19 @@ export class TransactionsService {
     transactionDate: Date,
     debtAssignmentsDto: DebtAssignmentDto[],
     description: string,
+    client: Prisma.TransactionClient,
   ): Promise<void> {
-    await Promise.all(
-      debtAssignmentsDto.map(({ debtOwnerId, direction, amount }) =>
-        this.transactionsRepository.createTransactionDebtOwner(
-          transactionId,
-          debtOwnerId,
-          amount,
-          direction,
-          transactionDate,
-          description,
-        ),
-      ),
-    );
+    for (const debtAssignment of debtAssignmentsDto) {
+      await this.transactionsRepository.createTransactionDebtOwner(
+        transactionId,
+        debtAssignment.debtOwnerId,
+        debtAssignment.amount,
+        debtAssignment.direction,
+        transactionDate,
+        description,
+        client,
+      );
+    }
   }
 
   // Helper: merge existing and new comments into a single string.
@@ -131,42 +134,49 @@ export class TransactionsService {
           paymentMonth,
           installment,
         );
+
         const inflation = await this.getInflationData(
           ledgerCurrency,
           installmentPaymentMonth,
           monthlyAmount,
           ledgerBaseIndex,
         );
-        const newTransaction = await this.transactionsRepository.create({
-          status: this.setTransactionStatus(paymentMonth),
-          entryType: EntryType.EXPENSE,
-          transactionDate,
-          paymentMonth: installmentPaymentMonth,
-          comment,
-          currency,
-          exchangeRate,
-          totalAmount,
-          monthlyAmount,
-          impactsCashflow,
-          ...inflation,
-          category: { connect: { id: categoryId } },
-          ledger: { connect: { id: ledgerId } },
-          group: { connect: { id: groupId } },
-          paymentMethod: { connect: { id: paymentMethodId } },
-        });
-        await this.createTransactionsBD(newTransaction.id);
+        await this.transactionsRepository.runInTransaction(async (tx) => {
+          const newTransaction = await this.transactionsRepository.create(
+            {
+              status: this.setTransactionStatus(paymentMonth),
+              entryType: EntryType.EXPENSE,
+              transactionDate,
+              paymentMonth: installmentPaymentMonth,
+              comment,
+              currency,
+              exchangeRate,
+              totalAmount,
+              monthlyAmount,
+              impactsCashflow,
+              ...inflation,
+              category: { connect: { id: categoryId } },
+              ledger: { connect: { id: ledgerId } },
+              group: { connect: { id: groupId } },
+              paymentMethod: { connect: { id: paymentMethodId } },
+            },
+            tx,
+          );
+          await this.createTransactionsBD(newTransaction.id, tx);
 
-        await this.handleDebtOwners(
-          newTransaction.id,
-          paymentMonth,
-          debtAssigmentsDto,
-          newTransaction.group.name,
-        );
-        const refreshed = await this.transactionsRepository.findById(
-          newTransaction.id,
-        );
-        if (!refreshed) throw new NotFoundException(`Transaction not found.`);
-        newTransactions.push(transactionToResponseDto(refreshed));
+          await this.handleDebtOwners(
+            newTransaction.id,
+            paymentMonth,
+            debtAssigmentsDto,
+            newTransaction.group.name,
+            tx,
+          );
+          const refreshed = await this.transactionsRepository.findById(
+            newTransaction.id,
+          );
+          if (!refreshed) throw new NotFoundException(`Transaction not found.`);
+          newTransactions.push(transactionToResponseDto(refreshed));
+        });
       }
       return newTransactions;
     }
@@ -182,29 +192,36 @@ export class TransactionsService {
         monthlyAmount,
         ledgerBaseIndex,
       );
-      const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(installmentPaymentMonth),
-        entryType: EntryType.EXPENSE,
-        transactionDate,
-        paymentMonth: installmentPaymentMonth,
-        comment,
-        currency,
-        exchangeRate,
-        installments,
-        installment,
-        totalAmount,
-        monthlyAmount,
-        impactsCashflow,
-        ...inflation,
-        category: { connect: { id: categoryId } },
-        ledger: { connect: { id: ledgerId } },
-        group: { connect: { id: groupId } },
-        paymentMethod: { connect: { id: paymentMethodId } },
-      });
-      const tbd = await this.createTransactionsBD(newTransaction.id);
-      const response = transactionToResponseDto(newTransaction);
-      response.transactionsBreakDown = tbd;
-
+      const response = await this.transactionsRepository.runInTransaction(
+        async (tx) => {
+          const newTransaction = await this.transactionsRepository.create(
+            {
+              status: this.setTransactionStatus(installmentPaymentMonth),
+              entryType: EntryType.EXPENSE,
+              transactionDate,
+              paymentMonth: installmentPaymentMonth,
+              comment,
+              currency,
+              exchangeRate,
+              installments,
+              installment,
+              totalAmount,
+              monthlyAmount,
+              impactsCashflow,
+              ...inflation,
+              category: { connect: { id: categoryId } },
+              ledger: { connect: { id: ledgerId } },
+              group: { connect: { id: groupId } },
+              paymentMethod: { connect: { id: paymentMethodId } },
+            },
+            tx,
+          );
+          const tbd = await this.createTransactionsBD(newTransaction.id, tx);
+          const resp = transactionToResponseDto(newTransaction);
+          resp.transactionsBreakDown = tbd;
+          return resp;
+        },
+      );
       newTransactions.push(response);
     }
     return newTransactions;
@@ -240,12 +257,115 @@ export class TransactionsService {
     };
   }
 
+  private bundleAmountForMonth(
+    base: number,
+    monthOffset: number,
+    increaseRate: number,
+    increaseEveryMonths?: number,
+  ): number {
+    const step =
+      increaseEveryMonths && increaseEveryMonths >= 1 ? increaseEveryMonths : 1;
+    const bumps = Math.floor(monthOffset / step);
+    return base * (1 + increaseRate) ** bumps;
+  }
+
+  //Helper: create a bundle of a recurrent transaction
+  private async createBundle(
+    fixedBundleDto: FixedBundleDto,
+    paymentMonth: Date,
+    ledgerId: number,
+    categoryId: number,
+    groupId: number,
+    paymentMethodId: number,
+    currency: Currency,
+    ledgerCurrency: Currency,
+    entryType: EntryType,
+    totalProvidedAmount: number,
+    baseCpiIndex: number,
+    debtAssignments: DebtAssignmentDto[],
+    comment?: string,
+    exchangeRate?: number,
+  ): Promise<TransactionResponseDto[]> {
+    if (!fixedBundleDto.bundleTo)
+      throw new BadRequestException('select period range');
+    const increaseRate = fixedBundleDto.increaseRate ?? 0;
+
+    const increaseEveryMonths = fixedBundleDto.increaseEveryMonths;
+
+    const upto: Date = parsePeriod(fixedBundleDto.bundleTo);
+
+    const periodRange: Date[] = monthRange(paymentMonth, upto);
+
+    return await this.transactionsRepository.runInTransaction(
+      async (tx) => {
+        const results: TransactionResponseDto[] = [];
+        for (let i = 0; i < periodRange.length; i++) {
+          const month = periodRange[i];
+          const totalAmount = this.assignTotalAmount(
+            this.bundleAmountForMonth(
+              totalProvidedAmount,
+              i,
+              increaseRate,
+              increaseEveryMonths,
+            ),
+            currency,
+            ledgerCurrency,
+            exchangeRate,
+          );
+          const inflation = await this.getInflationData(
+            ledgerCurrency,
+            month,
+            totalAmount,
+            baseCpiIndex,
+          );
+          const created = await this.transactionsRepository.create(
+            {
+              status: this.setTransactionStatus(month),
+              entryType,
+              transactionDate: month,
+              paymentMonth: month,
+              comment,
+              currency,
+              exchangeRate,
+              installments: 1,
+              installment: 1,
+              totalAmount,
+              monthlyAmount: totalAmount,
+              impactsCashflow: false,
+              ...inflation,
+              category: { connect: { id: categoryId } },
+              ledger: { connect: { id: ledgerId } },
+              group: { connect: { id: groupId } },
+              paymentMethod: { connect: { id: paymentMethodId } },
+            },
+            tx,
+          );
+          const tbd = await this.createTransactionsBD(created.id, tx);
+          if (debtAssignments.length)
+            await this.handleDebtOwners(
+              created.id,
+              month,
+              debtAssignments,
+              created.group.name,
+              tx,
+            );
+          const resp = transactionToResponseDto(created);
+          resp.transactionsBreakDown = tbd;
+          results.push(resp);
+        }
+        return results;
+      },
+      { timeout: 30_000 },
+    );
+  }
+
   /////////////////////////////////////////////////////////////////////
 
   // Create an expense transaction, with merge-on-current-month behavior.
   async createExpense(
     ledgerId: number,
     createTransactionDto: CreateTransactionDto,
+    fixedBundleDto?: FixedBundleDto,
   ): Promise<TransactionResponseDto | TransactionResponseDto[]> {
     const {
       categoryId,
@@ -256,6 +376,7 @@ export class TransactionsService {
       installments,
       comment,
       currency,
+      transactionTypeEntry,
       exchangeRate,
       totalProvidedAmount,
       weekNumber,
@@ -263,6 +384,8 @@ export class TransactionsService {
       debtAssignments,
     } = createTransactionDto;
     const ledger = await this.ledgersService.findOneMinimal(ledgerId);
+
+    const transactionType = transactionTypeEntry ?? TransactionType.VARIABLE;
 
     // Enforce exchange rate when currencies differ.
     if (currency != ledger.currency && !exchangeRate)
@@ -317,17 +440,23 @@ export class TransactionsService {
         const debtDescription = existing.group.name;
 
         if (debtAssignments.length != 0) {
-          await this.handleDebtOwners(
-            updated.id,
-            updated.paymentMonth,
-            debtAssignments,
-            debtDescription,
+          return await this.transactionsRepository.runInTransaction(
+            async (tx) => {
+              await this.handleDebtOwners(
+                updated.id,
+                updated.paymentMonth,
+                debtAssignments,
+                debtDescription,
+                tx,
+              );
+              const refreshed = await this.transactionsRepository.findById(
+                updated.id,
+              );
+              if (!refreshed)
+                throw new NotFoundException(`Transaction not found.`);
+              return transactionToResponseDto(refreshed);
+            },
           );
-          const refreshed = await this.transactionsRepository.findById(
-            updated.id,
-          );
-          if (!refreshed) throw new NotFoundException(`Transaction not found.`);
-          return transactionToResponseDto(refreshed);
         }
         return transactionToResponseDto(updated);
       }
@@ -373,72 +502,106 @@ export class TransactionsService {
       ledger.baseCpiIndex,
     );
 
+    // fixed transactions
+    if (transactionType === TransactionType.FIXED) {
+      if (!fixedBundleDto?.bundleTo)
+        throw new BadRequestException('select period range');
+
+      return await this.createBundle(
+        fixedBundleDto,
+        paymentMonth,
+        ledgerId,
+        categoryId,
+        groupId,
+        paymentMethodId,
+        currency,
+        ledger.currency,
+        EntryType.EXPENSE,
+        totalProvidedAmount,
+        ledger.baseCpiIndex,
+        debtAssignments,
+        comment,
+        exchangeRate,
+      );
+    }
+
     // Single transaction with debt.
     if (debtAssignments.length != 0) {
-      const newTransaction = await this.transactionsRepository.create({
-        status: this.setTransactionStatus(paymentMonth),
-        entryType: EntryType.EXPENSE,
-        transactionDate: parseDate(transactionDate),
-        paymentMonth,
-        comment,
-        currency,
-        exchangeRate,
-        totalAmount,
-        monthlyAmount: totalAmount,
-        impactsCashflow,
-        ...inflation,
-        category: { connect: { id: categoryId } },
-        ledger: { connect: { id: ledgerId } },
-        group: { connect: { id: groupId } },
-        paymentMethod: { connect: { id: paymentMethodId } },
+      return await this.transactionsRepository.runInTransaction(async (tx) => {
+        const newTransaction = await this.transactionsRepository.create(
+          {
+            status: this.setTransactionStatus(paymentMonth),
+            entryType: EntryType.EXPENSE,
+            transactionDate: parseDate(transactionDate),
+            paymentMonth,
+            comment,
+            currency,
+            exchangeRate,
+            totalAmount,
+            monthlyAmount: totalAmount,
+            impactsCashflow,
+            ...inflation,
+            category: { connect: { id: categoryId } },
+            ledger: { connect: { id: ledgerId } },
+            group: { connect: { id: groupId } },
+            paymentMethod: { connect: { id: paymentMethodId } },
+          },
+          tx,
+        );
+        await this.createTransactionsBD(newTransaction.id, tx);
+
+        await this.handleDebtOwners(
+          newTransaction.id,
+          newTransaction.paymentMonth,
+          debtAssignments,
+          newTransaction.group.name,
+          tx,
+        );
+        const refreshed = await this.transactionsRepository.findById(
+          newTransaction.id,
+        );
+        if (!refreshed) throw new NotFoundException(`Transaction not found.`);
+
+        return transactionToResponseDto(refreshed);
       });
-      await this.createTransactionsBD(newTransaction.id);
-
-      await this.handleDebtOwners(
-        newTransaction.id,
-        newTransaction.paymentMonth,
-        debtAssignments,
-        newTransaction.group.name,
-      );
-      const refreshed = await this.transactionsRepository.findById(
-        newTransaction.id,
-      );
-      if (!refreshed) throw new NotFoundException(`Transaction not found.`);
-
-      return transactionToResponseDto(refreshed);
     }
     // Single transaction without debt.
 
     const status = this.setTransactionStatus(paymentMonth);
+    return await this.transactionsRepository.runInTransaction(async (tx) => {
+      const newTransaction = await this.transactionsRepository.create(
+        {
+          status,
+          entryType: EntryType.EXPENSE,
+          transactionDate: parseDate(transactionDate),
+          paymentMonth,
+          comment,
+          currency,
+          exchangeRate,
+          totalAmount,
+          monthlyAmount: totalAmount,
+          impactsCashflow,
+          ...inflation,
+          category: { connect: { id: categoryId } },
+          ledger: { connect: { id: ledgerId } },
+          group: { connect: { id: groupId } },
+          paymentMethod: { connect: { id: paymentMethodId } },
+        },
+        tx,
+      );
 
-    const newTransaction = await this.transactionsRepository.create({
-      status,
-      entryType: EntryType.EXPENSE,
-      transactionDate: parseDate(transactionDate),
-      paymentMonth,
-      comment,
-      currency,
-      exchangeRate,
-      totalAmount,
-      monthlyAmount: totalAmount,
-      impactsCashflow,
-      ...inflation,
-      category: { connect: { id: categoryId } },
-      ledger: { connect: { id: ledgerId } },
-      group: { connect: { id: groupId } },
-      paymentMethod: { connect: { id: paymentMethodId } },
+      const tbd = await this.createTransactionsBD(newTransaction.id, tx);
+      const response = transactionToResponseDto(newTransaction);
+      response.transactionsBreakDown = tbd;
+      return response;
     });
-
-    const tbd = await this.createTransactionsBD(newTransaction.id);
-    const response = transactionToResponseDto(newTransaction);
-    response.transactionsBreakDown = tbd;
-    return response;
   }
 
   async createIncome(
     ledgerId: number,
     createIncomeDto: CreateIncomeDto,
-  ): Promise<TransactionResponseDto> {
+    fixedBundleDto?: FixedBundleDto,
+  ): Promise<TransactionResponseDto | TransactionResponseDto[]> {
     const {
       categoryId,
       groupId,
@@ -447,11 +610,14 @@ export class TransactionsService {
       paymentMonthValue,
       comment,
       currency,
+      transactionTypeEntry,
       exchangeRate,
       totalProvidedAmount,
       impactsCashflow,
     } = createIncomeDto;
     const ledger = await this.ledgersService.findOneMinimal(ledgerId);
+
+    const transactionType = transactionTypeEntry ?? TransactionType.VARIABLE;
 
     // Enforce exchange rate when currencies differ.
     if (currency != ledger.currency && !exchangeRate)
@@ -468,6 +634,29 @@ export class TransactionsService {
       ledger.currency,
       exchangeRate,
     );
+
+    // fixed transactions
+    if (transactionType === TransactionType.FIXED) {
+      if (!fixedBundleDto?.bundleTo)
+        throw new BadRequestException('select period range');
+      return await this.createBundle(
+        fixedBundleDto,
+        paymentMonth,
+        ledgerId,
+        categoryId,
+        groupId,
+        paymentMethodId,
+        currency,
+        ledger.currency,
+        EntryType.INCOME,
+        totalProvidedAmount,
+        ledger.baseCpiIndex,
+        [],
+        comment,
+        exchangeRate,
+      );
+    }
+
     const inflation = await this.getInflationData(
       ledger.currency,
       paymentMonth,
@@ -475,28 +664,33 @@ export class TransactionsService {
       ledger.baseCpiIndex,
     );
 
-    const newTransaction = await this.transactionsRepository.create({
-      status: this.setTransactionStatus(paymentMonth),
-      entryType: EntryType.INCOME,
-      transactionDate: parseDate(transactionDate),
-      paymentMonth,
-      comment,
-      currency,
-      exchangeRate,
-      totalAmount,
-      monthlyAmount: totalAmount,
-      impactsCashflow,
-      ...inflation,
-      category: { connect: { id: categoryId } },
-      ledger: { connect: { id: ledgerId } },
-      group: { connect: { id: groupId } },
-      paymentMethod: { connect: { id: paymentMethodId } },
-    });
+    return await this.transactionsRepository.runInTransaction(async (tx) => {
+      const newTransaction = await this.transactionsRepository.create(
+        {
+          status: this.setTransactionStatus(paymentMonth),
+          entryType: EntryType.INCOME,
+          transactionDate: parseDate(transactionDate),
+          paymentMonth,
+          comment,
+          currency,
+          exchangeRate,
+          totalAmount,
+          monthlyAmount: totalAmount,
+          impactsCashflow,
+          ...inflation,
+          category: { connect: { id: categoryId } },
+          ledger: { connect: { id: ledgerId } },
+          group: { connect: { id: groupId } },
+          paymentMethod: { connect: { id: paymentMethodId } },
+        },
+        tx,
+      );
 
-    const tbd = await this.createTransactionsBD(newTransaction.id);
-    const response = transactionToResponseDto(newTransaction);
-    response.transactionsBreakDown = tbd;
-    return response;
+      const tbd = await this.createTransactionsBD(newTransaction.id, tx);
+      const response = transactionToResponseDto(newTransaction);
+      response.transactionsBreakDown = tbd;
+      return response;
+    });
   }
 
   async assignBreakDown(

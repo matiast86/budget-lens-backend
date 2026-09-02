@@ -13,7 +13,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Currency } from 'prisma/generated/prisma/enums';
+import { Currency, TransactionType } from 'prisma/generated/prisma/enums';
 import { DebtAssignmentDto } from './debt-assignment.dto';
 
 export class CreateTransactionDto {
@@ -91,6 +91,15 @@ export class CreateTransactionDto {
   })
   @IsEnum(Currency)
   currency: Currency;
+
+  @ApiProperty({
+    enum: TransactionType,
+    description: 'It indicates weather it´s a one type or monthly transaction.',
+    example: TransactionType.FIXED,
+  })
+  @IsEnum(TransactionType)
+  @IsOptional()
+  transactionTypeEntry: TransactionType;
 
   @ApiPropertyOptional({
     description: 'Exchange rate used when currency differs from ledger.',

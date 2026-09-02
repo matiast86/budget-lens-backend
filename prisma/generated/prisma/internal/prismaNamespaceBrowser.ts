@@ -215,11 +215,12 @@ export const TransactionScalarFieldEnum = {
   exchangeRate: 'exchangeRate',
   totalAmount: 'totalAmount',
   monthlyAmount: 'monthlyAmount',
+  plannedAmount: 'plannedAmount',
   isPaid: 'isPaid',
   impactsCashflow: 'impactsCashflow',
   cpiIndex: 'cpiIndex',
   realMonthlyAmount: 'realMonthlyAmount',
-  type: 'type',
+  transactionType: 'transactionType',
   paymentMethodId: 'paymentMethodId'
 } as const
 

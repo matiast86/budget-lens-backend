@@ -3430,7 +3430,7 @@ export const seedTransactions = async (prisma: PrismaClient) => {
         isPaid: status === Status.CLOSED,
         impactsCashflow: true,
         comment: tx.comment,
-        type: tx.transactionType ?? TransactionType.VARIABLE,
+        transactionType: tx.transactionType ?? TransactionType.VARIABLE,
         ledgerId: ledger.id,
         categoryId: cat(tx.categoryName),
         paymentMethodId: pm(tx.pmName),

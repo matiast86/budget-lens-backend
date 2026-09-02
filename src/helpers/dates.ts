@@ -66,3 +66,24 @@ export const getWeekofMonth = (date: Date): number => {
   if (day <= 21) return 3;
   return 4;
 };
+
+export const monthRange = (startPeriod: Date, endPeriod: Date): Date[] => {
+  const formatedStartDate = dayjs.utc(startPeriod).startOf('month');
+  const formatedEndDate = dayjs.utc(endPeriod).startOf('month');
+  if (formatedEndDate.isBefore(formatedStartDate))
+    throw new BadRequestException(
+      'bundleTo must be on or after the payment month',
+    );
+  let current = formatedStartDate;
+  const dates: Date[] = [];
+
+  while (
+    current.isBefore(formatedEndDate) ||
+    current.isSame(formatedEndDate, 'month')
+  ) {
+    dates.push(current.toDate());
+    current = current.add(1, 'month');
+  }
+
+  return dates;
+};

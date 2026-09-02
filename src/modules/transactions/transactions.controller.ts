@@ -26,8 +26,8 @@ import {
 } from '@nestjs/swagger';
 import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
-import { CreateIncomeDto } from './dto/create-income.dto';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { CreateFixedExpenseDto } from './dto/bundle-dtos/create-fixed-expense.dto';
+import { CreateFixedIncomeDto } from './dto/bundle-dtos/create-fixed-income.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { UpdateTransactionCoreDto } from './dto/update-transaction-core.dto';
@@ -54,11 +54,12 @@ export class TransactionsController {
   @ApiNotFoundResponse({ description: 'Ledger not found' })
   async createExpense(
     @Param('ledgerId', ParseIntPipe) ledgerId: number,
-    @Body() createTransactionDto: CreateTransactionDto,
+    @Body() createExpenseDto: CreateFixedExpenseDto,
   ): Promise<TransactionResponseDto | TransactionResponseDto[]> {
     return await this.transactionsService.createExpense(
       ledgerId,
-      createTransactionDto,
+      createExpenseDto,
+      createExpenseDto,
     );
   }
 
@@ -76,10 +77,11 @@ export class TransactionsController {
   @ApiNotFoundResponse({ description: 'Ledger not found' })
   async createIncome(
     @Param('ledgerId', ParseIntPipe) ledgerId: number,
-    @Body() createIncomeDto: CreateIncomeDto,
-  ): Promise<TransactionResponseDto> {
+    @Body() createIncomeDto: CreateFixedIncomeDto,
+  ): Promise<TransactionResponseDto | TransactionResponseDto[]> {
     return await this.transactionsService.createIncome(
       ledgerId,
+      createIncomeDto,
       createIncomeDto,
     );
   }
