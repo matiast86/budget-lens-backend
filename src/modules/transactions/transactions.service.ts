@@ -759,7 +759,7 @@ export class TransactionsService {
       where,
       skip,
       take,
-      { paymentMonth: 'desc' },
+      { transactionDate: 'asc' },
     );
 
     return transactionArrayToArrayDto(transactions);
