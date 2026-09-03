@@ -14,7 +14,7 @@ export const seedPaymentMethods = async (prisma: PrismaClient) => {
 
   if (!user) return;
   const ledger = await prisma.ledger.findFirst({
-    where: { name: 'Home Budget' },
+    where: { name: 'Gastos Mati' },
   });
 
   if (!ledger) {
@@ -22,44 +22,57 @@ export const seedPaymentMethods = async (prisma: PrismaClient) => {
     return;
   }
 
-  // Income only
-  const incomeMethods = [
-    { name: 'Salary', type: PaymentType.BANK },
-    { name: 'Banks', type: PaymentType.BANK },
-    { name: 'Savings', type: PaymentType.BANK },
+  // General / income
+  const generalMethods = [
+    { name: 'Sueldo', type: PaymentType.BANK },
+    { name: 'Bancos', type: PaymentType.BANK },
+    { name: 'Ahorros', type: PaymentType.BANK },
     { name: 'Mercado Pago', type: PaymentType.WALLET },
   ];
 
-  // Expense
+  // Cash / credit
   const expenseMethods = [
-    { name: 'Cash / Transfer', type: PaymentType.CASH },
+    { name: 'Efvo./Transf.', type: PaymentType.CASH },
+    { name: 'Créditos', type: PaymentType.OTHER },
     {
-      name: 'Visa Galicia',
+      name: 'VISA GAL',
       type: PaymentType.CREDIT_CARD,
       brand: CreditBrand.VISA,
       currency: Currency.ARS,
     },
     {
-      name: 'Visa Ciudad',
+      name: 'VISA CDD',
       type: PaymentType.CREDIT_CARD,
       brand: CreditBrand.VISA,
       currency: Currency.ARS,
     },
     {
-      name: 'Mastercard',
+      name: 'VISA BBVA',
+      type: PaymentType.CREDIT_CARD,
+      brand: CreditBrand.VISA,
+      currency: Currency.ARS,
+    },
+    {
+      name: 'AMEX GAL',
+      type: PaymentType.CREDIT_CARD,
+      brand: CreditBrand.AMEX,
+      currency: Currency.ARS,
+    },
+    {
+      name: 'MASTER CAR',
       type: PaymentType.CREDIT_CARD,
       brand: CreditBrand.MASTER,
       currency: Currency.ARS,
     },
     {
-      name: 'Amex Galicia',
+      name: 'MASTER MELI',
       type: PaymentType.CREDIT_CARD,
-      brand: CreditBrand.AMEX,
+      brand: CreditBrand.MASTER,
       currency: Currency.ARS,
     },
   ];
 
-  for (const method of [...incomeMethods, ...expenseMethods]) {
+  for (const method of [...generalMethods, ...expenseMethods]) {
     const pm = await prisma.paymentMethod.upsert({
       where: { userId_name: { userId: user.id, name: method.name } },
       update: {},

@@ -1,4 +1,5 @@
 import { Currency, PrismaClient } from 'prisma/generated/prisma/client';
+import { parsePeriod } from 'src/helpers/dates';
 
 export const seedLedgers = async (prisma: PrismaClient) => {
   console.log('  ➤ Seeding ledgers...');
@@ -14,50 +15,73 @@ export const seedLedgers = async (prisma: PrismaClient) => {
 
   const categoryData = [
     {
-      name: 'Home Expenses',
+      name: 'Gastos de la casa',
       description: 'Rent, utilities, maintenance and general household costs',
     },
     {
-      name: 'Dining Out',
+      name: 'Salidas a comer',
       description: 'Restaurants, cafes, takeaway, delivery',
     },
     {
-      name: 'Entertainment',
+      name: 'Entretenimiento',
       description: 'Streaming, cinema, hobbies, events',
     },
     {
-      name: 'Health',
+      name: 'Salud',
       description: 'Doctor visits, pharmacy, medical insurance',
     },
     {
-      name: 'Transport',
+      name: 'Transporte',
       description: 'Taxi, rideshare, subway, bus, fuel',
     },
     {
-      name: 'Gifts',
+      name: 'Regalos',
       description: 'Presents, celebrations',
     },
     {
-      name: 'Clothing',
+      name: 'Vestimenta',
       description: 'Clothes, shoes, accessories',
     },
     {
-      name: 'Childcare',
+      name: 'Chicos',
       description:
         'Kindergarten, school, therapies and children related expenses',
     },
     {
-      name: 'Miscellaneous',
+      name: 'Librería',
+      description: 'Books, stationery, school supplies',
+    },
+    {
+      name: 'Varios',
       description: 'Uncategorized or one-off expenses',
+    },
+    {
+      name: 'Saldo',
+      description: 'Opening/closing balance tracker per payment method',
+    },
+    {
+      name: 'Sueldo',
+      description: 'Salary income',
+    },
+    {
+      name: 'Créditos',
+      description: 'Loan installment payments',
+    },
+    {
+      name: 'Monotributo',
+      description: 'Monotributo (self-employment tax) payments',
     },
   ];
 
-  const now = new Date();
-  const currentPeriod = new Date(now.getFullYear(), now.getMonth(), 1);
   const currency = Currency.ARS;
 
+  // Ledger is seeded as if created in Jan 2026 — baseCpiIndex must be pinned to
+  // that same period (not "today"), so a Jan 2026 expense's realMonthlyAmount
+  // comes out equal to its nominal amount (base period = itself).
+  const ledgerCreationPeriod = parsePeriod('2026-01');
+
   const inflationIndex = await prisma.inflationIndex.findUnique({
-    where: { currency_period: { currency, period: currentPeriod } },
+    where: { currency_period: { currency, period: ledgerCreationPeriod } },
   });
   const baseCpiIndex = inflationIndex ? Number(inflationIndex.cpiIndex) : 100;
 
@@ -65,8 +89,9 @@ export const seedLedgers = async (prisma: PrismaClient) => {
     where: { id: 1 },
     update: {},
     create: {
-      name: 'Home Budget',
-      description: 'Primary personal ledger',
+      name: 'Gastos Mati',
+      createdAt: ledgerCreationPeriod.toISOString(),
+      description: 'Planilla de Gastos',
       currency,
       baseCpiIndex,
       ownerId: user.id,

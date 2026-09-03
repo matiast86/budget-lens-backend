@@ -4,7 +4,11 @@ import { Currency, PrismaClient } from 'prisma/generated/prisma/client';
 // Each entry: [period, monthlyRate, cpiIndex]
 // monthlyRate is a decimal (e.g., 0.022 = 2.2%)
 
-// ARS: Jan–Dec 2025 confirmed (INDEC), Jan 2026 confirmed, Feb–Dec 2026 projected at 2%.
+// ARS: Jan 2025–Jul 2026 confirmed (INDEC IPC, Nivel general, total país).
+// Aug 2026 not yet published as of this seed's last update (INDEC releases each
+// month's IPC ~10th of the following month) — uses the BCRA REM (market
+// expectations survey) consensus estimate of 1.8% instead of confirmed data.
+// Sep–Dec 2026 left as a flat 2% projection.
 const arsData: [string, number, number][] = [
   // 2025 — confirmed
   ['2025-01-01', 0.022, 184.6188],
@@ -19,23 +23,25 @@ const arsData: [string, number, number][] = [
   ['2025-10-01', 0.027, 233.9442],
   ['2025-11-01', 0.025, 239.7928],
   ['2025-12-01', 0.028, 246.5071],
-  // 2026 — Jan confirmed, Feb–Dec projected at 2%
-  ['2026-01-01', 0.029, 253.6538],
-  ['2026-02-01', 0.02, 258.7269],
-  ['2026-03-01', 0.02, 263.9014],
-  ['2026-04-01', 0.02, 269.1795],
-  ['2026-05-01', 0.02, 274.5631],
-  ['2026-06-01', 0.02, 280.0543],
-  ['2026-07-01', 0.02, 285.6554],
-  ['2026-08-01', 0.02, 291.3685],
-  ['2026-09-01', 0.02, 297.1959],
-  ['2026-10-01', 0.02, 303.1398],
-  ['2026-11-01', 0.02, 309.2026],
-  ['2026-12-01', 0.02, 315.3867],
+  // 2026 — Jan–Jul confirmed (INDEC), Aug–Dec projected at 2%
+  ['2026-01-01', 0.029, 253.6558],
+  ['2026-02-01', 0.029, 261.0118],
+  ['2026-03-01', 0.034, 269.8862],
+  ['2026-04-01', 0.026, 276.9032],
+  ['2026-05-01', 0.021, 282.7182],
+  ['2026-06-01', 0.019, 288.0898],
+  ['2026-07-01', 0.021, 294.1397],
+  ['2026-08-01', 0.018, 299.4342], // BCRA REM consensus estimate, not yet confirmed
+  ['2026-09-01', 0.02, 305.4229],
+  ['2026-10-01', 0.02, 311.5314],
+  ['2026-11-01', 0.02, 317.762],
+  ['2026-12-01', 0.02, 324.1172],
 ];
 
 // USD: Jan–Sep 2025 confirmed (BLS), Oct–Nov estimated (gov shutdown),
-// Dec 2025 confirmed, Jan–Dec 2026 projected at 0.2%.
+// Dec 2025 confirmed, Jan–Jul 2026 confirmed (BLS CPI-U, SA MoM).
+// Aug–Dec 2026 not yet published as of this seed's last update (BLS releases
+// each month's CPI ~10th-13th of the following month) — left as a flat 0.2% projection.
 const usdData: [string, number, number][] = [
   // 2025 — confirmed (seasonally adjusted MoM)
   ['2025-01-01', 0.005, 103.0399],
@@ -50,19 +56,19 @@ const usdData: [string, number, number][] = [
   ['2025-10-01', 0.002, 104.9088], // estimated (gov shutdown)
   ['2025-11-01', 0.002, 105.1186], // estimated (gov shutdown)
   ['2025-12-01', 0.003, 105.434],
-  // 2026 — projected at ~0.2% monthly (~2.4% annual)
+  // 2026 — Jan–Jul confirmed (BLS), Aug–Dec projected at 0.2%
   ['2026-01-01', 0.002, 105.6449],
-  ['2026-02-01', 0.002, 105.8562],
-  ['2026-03-01', 0.002, 106.068],
-  ['2026-04-01', 0.002, 106.2801],
-  ['2026-05-01', 0.002, 106.4927],
-  ['2026-06-01', 0.002, 106.7057],
-  ['2026-07-01', 0.002, 106.9191],
-  ['2026-08-01', 0.002, 107.1329],
-  ['2026-09-01', 0.002, 107.3472],
-  ['2026-10-01', 0.002, 107.5619],
-  ['2026-11-01', 0.002, 107.777],
-  ['2026-12-01', 0.002, 107.9926],
+  ['2026-02-01', 0.003, 105.9618],
+  ['2026-03-01', 0.009, 106.9155],
+  ['2026-04-01', 0.006, 107.557],
+  ['2026-05-01', 0.005, 108.0948],
+  ['2026-06-01', -0.004, 107.6624],
+  ['2026-07-01', 0.001, 107.7701],
+  ['2026-08-01', 0.002, 107.9856],
+  ['2026-09-01', 0.002, 108.2016],
+  ['2026-10-01', 0.002, 108.418],
+  ['2026-11-01', 0.002, 108.6348],
+  ['2026-12-01', 0.002, 108.8521],
 ];
 
 export const seedInflationIndexes = async (prisma: PrismaClient) => {

@@ -10,14 +10,18 @@ export const seedDebtOwners = async (prisma: PrismaClient) => {
     return;
   }
 
-  await prisma.debtOwner.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      name: 'Sister',
-      ledgerId: ledger.id,
-    },
-  });
+  const debtOwnerNames = ['Pau', 'Sofi', 'Susana', 'Yani', 'Celi', 'Otros'];
+
+  for (const name of debtOwnerNames) {
+    await prisma.debtOwner.upsert({
+      where: { ledgerId_name: { ledgerId: ledger.id, name } },
+      update: {},
+      create: {
+        name,
+        ledgerId: ledger.id,
+      },
+    });
+  }
 
   console.log('  ✔ Debt owners seeded');
 };
