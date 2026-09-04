@@ -92,6 +92,7 @@ export class LedgersService {
       id: ledger.id,
       currency: ledger.currency,
       baseCpiIndex: Number(ledger.baseCpiIndex),
+      ownerId: ledger.ownerId,
     });
   }
 

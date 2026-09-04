@@ -4,6 +4,7 @@ import {
   DebtDirection,
   EntryType,
   Prisma,
+  Transaction,
 } from 'prisma/generated/prisma/client';
 import { TransactionCreateInput } from 'prisma/generated/prisma/models';
 import { handleP2025 } from 'src/helpers/errors';
@@ -135,5 +136,25 @@ export class TransactionsRepository {
     options?: { timeout?: number; maxWait?: number },
   ) {
     return await this.prisma.$transaction(fn, options);
+  }
+
+  async findBalanceInRange(
+    ledgerId: number,
+    categoryId: number,
+    paymentMethodId: number,
+    paymentMonth: Date,
+    upto: Date,
+  ): Promise<Transaction[]> {
+    return await this.prisma.transaction.findMany({
+      where: {
+        ledgerId,
+        categoryId,
+        paymentMethodId,
+        paymentMonth: {
+          gte: paymentMonth,
+          lte: upto,
+        },
+      },
+    });
   }
 }

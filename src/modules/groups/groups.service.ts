@@ -74,4 +74,12 @@ export class GroupsService {
 
     return group ? groupToResponseDto(group) : undefined;
   }
+
+  async findGroupByName(
+    ledgerId: number,
+    name: string,
+  ): Promise<GroupResponseDto | undefined> {
+    const group = await this.groupsRepository.findByName(ledgerId, name);
+    return group ? groupToResponseDto(group) : undefined;
+  }
 }

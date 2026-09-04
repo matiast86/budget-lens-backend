@@ -19,6 +19,12 @@ export class LedgerMinimalDto {
   })
   baseCpiIndex: number;
 
+  @ApiProperty({
+    description: 'User id of the ledger owner',
+    example: 'user-123',
+  })
+  ownerId: string;
+
   constructor(partial: Partial<LedgerMinimalDto>) {
     Object.assign(this, partial);
   }

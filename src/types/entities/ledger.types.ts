@@ -41,7 +41,7 @@ export const LedgerIncludes = {
     select: { id: true, name: true, ownerId: true, collaborations: true },
   },
   minimal: {
-    select: { id: true, currency: true, baseCpiIndex: true },
+    select: { id: true, currency: true, baseCpiIndex: true, ownerId: true },
   },
 } as const;
 

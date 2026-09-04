@@ -258,6 +258,7 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 |--------|-------|------|----------|-------|-------------|
 | POST | `/ledgers/:ledgerId/expenses` | `CreateFixedExpenseDto` | `TransactionResponseDto` or `[]` | Ledger | Create expense (or a FIXED bundle → `[]`) |
 | POST | `/ledgers/:ledgerId/incomes` | `CreateFixedIncomeDto` | `TransactionResponseDto` or `[]` | Ledger | Create income (or a FIXED bundle → `[]`) |
+| POST | `/ledgers/:ledgerId/balances` | `CreateBalanceDto` | `TransactionResponseDto[]` | Ledger | Scaffold monthly balance ("saldo") placeholder rows for one payment-method bucket |
 | GET | `/ledgers/:ledgerId` | `?skip&take&status&entryType&categoryId&groupId&paymentMethodId&paymentMonth&isPaid` | `TransactionResponseDto[]` | Ledger | List by ledger (filterable, default take=50) |
 | GET | `/:id` | — | `TransactionResponseDto` | Ledger | Get by ID |
 | PATCH | `/:id/flags` | `UpdateTransactionFlagsDto` | `TransactionResponseDto` | Ledger | Toggle isPaid / impactsCashflow |
@@ -279,6 +280,8 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 **DebtAssignmentDto**: `{ debtOwnerId, amount, direction (OWED_TO_ME|OWED_BY_ME) }`
 
 **CreateIncomeDto**: Same as expense but without `installments`, `weekNumber`, `debtAssignments`.
+
+**CreateBalanceDto**: `{ paymentMethodId, paymentMonthValue (YYYY-MM), bundleTo (YYYY-MM, inclusive), currency }` — see **Balance Tracking** below.
 
 **CreateFixedExpenseDto / CreateFixedIncomeDto** — the real `@Body()` type of the two POST endpoints: `IntersectionType(CreateTransactionDto|CreateIncomeDto, FixedBundleDto)`. The controller passes the same object to the service twice (as the create DTO and as the bundle DTO).
 
@@ -394,6 +397,17 @@ The `createExpense` flow has four paths (checked in this order):
 All paths create 4 `TransactionBreakDown` rows (W1-W4, initialized to 0) per transaction, and every create path now runs inside a DB transaction — see **Write Atomicity** below.
 
 > **`createBundle` remaining caveats** (the original correctness bugs — double debt insert, local-time date math, exclusive/empty range, missing FX, wrong `getInflationData` args, no transaction — are all fixed): the debt-branch response DTOs are built from the freshly-created row, not re-fetched, so bundle rows come back **without `debtOwners`** populated (breakdown rows are); `getInflationData` runs as a read *inside* the transaction loop (perf, not correctness — ideally pre-fetch the CPI range in one query); `FixedBundleDto.bundleTo` is validated `@IsDateString()` but parsed with `parsePeriod` (`YYYY-MM`) — the two disagree (moot until a global `ValidationPipe` exists); **no max-horizon check** — `monthRange` will build any length. Product intent: a bundle spans ~1–2 years max, and the horizon is planned to be subscription-gated (6 / 12 / 18 / 24 months per plan) — enforce that cap server-side in `createBundle` when subscriptions land, with an error naming the required tier.
+
+### Balance Tracking (`createBalance`)
+
+Replicates the Excel **"Saldo"** rows: a placeholder monthly `INCOME` row per money-holding `PaymentMethod` ("bucket" — a bank account, cash, a wallet), whose amount is always `0`. The user manually types that week's observed balance for the bucket into the current week's `TransactionBreakDown` cell (via `PATCH /transactions-break-down/:id`, **not** `PATCH /transactions/:id/breakdown` — the latter sums W1–W4 into `totalAmount`, which is meaningless here). `Transaction.totalAmount`/`monthlyAmount` are never read for these rows; only the weekly cells matter.
+
+- **Category**: looks up the ledger's `"balance"` category (`categoriesService.findOneByName(ledgerId, 'balance')`; UI-translated as "saldo"). Intended to become a **default category seeded on ledger creation** (not yet done as of 2026-09 — `seed-ledgers.ts`'s `categoryData` doesn't include it yet); calling `createBalance` against a ledger without it 404s.
+- **Group**: unlike categories, **groups have no default-seeding mechanism anywhere in this app** — they're always created ad hoc (mirrors the `group()` upsert-and-cache helper in `seed-transactions.ts`). So `createBalance` derives a group named `"${paymentMethod.name} balance"` and self-heals it in place via `GroupsService.findGroupByName` (returns `undefined` on a miss — unlike `GroupsService.findByName`, which `throw`s `NotFoundException` and would make an `if (!group)` fallback dead code) + `GroupsService.create`. The name is a one-time snapshot at first-balance-creation time; renaming the payment method later does not rename the group — intentional, since it's just a default label the user can rename by hand.
+- **Horizon**: `paymentMonthValue → bundleTo` (`YYYY-MM`, inclusive) delegates to `createBundle` with `totalProvidedAmount: 0`, capped at 24 months (UTC year/month diff computed inline, mirroring the bundle horizon-cap intent above) — `BadRequestException` if `bundleTo` precedes `paymentMonthValue` or the span exceeds the cap.
+- **Idempotency**: `TransactionsRepository.findBalanceInRange(ledgerId, categoryId, paymentMethodId, from, to)` (a `findMany`, so check `.length`, not truthiness — an empty array is truthy in JS) rejects a second call for the same bucket/range with 400, so re-running doesn't stack duplicate rows.
+- **Not yet reconciled**: `getBalanceEffectiveAmount` (`helpers/reports.ts`) **sums** the weekly breakdown cells (all 4 when `currentWeek === 1`, else weeks `≥ currentWeek`). Since each cell is an independent balance *snapshot* (not an additive weekly inflow), that summation is only correct while exactly one week is populated at a time — true during a live current month, but a **closed** month where all 4 weeks got filled in over time will be over-counted. `reports.service.ts` also computes one `currentWeek = getWeekofMonth(new Date())` and applies it to every period in a report's range, including past ones, where "today's week number" is meaningless. Neither has been touched — flagged for whoever wires the frontend "saldo" UI (see `weekly-breakdown-view-frontend` in memory).
+- **Route**: `POST /transactions/ledgers/:ledgerId/balances`, no controller wiring beyond the standard `:ledgerId`-param `LedgerAccessGuard` resolution (same as `expenses`/`incomes`).
 
 ### Write Atomicity
 
@@ -513,10 +527,11 @@ src/
 │   │   │   │   └── create-fixed-income.dto.ts   # IntersectionType(CreateIncomeDto, FixedBundleDto) — @Body() of POST incomes
 │   │   │   ├── filter-transactions.dto.ts        # GET query params: status, entryType, categoryId, groupId, paymentMethodId, paymentMonth, isPaid
 │   │   │   ├── update-transaction-flags.dto.ts   # PATCH :id/flags — isPaid?, impactsCashflow?
-│   │   │   └── update-transaction-core.dto.ts    # PATCH :id — comment?, totalProvidedAmount?, transactionDate?, paymentMonthValue?, relations
-│   │   ├── transactions.controller.ts           # all endpoints including new flags/core/delete
-│   │   ├── transactions.service.ts              # createExpense/createIncome (4 paths incl. FIXED bundle), createBundle, bundleAmountForMonth, findAllByLedgerId, updateFlags, updateCore, deleteTransaction
-│   │   └── transactions.repository.ts           # create/createTransactionDebtOwner take optional client=this.prisma; runInTransaction(fn, options?) wraps prisma.$transaction
+│   │   │   ├── update-transaction-core.dto.ts    # PATCH :id — comment?, totalProvidedAmount?, transactionDate?, paymentMonthValue?, relations
+│   │   │   └── create-balance.dto.ts             # POST :ledgerId/balances — paymentMethodId, paymentMonthValue, bundleTo, currency; see "Balance Tracking"
+│   │   ├── transactions.controller.ts           # all endpoints including new flags/core/delete/balances
+│   │   ├── transactions.service.ts              # createExpense/createIncome (4 paths incl. FIXED bundle), createBundle, bundleAmountForMonth, createBalance, findAllByLedgerId, updateFlags, updateCore, deleteTransaction
+│   │   └── transactions.repository.ts           # create/createTransactionDebtOwner take optional client=this.prisma; runInTransaction(fn, options?) wraps prisma.$transaction; findBalanceInRange for balance idempotency
 │   ├── transactions-break-down/ # Weekly breakdown update; repo create/createBundle take optional client=this.prisma
 │   └── users/          # CRUD with soft-delete
 ├── prisma/             # PrismaService, PrismaModule (global)
@@ -560,6 +575,8 @@ Single source of truth. One row per installment per month.
 | U-X | W1-W4 | Decimal | `TransactionBreakDown.amount` (weekNumber 1-4) |
 | Z | Index | Decimal | `Transaction.cpiIndex` |
 | AA | Inicial mes real | Decimal | `Transaction.realMonthlyAmount` |
+
+> **"Saldo" rows** (Concepto = `Saldo`, one per money-holding `Grupo de Gasto`: Bancos / Efvo./Transf. / Mercado Pago / Ahorros): manually-entered weekly balance snapshots, not transactions with an amount — `R`/`S` are blank; only `U`–`X` (W1–W4) carry a value, and only for the week it was checked. Backend equivalent: `createBalance` (see **Balance Tracking**).
 
 ### Other Sheets
 

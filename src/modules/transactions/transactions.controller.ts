@@ -28,6 +28,7 @@ import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { CreateFixedExpenseDto } from './dto/bundle-dtos/create-fixed-expense.dto';
 import { CreateFixedIncomeDto } from './dto/bundle-dtos/create-fixed-income.dto';
+import { CreateBalanceDto } from './dto/create-balance.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 import { UpdateTransactionCoreDto } from './dto/update-transaction-core.dto';
@@ -83,6 +84,34 @@ export class TransactionsController {
       ledgerId,
       createIncomeDto,
       createIncomeDto,
+    );
+  }
+
+  @Post('ledgers/:ledgerId/balances')
+  @ApiOperation({
+    summary:
+      'Scaffold monthly balance-tracking rows for a payment method within a ledger',
+  })
+  @ApiParam({
+    name: 'ledgerId',
+    type: Number,
+    description: 'ID of the ledger',
+  })
+  @ApiCreatedResponse({ type: TransactionResponseDto, isArray: true })
+  @ApiBadRequestResponse({
+    description:
+      'Invalid range, or balance tracking already exists for this payment method in the selected range',
+  })
+  @ApiNotFoundResponse({
+    description: 'Ledger, category, or payment method not found',
+  })
+  async createBalance(
+    @Param('ledgerId', ParseIntPipe) ledgerId: number,
+    @Body() createBalanceDto: CreateBalanceDto,
+  ): Promise<TransactionResponseDto[]> {
+    return await this.transactionsService.createBalance(
+      ledgerId,
+      createBalanceDto,
     );
   }
 

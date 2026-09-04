@@ -24,6 +24,8 @@ import {
   transactionToResponseDto,
 } from 'src/helpers/mappers/transaction.mapper';
 import { TransactionRelation } from 'src/types/entities/transaction.types';
+import { CategoriesService } from '../categories/categories.service';
+import { GroupsService } from '../groups/groups.service';
 import { InflationIndexesService } from '../inflation-indexes/inflation-indexes.service';
 import { LedgersService } from '../ledgers/ledgers.service';
 import { PaymentMethodsService } from '../payment-methods/payment-methods.service';
@@ -31,6 +33,7 @@ import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-
 import { TransactionBreakDownResponseDto } from '../transactions-break-down/dto/transaction-break-down-response.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
 import { FixedBundleDto } from './dto/bundle-dtos/fixed-bundle.dto';
+import { CreateBalanceDto } from './dto/create-balance.dto';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { DebtAssignmentDto } from './dto/debt-assignment.dto';
@@ -48,6 +51,8 @@ export class TransactionsService {
     private readonly paymentMethodService: PaymentMethodsService,
     private readonly ledgersService: LedgersService,
     private readonly inflationIndexesService: InflationIndexesService,
+    private readonly categoriesService: CategoriesService,
+    private readonly groupsService: GroupsService,
   ) {}
 
   // Helper: create 4 weekly breakdown rows for a new transaction.
@@ -852,5 +857,75 @@ export class TransactionsService {
     };
     const updated = await this.transactionsRepository.update(id, data);
     return transactionToResponseDto(updated);
+  }
+
+  async createBalance(
+    ledgerId: number,
+    createBalanceDto: CreateBalanceDto,
+  ): Promise<TransactionResponseDto[]> {
+    const { paymentMethodId, paymentMonthValue, bundleTo, currency } =
+      createBalanceDto;
+
+    const ledger = await this.ledgersService.findOneMinimal(ledgerId);
+    const paymentMonth = parsePeriod(paymentMonthValue);
+    const category = await this.categoriesService.findOneByName(
+      ledgerId,
+      'balance',
+    );
+    const paymentMethodName = (
+      await this.paymentMethodService.findById(paymentMethodId)
+    ).name;
+
+    const upto = parsePeriod(bundleTo);
+
+    // Horizon guard — balance scaffolding is a planning window, not years.
+    const span =
+      (upto.getUTCFullYear() - paymentMonth.getUTCFullYear()) * 12 +
+      (upto.getUTCMonth() - paymentMonth.getUTCMonth());
+    if (span < 0)
+      throw new BadRequestException(
+        'bundleTo must not precede paymentMonthValue',
+      );
+    if (span > 23)
+      throw new BadRequestException('balance range cannot exceed 24 months');
+
+    const groupName = `${paymentMethodName} balance`;
+    const userId = ledger.ownerId;
+
+    let group = await this.groupsService.findGroupByName(ledgerId, groupName);
+
+    if (!group) {
+      group = await this.groupsService.create(userId, ledgerId, {
+        name: groupName,
+      });
+    }
+    const existing = await this.transactionsRepository.findBalanceInRange(
+      ledgerId,
+      category.id,
+      paymentMethodId,
+      paymentMonth,
+      upto,
+    );
+    if (existing.length)
+      throw new BadRequestException(
+        'balance tracking already exists for this payment method in that range',
+      );
+
+    return await this.createBundle(
+      { bundleTo },
+      paymentMonth,
+      ledgerId,
+      category.id,
+      group.id,
+      paymentMethodId,
+      currency,
+      ledger.currency,
+      EntryType.INCOME,
+      0,
+      ledger.baseCpiIndex,
+      [],
+      '',
+      1,
+    );
   }
 }

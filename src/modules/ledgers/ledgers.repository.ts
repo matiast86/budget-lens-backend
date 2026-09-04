@@ -27,7 +27,7 @@ export class LedgersRepository {
   async findOneMinimal(id: number): Promise<LedgerMinimal | null> {
     return await this.prisma.ledger.findUnique({
       where: { id },
-      select: { id: true, currency: true, baseCpiIndex: true },
+      select: { id: true, currency: true, baseCpiIndex: true, ownerId: true },
     });
   }
 
