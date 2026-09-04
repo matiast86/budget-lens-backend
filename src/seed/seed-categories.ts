@@ -59,6 +59,11 @@ export const seedCategories = async (prisma: PrismaClient) => {
       description: 'Savings deposits, investments, emergency fund',
       scope: CategoryScope.GLOBAL,
     },
+    {
+      name: 'Balance',
+      description: 'Weekly balances of the account',
+      scope: CategoryScope.GLOBAL,
+    },
   ];
 
   for (const c of categories) {

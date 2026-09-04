@@ -870,7 +870,7 @@ export class TransactionsService {
     const paymentMonth = parsePeriod(paymentMonthValue);
     const category = await this.categoriesService.findOneByName(
       ledgerId,
-      'balance',
+      'Balance',
     );
     const paymentMethodName = (
       await this.paymentMethodService.findById(paymentMethodId)
