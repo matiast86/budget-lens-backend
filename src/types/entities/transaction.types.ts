@@ -69,6 +69,28 @@ export const TransactionCategoryReport = {
   },
 };
 
+export const TransactionGroupAndCategoryIncludes = {
+  detail: {
+    include: {
+      paymentMethod: true,
+      group: { select: { name: true } },
+      category: { select: { name: true } },
+      debtOwners: {
+        include: {
+          debtOwner: true,
+          debt: true,
+        },
+      },
+    },
+  },
+};
+
+export const TransactionCollitionsIds = {
+  detail: {
+    select: { id: true },
+  },
+};
+
 /* ==========================================================================
    VIEW TYPES
    ========================================================================== */
@@ -87,6 +109,14 @@ export type TransactionReport = Prisma.TransactionGetPayload<
 
 export type TransactionByCategoryReport = Prisma.TransactionGetPayload<
   typeof TransactionCategoryReport.detail
+>;
+
+export type TransactionGroupAndCategory = Prisma.TransactionGetPayload<
+  typeof TransactionGroupAndCategoryIncludes.detail
+>;
+
+export type TransactionCollitions = Prisma.TransactionGetPayload<
+  typeof TransactionCollitionsIds.detail
 >;
 
 export type TransactionRelation = 'category' | 'group' | 'paymentMethod';

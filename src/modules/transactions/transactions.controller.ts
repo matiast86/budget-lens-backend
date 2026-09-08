@@ -28,6 +28,8 @@ import { LedgerFrom } from 'src/decorators/ledger-from/ledger-from.decorator';
 import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-down.dto';
 import { CreateFixedExpenseDto } from './dto/bundle-dtos/create-fixed-expense.dto';
 import { CreateFixedIncomeDto } from './dto/bundle-dtos/create-fixed-income.dto';
+import { ProjectedSeriesDto } from './dto/bundle-dtos/projected-series.dto';
+import { ProjectionsDto } from './dto/bundle-dtos/projections.dto';
 import { CreateBalanceDto } from './dto/create-balance.dto';
 import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
@@ -112,6 +114,32 @@ export class TransactionsController {
     return await this.transactionsService.createBalance(
       ledgerId,
       createBalanceDto,
+    );
+  }
+
+  @Post('ledgers/:ledgerId/projections')
+  @ApiOperation({
+    summary:
+      'Project a group + category of FIXED expenses forward from the current planning frontier',
+  })
+  @ApiParam({
+    name: 'ledgerId',
+    type: Number,
+    description: 'ID of the ledger',
+  })
+  @ApiCreatedResponse({ type: ProjectedSeriesDto, isArray: true })
+  @ApiBadRequestResponse({
+    description:
+      'Missing horizon, nothing to extend from, range precedes the frontier, range exceeds 24 months, or FIXED transactions already exist in the range',
+  })
+  @ApiNotFoundResponse({ description: 'Ledger not found' })
+  async projectFixedExpensesForward(
+    @Param('ledgerId', ParseIntPipe) ledgerId: number,
+    @Body() projectionsDto: ProjectionsDto,
+  ): Promise<ProjectedSeriesDto[]> {
+    return await this.transactionsService.projectFixedExpensesForward(
+      ledgerId,
+      projectionsDto,
     );
   }
 

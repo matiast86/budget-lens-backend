@@ -5,13 +5,16 @@ import {
   EntryType,
   Prisma,
   Transaction,
+  TransactionType,
 } from 'prisma/generated/prisma/client';
 import { TransactionCreateInput } from 'prisma/generated/prisma/models';
 import { handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   TransactionBreakDownsAndGroups,
+  TransactionCollitions,
   TransactionDetailView,
+  TransactionGroupAndCategory,
 } from 'src/types/entities/transaction.types';
 
 @Injectable()
@@ -155,6 +158,65 @@ export class TransactionsRepository {
           lte: upto,
         },
       },
+    });
+  }
+
+  async findLatestFixedByGroupAndCategory(
+    groupId: number,
+    categoryId: number,
+    currency: Currency,
+    entryType: EntryType,
+  ): Promise<TransactionGroupAndCategory[]> {
+    const frontier = await this.prisma.transaction.findFirst({
+      where: {
+        groupId,
+        categoryId,
+        currency,
+        transactionType: TransactionType.FIXED,
+        entryType,
+      },
+      orderBy: { paymentMonth: 'desc' },
+      select: { paymentMonth: true },
+    });
+    if (!frontier) return [];
+    return this.prisma.transaction.findMany({
+      where: {
+        groupId,
+        categoryId,
+        currency,
+        transactionType: TransactionType.FIXED,
+        entryType,
+        paymentMonth: frontier.paymentMonth,
+      },
+      include: {
+        paymentMethod: true,
+        group: { select: { name: true } },
+        category: { select: { name: true } },
+        debtOwners: { include: { debtOwner: true, debt: true } },
+      },
+    });
+  }
+
+  async findFixedInRange(
+    ledgerId: number,
+    groupId: number,
+    categoryId: number,
+    currency: Currency,
+    entryType: EntryType,
+    from: Date,
+    to: Date,
+  ): Promise<TransactionCollitions[]> {
+    return this.prisma.transaction.findMany({
+      where: {
+        ledgerId,
+        groupId,
+        categoryId,
+        currency,
+        transactionType: TransactionType.FIXED,
+        entryType,
+        paymentMonth: { gte: from, lte: to },
+      },
+      select: { id: true },
     });
   }
 }

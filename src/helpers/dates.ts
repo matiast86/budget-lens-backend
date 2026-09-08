@@ -55,8 +55,8 @@ export const increaseMonthByInstallment = (
   date: Date,
   installment: number,
 ): Date => {
-  const formatedDate = dayjs.utc(date).startOf('month');
-  return formatedDate.add(installment - 1, 'month').toDate();
+  const formattedDate = dayjs.utc(date).startOf('month');
+  return formattedDate.add(installment - 1, 'month').toDate();
 };
 
 export const getWeekofMonth = (date: Date): number => {
@@ -86,4 +86,13 @@ export const monthRange = (startPeriod: Date, endPeriod: Date): Date[] => {
   }
 
   return dates;
+};
+
+export const getPreviousMonth = (date: Date): Date => {
+  const formattedDate = dayjs.utc(date).startOf('month');
+  return formattedDate.subtract(1, 'month').toDate();
+};
+export const getNextMonth = (date: Date): Date => {
+  const formattedDate = dayjs.utc(date).startOf('month');
+  return formattedDate.add(1, 'month').toDate();
 };

@@ -13,6 +13,7 @@ import {
 } from 'prisma/generated/prisma/enums';
 import {
   checkCurrentMonth,
+  getNextMonth,
   increaseMonthByInstallment,
   isPastMonth,
   monthRange,
@@ -33,6 +34,8 @@ import { AssignBreakDownDto } from '../transactions-break-down/dto/assign-break-
 import { TransactionBreakDownResponseDto } from '../transactions-break-down/dto/transaction-break-down-response.dto';
 import { TransactionsBreakDownService } from '../transactions-break-down/transactions-break-down.service';
 import { FixedBundleDto } from './dto/bundle-dtos/fixed-bundle.dto';
+import { ProjectedSeriesDto } from './dto/bundle-dtos/projected-series.dto';
+import { ProjectionsDto } from './dto/bundle-dtos/projections.dto';
 import { CreateBalanceDto } from './dto/create-balance.dto';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -64,7 +67,7 @@ export class TransactionsService {
   }
 
   // Helper: record a debt entry tied to the transaction context.
-  async handleDebtOwners(
+  private async handleDebtOwners(
     transactionId: number,
     transactionDate: Date,
     debtAssignmentsDto: DebtAssignmentDto[],
@@ -274,7 +277,92 @@ export class TransactionsService {
     return base * (1 + increaseRate) ** bumps;
   }
 
-  //Helper: create a bundle of a recurrent transaction
+  //Helper: create a bundleRows of a recurrent transaction
+  private async createBundleRows(
+    fixedBundleDto: FixedBundleDto,
+    paymentMonth: Date,
+    ledgerId: number,
+    categoryId: number,
+    groupId: number,
+    paymentMethodId: number,
+    currency: Currency,
+    ledgerCurrency: Currency,
+    entryType: EntryType,
+    totalProvidedAmount: number,
+    baseCpiIndex: number,
+    debtAssignments: DebtAssignmentDto[],
+    tx: Prisma.TransactionClient,
+    comment?: string,
+    exchangeRate?: number,
+  ): Promise<TransactionResponseDto[]> {
+    if (!fixedBundleDto.bundleTo)
+      throw new BadRequestException('select period range');
+    const increaseRate = fixedBundleDto.increaseRate ?? 0;
+
+    const increaseEveryMonths = fixedBundleDto.increaseEveryMonths;
+
+    const upto: Date = parsePeriod(fixedBundleDto.bundleTo);
+
+    const periodRange: Date[] = monthRange(paymentMonth, upto);
+
+    const results: TransactionResponseDto[] = [];
+    for (let i = 0; i < periodRange.length; i++) {
+      const month = periodRange[i];
+      const totalAmount = this.assignTotalAmount(
+        this.bundleAmountForMonth(
+          totalProvidedAmount,
+          i,
+          increaseRate,
+          increaseEveryMonths,
+        ),
+        currency,
+        ledgerCurrency,
+        exchangeRate,
+      );
+      const inflation = await this.getInflationData(
+        ledgerCurrency,
+        month,
+        totalAmount,
+        baseCpiIndex,
+      );
+      const created = await this.transactionsRepository.create(
+        {
+          status: this.setTransactionStatus(month),
+          entryType,
+          transactionDate: month,
+          paymentMonth: month,
+          comment,
+          currency,
+          exchangeRate,
+          installments: 1,
+          installment: 1,
+          totalAmount,
+          monthlyAmount: totalAmount,
+          impactsCashflow: false,
+          ...inflation,
+          category: { connect: { id: categoryId } },
+          ledger: { connect: { id: ledgerId } },
+          group: { connect: { id: groupId } },
+          paymentMethod: { connect: { id: paymentMethodId } },
+        },
+        tx,
+      );
+      const tbd = await this.createTransactionsBD(created.id, tx);
+      if (debtAssignments.length)
+        await this.handleDebtOwners(
+          created.id,
+          month,
+          debtAssignments,
+          created.group.name,
+          tx,
+        );
+      const resp = transactionToResponseDto(created);
+      resp.transactionsBreakDown = tbd;
+      results.push(resp);
+    }
+    return results;
+  }
+
   private async createBundle(
     fixedBundleDto: FixedBundleDto,
     paymentMonth: Date,
@@ -291,76 +379,28 @@ export class TransactionsService {
     comment?: string,
     exchangeRate?: number,
   ): Promise<TransactionResponseDto[]> {
-    if (!fixedBundleDto.bundleTo)
-      throw new BadRequestException('select period range');
-    const increaseRate = fixedBundleDto.increaseRate ?? 0;
-
-    const increaseEveryMonths = fixedBundleDto.increaseEveryMonths;
-
-    const upto: Date = parsePeriod(fixedBundleDto.bundleTo);
-
-    const periodRange: Date[] = monthRange(paymentMonth, upto);
-
-    return await this.transactionsRepository.runInTransaction(
-      async (tx) => {
-        const results: TransactionResponseDto[] = [];
-        for (let i = 0; i < periodRange.length; i++) {
-          const month = periodRange[i];
-          const totalAmount = this.assignTotalAmount(
-            this.bundleAmountForMonth(
-              totalProvidedAmount,
-              i,
-              increaseRate,
-              increaseEveryMonths,
-            ),
-            currency,
-            ledgerCurrency,
-            exchangeRate,
-          );
-          const inflation = await this.getInflationData(
-            ledgerCurrency,
-            month,
-            totalAmount,
-            baseCpiIndex,
-          );
-          const created = await this.transactionsRepository.create(
-            {
-              status: this.setTransactionStatus(month),
-              entryType,
-              transactionDate: month,
-              paymentMonth: month,
-              comment,
-              currency,
-              exchangeRate,
-              installments: 1,
-              installment: 1,
-              totalAmount,
-              monthlyAmount: totalAmount,
-              impactsCashflow: false,
-              ...inflation,
-              category: { connect: { id: categoryId } },
-              ledger: { connect: { id: ledgerId } },
-              group: { connect: { id: groupId } },
-              paymentMethod: { connect: { id: paymentMethodId } },
-            },
-            tx,
-          );
-          const tbd = await this.createTransactionsBD(created.id, tx);
-          if (debtAssignments.length)
-            await this.handleDebtOwners(
-              created.id,
-              month,
-              debtAssignments,
-              created.group.name,
-              tx,
-            );
-          const resp = transactionToResponseDto(created);
-          resp.transactionsBreakDown = tbd;
-          results.push(resp);
-        }
-        return results;
+    return this.transactionsRepository.runInTransaction(
+      (tx) =>
+        this.createBundleRows(
+          fixedBundleDto,
+          paymentMonth,
+          ledgerId,
+          categoryId,
+          groupId,
+          paymentMethodId,
+          currency,
+          ledgerCurrency,
+          entryType,
+          totalProvidedAmount,
+          baseCpiIndex,
+          debtAssignments,
+          tx,
+          comment,
+          exchangeRate,
+        ),
+      {
+        timeout: 30_000,
       },
-      { timeout: 30_000 },
     );
   }
 
@@ -926,6 +966,109 @@ export class TransactionsService {
       [],
       '',
       1,
+    );
+  }
+
+  async projectFixedExpensesForward(
+    ledgerId: number,
+    projectionsDto: ProjectionsDto,
+  ): Promise<ProjectedSeriesDto[]> {
+    const {
+      categoryId,
+      groupId,
+      paymentMethodId,
+      comment,
+      currency,
+      exchangeRate,
+      fixedBundleDto,
+    } = projectionsDto;
+
+    if (!fixedBundleDto?.bundleTo)
+      throw new BadRequestException('Select the projection horizon');
+
+    const ledger = await this.ledgersService.findOneMinimal(ledgerId);
+
+    // 1. find the planning frontier and fixed lines - derived, not passed
+    const templates =
+      await this.transactionsRepository.findLatestFixedByGroupAndCategory(
+        groupId,
+        categoryId,
+        currency,
+        EntryType.EXPENSE,
+      );
+
+    if (!templates.length)
+      throw new BadRequestException(
+        'no planned fixed transactions to extend from for this group/category',
+      );
+    const frontier = templates[0].paymentMonth;
+    const start = getNextMonth(frontier);
+    const upto = parsePeriod(fixedBundleDto.bundleTo);
+
+    //2. Horizon guard
+    const span =
+      (upto.getUTCFullYear() - start.getUTCFullYear()) * 12 +
+      (upto.getUTCMonth() - start.getUTCMonth());
+
+    if (span < 0)
+      throw new BadRequestException(
+        'bundleTo must not precede the planning frontier',
+      );
+    if (span > 23)
+      throw new BadRequestException('projection range cannot exceed 24 months');
+
+    // 3. Idempotency — don't stack a second copy on re-run.
+    const collisions = await this.transactionsRepository.findFixedInRange(
+      ledgerId,
+      groupId,
+      categoryId,
+      currency,
+      EntryType.EXPENSE,
+      start,
+      upto,
+    );
+
+    if (collisions.length)
+      throw new BadRequestException(
+        'fixed transactions are already planned in that range',
+      );
+    const seedRate = fixedBundleDto.seedIncreaseRate ?? 0;
+
+    // 4. One transaction for the whole projection, not one per line.
+    return this.transactionsRepository.runInTransaction(
+      async (tx) => {
+        const out: ProjectedSeriesDto[] = [];
+        for (const template of templates) {
+          const seed = Number(template.totalAmount) * (1 + seedRate);
+          const projected = await this.createBundleRows(
+            fixedBundleDto,
+            start,
+            ledgerId,
+            categoryId,
+            groupId,
+            template.paymentMethodId ?? paymentMethodId,
+            currency,
+            ledger.currency,
+            EntryType.EXPENSE,
+            seed,
+            ledger.baseCpiIndex,
+            [],
+            tx,
+            comment ?? template.comment ?? '',
+            exchangeRate,
+          );
+
+          out.push(
+            new ProjectedSeriesDto({
+              sourceId: template.id,
+              sourceMonth: frontier,
+              projected,
+            }),
+          );
+        }
+        return out;
+      },
+      { timeout: 30_000 },
     );
   }
 }

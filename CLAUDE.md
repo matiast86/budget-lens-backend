@@ -259,6 +259,7 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 | POST | `/ledgers/:ledgerId/expenses` | `CreateFixedExpenseDto` | `TransactionResponseDto` or `[]` | Ledger | Create expense (or a FIXED bundle → `[]`) |
 | POST | `/ledgers/:ledgerId/incomes` | `CreateFixedIncomeDto` | `TransactionResponseDto` or `[]` | Ledger | Create income (or a FIXED bundle → `[]`) |
 | POST | `/ledgers/:ledgerId/balances` | `CreateBalanceDto` | `TransactionResponseDto[]` | Ledger | Scaffold monthly balance ("saldo") placeholder rows for one payment-method bucket |
+| POST | `/ledgers/:ledgerId/projections` | `ProjectionsDto` | `ProjectedSeriesDto[]` | Ledger | Extend a group + category of FIXED expenses past their planning frontier — see **Fixed Expense Projection** |
 | GET | `/ledgers/:ledgerId` | `?skip&take&status&entryType&categoryId&groupId&paymentMethodId&paymentMonth&isPaid` | `TransactionResponseDto[]` | Ledger | List by ledger (filterable, default take=50) |
 | GET | `/:id` | — | `TransactionResponseDto` | Ledger | Get by ID |
 | PATCH | `/:id/flags` | `UpdateTransactionFlagsDto` | `TransactionResponseDto` | Ledger | Toggle isPaid / impactsCashflow |
@@ -285,12 +286,23 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
 
 **CreateFixedExpenseDto / CreateFixedIncomeDto** — the real `@Body()` type of the two POST endpoints: `IntersectionType(CreateTransactionDto|CreateIncomeDto, FixedBundleDto)`. The controller passes the same object to the service twice (as the create DTO and as the bundle DTO).
 
-**FixedBundleDto** (all fields optional; only read when `transactionTypeEntry === FIXED`):
+**FixedBundleDto** (all fields optional; read on the FIXED create path and the projection path):
 ```
-{ bundleTo?   (YYYY-MM end period — currently END-EXCLUSIVE; DTO validates @IsDateString, parser wants YYYY-MM),
-  increaseRate?        (fraction, 0.1 = +10% per step; default 0 → no escalation),
+{ bundleTo?   (YYYY-MM end period, INCLUSIVE — monthRange includes both ends; DTO validates @IsDateString, parser wants YYYY-MM),
+  increaseRate?        (fraction, 0.1 = +10% per step; default 0 → no escalation; @Min(0) @Max(5)),
+  seedIncreaseRate?    (fraction; projection only — one-off catch-up bump on the seed at projection start,
+                        independent of increaseRate; default 0 → first projected month == frontier month; @Min(0) @Max(5)),
   increaseEveryMonths? (>= 1; default 1 → escalate every month) }
 ```
+
+**ProjectionsDto** (body of `POST /ledgers/:ledgerId/projections`):
+```
+{ categoryId, groupId, paymentMethodId (fallback for source rows with none),
+  currency, comment?, exchangeRate?, fixedBundleDto: FixedBundleDto }
+```
+No `paymentMonthValue` — the frontier is derived server-side. No `debtAssignments` — projected rows carry no debt (see **Fixed Expense Projection**).
+
+**ProjectedSeriesDto**: `{ sourceId, sourceMonth: Date, projected: TransactionResponseDto[] }` — one entry per FIXED line that was extended.
 
 > **NestJS has no global `ValidationPipe`** (`main.ts` / no `APP_PIPE`), so none of the `class-validator` decorators run at runtime yet — DTO constraints are documentation + Swagger only.
 
@@ -390,7 +402,7 @@ The `createExpense` flow has four paths (checked in this order):
 
 2. **Installment flow** — If `installments > 1`: creates N separate transactions (one per installment), each with a `paymentMonth` incremented by one month. If `debtAssignments` provided, creates `TransactionDebtOwner` + `Debt` records for each assignment per installment.
 
-3. **FIXED bundle** — If `transactionTypeEntry === FIXED` (requires `fixedBundleDto.bundleTo`, else 400): delegates to `createBundle`, which generates one standalone 1-of-1 transaction per month from `paymentMonth` **through `bundleTo` inclusive** (`monthRange()` in `helpers/dates.ts` — UTC month-floored; throws `BadRequestException` if `bundleTo < paymentMonth`). Per-month amount = `assignTotalAmount(bundleAmountForMonth(base, monthOffset, increaseRate, increaseEveryMonths), …)` where `bundleAmountForMonth` = `base * (1 + increaseRate) ** floor(monthOffset / max(increaseEveryMonths, 1))` (month 0 stays at `base`; `increaseRate` default 0, `increaseEveryMonths` default 1 → escalate every month), then FX-converted. All bundle rows are forced `impactsCashflow: false`. The whole bundle runs inside one `runInTransaction` (`{ timeout: 30_000 }`), sequential loop. `createIncome` has the same FIXED branch (no debt assignments). Checked AFTER paths 1–2, so a current-month FIXED can still merge, and FIXED + `installments > 1` goes to the installment path instead.
+3. **FIXED bundle** — If `transactionTypeEntry === FIXED` (requires `fixedBundleDto.bundleTo`, else 400): delegates to `createBundle`, a thin wrapper that opens one `runInTransaction` (`{ timeout: 30_000 }`) and calls `createBundleRows(…, tx)` — the actual sequential per-month loop, which takes a `tx: Prisma.TransactionClient` and never opens its own transaction (so `projectFixedExpensesForward` can share one tx across many series). It generates one standalone 1-of-1 transaction per month from `paymentMonth` **through `bundleTo` inclusive** (`monthRange()` in `helpers/dates.ts` — UTC month-floored; throws `BadRequestException` if `bundleTo < paymentMonth`). Per-month amount = `assignTotalAmount(bundleAmountForMonth(base, monthOffset, increaseRate, increaseEveryMonths), …)` where `bundleAmountForMonth` = `base * (1 + increaseRate) ** floor(monthOffset / max(increaseEveryMonths, 1))` (month 0 stays at `base`; `increaseRate` default 0, `increaseEveryMonths` default 1 → escalate every month), then FX-converted. All bundle rows are forced `impactsCashflow: false`. `createIncome` has the same FIXED branch (no debt assignments). Checked AFTER paths 1–2, so a current-month FIXED can still merge, and FIXED + `installments > 1` goes to the installment path instead.
 
 4. **Single transaction** — Default path. Creates one transaction with optional debt assignments.
 
@@ -409,9 +421,20 @@ Replicates the Excel **"Saldo"** rows: a placeholder monthly `INCOME` row per mo
 - **Not yet reconciled**: `getBalanceEffectiveAmount` (`helpers/reports.ts`) **sums** the weekly breakdown cells (all 4 when `currentWeek === 1`, else weeks `≥ currentWeek`). Since each cell is an independent balance *snapshot* (not an additive weekly inflow), that summation is only correct while exactly one week is populated at a time — true during a live current month, but a **closed** month where all 4 weeks got filled in over time will be over-counted. `reports.service.ts` also computes one `currentWeek = getWeekofMonth(new Date())` and applies it to every period in a report's range, including past ones, where "today's week number" is meaningless. Neither has been touched — flagged for whoever wires the frontend "saldo" UI (see `weekly-breakdown-view-frontend` in memory).
 - **Route**: `POST /transactions/ledgers/:ledgerId/balances`, no controller wiring beyond the standard `:ledgerId`-param `LedgerAccessGuard` resolution (same as `expenses`/`incomes`).
 
+### Fixed Expense Projection (`projectFixedExpensesForward`)
+
+Extends a **plan** past its edge: you planned FIXED expenses for a group + category through some month; this generates the next contiguous window from those rows. Body `ProjectionsDto`, response `ProjectedSeriesDto[]` (one entry per source line). Route `POST /transactions/ledgers/:ledgerId/projections` (standard `:ledgerId` `LedgerAccessGuard`).
+
+- **Frontier is derived, not passed.** `TransactionsRepository.findLatestFixedByGroupAndCategory(groupId, categoryId, currency, entryType)` = `findFirst` ordered by `paymentMonth desc` to get the group-wide latest planned month `M`, then `findMany` for exactly `paymentMonth === M`. `templates` = those rows; the projection starts at `getNextMonth(M)`. Empty `templates` → 400 ("nothing to extend from"). **Caveat**: a line whose own last planned month is earlier than `M` (discontinued *or* forgotten) is silently not in `templates` and won't be projected — assumes every FIXED line in the (group, category) shares one frontier.
+- **Per line**: seed = `Number(template.totalAmount) * (1 + seedIncreaseRate)`; then `createBundleRows(fixedBundleDto, start, …, EXPENSE, seed, …, [], tx, comment ?? template.comment ?? '', exchangeRate)` — so ongoing escalation (`increaseRate` / `increaseEveryMonths`) is applied on top by `bundleAmountForMonth`. `seedIncreaseRate` default 0 → first projected month equals the frontier amount. Payment method per row = `template.paymentMethodId ?? dto.paymentMethodId`.
+- **One transaction for the whole request.** All series run inside a single `runInTransaction` (`createBundleRows` shares the `tx`) → all-or-nothing across every projected line, unlike `handleInstallments`.
+- **Guards**: `bundleTo` required (400); horizon span (UTC year/month diff, `start → bundleTo`) must be `0..23` (400 if negative or `> 23`); idempotency via `TransactionsRepository.findFixedInRange(ledgerId, groupId, categoryId, currency, entryType, from, to)` — `.length > 0` → 400 ("already planned in that range").
+- **No debt.** Projected rows are created with `debtAssignments: []` on purpose — debt/category-evolution reports don't filter out `FUTURE` transactions, so projecting `Debt` rows forward would inflate balances immediately. Revisit with a per-line `carryDebt` toggle + proportional share (`templateDebtAmount / templateTotal * monthTotal`) once those reports exclude `FUTURE`. Rate config is currently group-wide (`fixedBundleDto`); per-line rate/cadence/debt config + a preview `GET` is the planned next step.
+- One rate for the whole group is a deliberate v0 limitation, not an oversight.
+
 ### Write Atomicity
 
-`TransactionsRepository.runInTransaction<T>(fn, options?)` wraps `prisma.$transaction(fn, options)` (interactive). Write methods on `TransactionsRepository` / `TransactionsBDRepository` take a trailing `client: Prisma.TransactionClient = this.prisma` — call with the `tx` from `runInTransaction` to enlist, omit for a standalone write. `TransactionsService.handleDebtOwners` / `createTransactionsBD` thread the same client and `handleDebtOwners` loops sequentially (no `Promise.all` on an interactive tx client). Every `createExpense` / `createIncome` create path is wrapped so a transaction + its W1–W4 breakdown (+ debt rows) commit together. **`handleInstallments` wraps each installment separately** → per-installment atomicity, not per-request (installment 4 failing leaves 1–3 committed). Reads (`getInflationData`) still go through the pooled client. `Prisma.TransactionClient` typing now appears in the service layer as a result.
+`TransactionsRepository.runInTransaction<T>(fn, options?)` wraps `prisma.$transaction(fn, options)` (interactive). Write methods on `TransactionsRepository` / `TransactionsBDRepository` take a trailing `client: Prisma.TransactionClient = this.prisma` — call with the `tx` from `runInTransaction` to enlist, omit for a standalone write. `TransactionsService.handleDebtOwners` / `createTransactionsBD` thread the same client and `handleDebtOwners` loops sequentially (no `Promise.all` on an interactive tx client). Every `createExpense` / `createIncome` create path is wrapped so a transaction + its W1–W4 breakdown (+ debt rows) commit together. **`handleInstallments` wraps each installment separately** → per-installment atomicity, not per-request (installment 4 failing leaves 1–3 committed). The bundle loop is split into `createBundle` (opens the tx) / `createBundleRows(…, tx)` (the work) so `projectFixedExpensesForward` can wrap *all* its series in one tx. Reads (`getInflationData`) still go through the pooled client. `Prisma.TransactionClient` typing now appears in the service layer as a result. `runInTransaction` lives on `TransactionsRepository` for now — if a second module ever needs atomic multi-writes, move it to `PrismaService` (already `@Global`), not a new abstraction.
 
 ### Debt Model
 
@@ -469,7 +492,7 @@ src/
 ├── decorators/         # @GetUser, @LedgerFrom, @Public, @Roles
 ├── guards/             # AuthGuard, RolesGuard, LedgerAccessGuard
 ├── helpers/
-│   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment, monthRange (inclusive UTC month list, throws if end<start), getWeekofMonth
+│   ├── dates.ts        # parsePeriod (YYYY-MM), parseDate (YYYY-MM-DD), checkCurrentMonth, isPastMonth, isFutureMonth, increaseMonthByInstallment, monthRange (inclusive UTC month list, throws if end<start), getPreviousMonth, getNextMonth, getWeekofMonth
 │   │                   # ALL comparison helpers use dayjs.utc() — never bare dayjs() — to avoid UTC-3 local-time mismatch against UTC-midnight DB dates
 │   ├── errors.ts       # handleP2025, handleLedgerFromRequest
 │   ├── reports.ts      # Pure report helpers — all use Map-based O(M) single-pass accumulation:
@@ -521,17 +544,19 @@ src/
 │   │   ├── dto/
 │   │   │   ├── create-transaction.dto.ts        # expense creation (+ transactionTypeEntry?)
 │   │   │   ├── create-income.dto.ts             # income creation (+ transactionTypeEntry?)
-│   │   │   ├── bundle-dtos/                      # FIXED recurring-transaction ("bundle") DTOs
-│   │   │   │   ├── fixed-bundle.dto.ts          # bundleTo?, increaseRate?, increaseEveryMonths? (all optional)
+│   │   │   ├── bundle-dtos/                      # FIXED recurring-transaction ("bundle") + projection DTOs
+│   │   │   │   ├── fixed-bundle.dto.ts          # bundleTo?, increaseRate?, seedIncreaseRate?, increaseEveryMonths? (all optional; @Min/@Max on rates)
 │   │   │   │   ├── create-fixed-expense.dto.ts  # IntersectionType(CreateTransactionDto, FixedBundleDto) — @Body() of POST expenses
-│   │   │   │   └── create-fixed-income.dto.ts   # IntersectionType(CreateIncomeDto, FixedBundleDto) — @Body() of POST incomes
+│   │   │   │   ├── create-fixed-income.dto.ts   # IntersectionType(CreateIncomeDto, FixedBundleDto) — @Body() of POST incomes
+│   │   │   │   ├── projections.dto.ts           # @Body() of POST projections — categoryId, groupId, paymentMethodId, currency, comment?, exchangeRate?, fixedBundleDto
+│   │   │   │   └── projected-series.dto.ts      # response row — { sourceId, sourceMonth, projected: TransactionResponseDto[] }
 │   │   │   ├── filter-transactions.dto.ts        # GET query params: status, entryType, categoryId, groupId, paymentMethodId, paymentMonth, isPaid
 │   │   │   ├── update-transaction-flags.dto.ts   # PATCH :id/flags — isPaid?, impactsCashflow?
 │   │   │   ├── update-transaction-core.dto.ts    # PATCH :id — comment?, totalProvidedAmount?, transactionDate?, paymentMonthValue?, relations
 │   │   │   └── create-balance.dto.ts             # POST :ledgerId/balances — paymentMethodId, paymentMonthValue, bundleTo, currency; see "Balance Tracking"
 │   │   ├── transactions.controller.ts           # all endpoints including new flags/core/delete/balances
-│   │   ├── transactions.service.ts              # createExpense/createIncome (4 paths incl. FIXED bundle), createBundle, bundleAmountForMonth, createBalance, findAllByLedgerId, updateFlags, updateCore, deleteTransaction
-│   │   └── transactions.repository.ts           # create/createTransactionDebtOwner take optional client=this.prisma; runInTransaction(fn, options?) wraps prisma.$transaction; findBalanceInRange for balance idempotency
+│   │   ├── transactions.service.ts              # createExpense/createIncome (4 paths incl. FIXED bundle), createBundle (opens tx) / createBundleRows (per-month loop, takes tx), bundleAmountForMonth, createBalance, projectFixedExpensesForward, findAllByLedgerId, updateFlags, updateCore, deleteTransaction
+│   │   └── transactions.repository.ts           # create/createTransactionDebtOwner take optional client=this.prisma; runInTransaction(fn, options?) wraps prisma.$transaction; findBalanceInRange (balance idempotency); findLatestFixedByGroupAndCategory + findFixedInRange (projection frontier + idempotency)
 │   ├── transactions-break-down/ # Weekly breakdown update; repo create/createBundle take optional client=this.prisma
 │   └── users/          # CRUD with soft-delete
 ├── prisma/             # PrismaService, PrismaModule (global)
