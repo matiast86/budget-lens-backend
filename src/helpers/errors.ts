@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Prisma } from 'prisma/generated/prisma/client';
 import { DebtOwnerResponseDto } from 'src/modules/debt-owners/dto/debt-owner-response.dto';
 import { LedgerResponseDto } from 'src/modules/ledgers/dto/ledger-response.dto';
@@ -11,6 +11,18 @@ export const handleP2025 = (message: string) => {
       error.code === 'P2025'
     ) {
       throw new NotFoundException(message);
+    }
+    throw error;
+  };
+};
+
+export const handleP2002 = (message: string) => {
+  return (error: any) => {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      throw new ConflictException(message);
     }
     throw error;
   };

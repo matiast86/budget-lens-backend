@@ -278,7 +278,7 @@ All endpoints require `Authorization: Bearer <token>` unless noted. Base URL is 
   impactsCashflow?, debtAssignments?: DebtAssignmentDto[] }
 ```
 
-**DebtAssignmentDto**: `{ debtOwnerId, amount, direction (OWED_TO_ME|OWED_BY_ME) }`
+**DebtAssignmentDto**: `{ debtOwnerId, amount?, percentage?, direction (OWED_TO_ME|OWED_BY_ME) }` — provide exactly one of `amount` (absolute, transaction currency) or `percentage` (fraction 0–1, `@Max(1)`); `handleDebtOwners` throws 400 if both are missing and prefers `amount` if both are sent. `percentage` resolves to `base * percentage` where `base` is the per-path total: the single/merge transaction total, the per-month escalated amount for a FIXED bundle, and the **full purchase total** (not the per-installment amount) for the installment path — so a percentage split on an N-installment purchase records `base * percentage` on each of the N debt rows.
 
 **CreateIncomeDto**: Same as expense but without `installments`, `weekNumber`, `debtAssignments`.
 

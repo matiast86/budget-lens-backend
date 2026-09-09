@@ -73,12 +73,24 @@ export class TransactionsService {
     debtAssignmentsDto: DebtAssignmentDto[],
     description: string,
     client: Prisma.TransactionClient,
+    totalAmount: number,
   ): Promise<void> {
     for (const debtAssignment of debtAssignmentsDto) {
+      let amount: number;
+      if (debtAssignment.amount != null) {
+        amount = debtAssignment.amount;
+      } else if (debtAssignment.percentage != null) {
+        amount = totalAmount * debtAssignment.percentage;
+      } else {
+        throw new BadRequestException(
+          `Debt assignment for owner ${debtAssignment.debtOwnerId} needs amount or percentage`,
+        );
+      }
+
       await this.transactionsRepository.createTransactionDebtOwner(
         transactionId,
         debtAssignment.debtOwnerId,
-        debtAssignment.amount,
+        amount,
         debtAssignment.direction,
         transactionDate,
         description,
@@ -178,6 +190,7 @@ export class TransactionsService {
             debtAssigmentsDto,
             newTransaction.group.name,
             tx,
+            totalAmount,
           );
           const refreshed = await this.transactionsRepository.findById(
             newTransaction.id,
@@ -355,6 +368,7 @@ export class TransactionsService {
           debtAssignments,
           created.group.name,
           tx,
+          totalAmount,
         );
       const resp = transactionToResponseDto(created);
       resp.transactionsBreakDown = tbd;
@@ -493,6 +507,7 @@ export class TransactionsService {
                 debtAssignments,
                 debtDescription,
                 tx,
+                updatedTotal,
               );
               const refreshed = await this.transactionsRepository.findById(
                 updated.id,
@@ -601,6 +616,7 @@ export class TransactionsService {
           debtAssignments,
           newTransaction.group.name,
           tx,
+          totalAmount,
         );
         const refreshed = await this.transactionsRepository.findById(
           newTransaction.id,

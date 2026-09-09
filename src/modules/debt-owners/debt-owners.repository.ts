@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DebtOwner, Prisma } from 'prisma/generated/prisma/client';
-import { handleP2025 } from 'src/helpers/errors';
+import { handleP2002, handleP2025 } from 'src/helpers/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DebtOwnerWithTransactions } from 'src/types/entities/debt.types';
 
@@ -39,7 +39,11 @@ export class DebtOwnersRepository {
   }
 
   async create(data: Prisma.DebtOwnerCreateInput): Promise<DebtOwner> {
-    return await this.prisma.debtOwner.create({ data });
+    return await this.prisma.debtOwner
+      .create({ data })
+      .catch(
+        handleP2002(`Debt owner "${data.name}" already exists in this ledger.`),
+      );
   }
 
   async update(
