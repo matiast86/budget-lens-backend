@@ -395,6 +395,7 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
+  TransactionDerivation: 'TransactionDerivation',
   TransactionDebtOwner: 'TransactionDebtOwner',
   TransactionBreakDown: 'TransactionBreakDown',
   InflationIndex: 'InflationIndex'
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionDebtOwner" | "transactionBreakDown" | "inflationIndex"
+    modelProps: "user" | "ledger" | "collaboration" | "paymentMethod" | "ledgerPaymentMethod" | "debt" | "debtOwner" | "categoryTemplate" | "category" | "group" | "transaction" | "transactionDerivation" | "transactionDebtOwner" | "transactionBreakDown" | "inflationIndex"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1231,6 +1232,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TransactionDerivation: {
+      payload: Prisma.$TransactionDerivationPayload<ExtArgs>
+      fields: Prisma.TransactionDerivationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TransactionDerivationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TransactionDerivationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>
+        }
+        findFirst: {
+          args: Prisma.TransactionDerivationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TransactionDerivationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>
+        }
+        findMany: {
+          args: Prisma.TransactionDerivationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>[]
+        }
+        create: {
+          args: Prisma.TransactionDerivationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>
+        }
+        createMany: {
+          args: Prisma.TransactionDerivationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TransactionDerivationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>[]
+        }
+        delete: {
+          args: Prisma.TransactionDerivationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>
+        }
+        update: {
+          args: Prisma.TransactionDerivationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>
+        }
+        deleteMany: {
+          args: Prisma.TransactionDerivationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TransactionDerivationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TransactionDerivationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>[]
+        }
+        upsert: {
+          args: Prisma.TransactionDerivationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionDerivationPayload>
+        }
+        aggregate: {
+          args: Prisma.TransactionDerivationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTransactionDerivation>
+        }
+        groupBy: {
+          args: Prisma.TransactionDerivationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionDerivationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TransactionDerivationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionDerivationCountAggregateOutputType> | number
+        }
+      }
+    }
     TransactionDebtOwner: {
       payload: Prisma.$TransactionDebtOwnerPayload<ExtArgs>
       fields: Prisma.TransactionDebtOwnerFieldRefs
@@ -1630,10 +1705,19 @@ export const TransactionScalarFieldEnum = {
   cpiIndex: 'cpiIndex',
   realMonthlyAmount: 'realMonthlyAmount',
   transactionType: 'transactionType',
-  paymentMethodId: 'paymentMethodId'
+  paymentMethodId: 'paymentMethodId',
+  derivationRate: 'derivationRate'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const TransactionDerivationScalarFieldEnum = {
+  derivedId: 'derivedId',
+  sourceId: 'sourceId'
+} as const
+
+export type TransactionDerivationScalarFieldEnum = (typeof TransactionDerivationScalarFieldEnum)[keyof typeof TransactionDerivationScalarFieldEnum]
 
 
 export const TransactionDebtOwnerScalarFieldEnum = {
@@ -2022,6 +2106,7 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   group?: Prisma.GroupOmit
   transaction?: Prisma.TransactionOmit
+  transactionDerivation?: Prisma.TransactionDerivationOmit
   transactionDebtOwner?: Prisma.TransactionDebtOwnerOmit
   transactionBreakDown?: Prisma.TransactionBreakDownOmit
   inflationIndex?: Prisma.InflationIndexOmit

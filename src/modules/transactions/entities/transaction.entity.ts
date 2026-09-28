@@ -11,6 +11,7 @@ import { LedgerEntity } from 'src/modules/ledgers/entities/ledger.entity';
 import { PaymentMethodEntity } from 'src/modules/payment-methods/entities/payment-method.entity';
 import { TransactionsBreakDownEntity } from 'src/modules/transactions-break-down/entities/transactions-break-down.entity';
 import { TransactionDebtOwnerEntity } from './transaction-debt-owner.entity';
+import { TransactionDerivationEntity } from './transaction-derivation.entity';
 
 export class TransactionEntity {
   @ApiProperty({
@@ -179,6 +180,37 @@ export class TransactionEntity {
     required: false,
   })
   debtOwners: TransactionDebtOwnerEntity[];
+
+  @ApiProperty({
+    description:
+      "Share of the summed source transactions' totalAmount applied to this " +
+      'row, as a fraction (0.21 = 21%). Present only on a derived transaction.',
+    example: 0.21,
+    minimum: 0,
+    maximum: 1,
+    required: false,
+  })
+  derivationRate?: number;
+
+  @ApiProperty({
+    type: () => TransactionDerivationEntity,
+    isArray: true,
+    description:
+      'Derivation links where this transaction is the derived side — the ' +
+      'sources it draws its amount from.',
+    required: false,
+  })
+  derivedFrom: TransactionDerivationEntity[];
+
+  @ApiProperty({
+    type: () => TransactionDerivationEntity,
+    isArray: true,
+    description:
+      'Derivation links where this transaction is the source side — the ' +
+      'derived transactions that draw from it.',
+    required: false,
+  })
+  feedsDerived: TransactionDerivationEntity[];
 
   constructor(partial: Partial<TransactionEntity>) {
     Object.assign(this, partial);

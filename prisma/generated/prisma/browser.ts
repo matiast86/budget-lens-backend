@@ -73,6 +73,11 @@ export type Group = Prisma.GroupModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model TransactionDerivation
+ * 
+ */
+export type TransactionDerivation = Prisma.TransactionDerivationModel
+/**
  * Model TransactionDebtOwner
  * 
  */

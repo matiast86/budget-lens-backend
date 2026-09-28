@@ -143,6 +143,34 @@ export class TransactionResponseDto {
     required: false,
   })
   transactionsBreakDown?: TransactionBreakDownResponseDto[];
+
+  @ApiPropertyOptional({
+    description:
+      "Share of the summed source transactions' totalAmount applied to this " +
+      'row, as a fraction (0.21 = 21%). Present only on a derived transaction.',
+    example: 0.21,
+    minimum: 0,
+    maximum: 1,
+  })
+  derivationRate?: number;
+
+  @ApiPropertyOptional({
+    description:
+      'IDs of the transactions this row is derived from. Empty/absent when ' +
+      'this row is not derived.',
+    example: [1024, 1031],
+    type: [Number],
+  })
+  derivedFrom?: number[];
+
+  @ApiPropertyOptional({
+    description:
+      'IDs of the derived transactions that draw from this row as a source.',
+    example: [1042],
+    type: [Number],
+  })
+  feedsDerived?: number[];
+
   constructor(partial: Partial<TransactionResponseDto>) {
     Object.assign(this, partial);
   }

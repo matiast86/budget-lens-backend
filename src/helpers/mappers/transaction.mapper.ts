@@ -44,6 +44,9 @@ export const transactionToResponseDto = (
     debtOwners,
     group,
     transactionsBreakDown,
+    derivationRate,
+    derivedFrom,
+    feedsDerived,
   } = transaction;
   return new TransactionResponseDto({
     id,
@@ -70,6 +73,9 @@ export const transactionToResponseDto = (
       ? debtOwners.map(transactionDebtOwnerToResponseDto)
       : [],
     group,
+    derivationRate: derivationRate ? Number(derivationRate) : undefined,
+    derivedFrom: derivedFrom?.map((d) => d.sourceId),
+    feedsDerived: feedsDerived?.map((d) => d.derivedId),
     transactionsBreakDown: transactionBdArrayToArrayDto(transactionsBreakDown),
   });
 };

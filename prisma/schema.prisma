@@ -189,6 +189,7 @@ model Transaction {
   realMonthlyAmount     Decimal?
   transactionType       TransactionType        @default(VARIABLE)
   paymentMethodId       Int
+  derivationRate        Decimal?                @db.Decimal(10,6)
   transactionsBreakDown TransactionBreakDown[]  @relation("TransactionsBreakDown")
 
   ledger      Ledger      @relation("LedgerTransactions", fields: [ledgerId], references: [id])
@@ -196,8 +197,21 @@ model Transaction {
   group       Group      @relation("TransactionGroup", fields: [groupId], references: [id])
   paymentMethod PaymentMethod @relation("PaymentMethodTransactions", fields: [paymentMethodId], references: [id])
   debtOwners   TransactionDebtOwner[] @relation("TransactionsDebtOwners")
+  derivedFrom  TransactionDerivation[] @relation("DerivedFromSources")
+  feedsDerived TransactionDerivation[] @relation("FeedsDerived")
 
   @@map("transactions")
+}
+
+model TransactionDerivation {
+  derivedId Int
+  sourceId  Int
+  derived   Transaction @relation("DerivedFromSources", fields: [derivedId], references: [id])
+  source    Transaction @relation("FeedsDerived",       fields: [sourceId],  references: [id])
+
+  @@id([derivedId, sourceId])
+  @@index([sourceId])
+  @@map("transaction_derivations")
 }
 
 model TransactionDebtOwner {

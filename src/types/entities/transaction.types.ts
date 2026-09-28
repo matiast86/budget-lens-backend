@@ -17,6 +17,8 @@ export const TransactionIncludes = {
           debt: true,
         },
       },
+      derivedFrom: true,
+      feedsDerived: true,
     },
   },
 } as const;

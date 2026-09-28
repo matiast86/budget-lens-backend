@@ -62,6 +62,7 @@ export const ModelName = {
   Category: 'Category',
   Group: 'Group',
   Transaction: 'Transaction',
+  TransactionDerivation: 'TransactionDerivation',
   TransactionDebtOwner: 'TransactionDebtOwner',
   TransactionBreakDown: 'TransactionBreakDown',
   InflationIndex: 'InflationIndex'
@@ -221,10 +222,19 @@ export const TransactionScalarFieldEnum = {
   cpiIndex: 'cpiIndex',
   realMonthlyAmount: 'realMonthlyAmount',
   transactionType: 'transactionType',
-  paymentMethodId: 'paymentMethodId'
+  paymentMethodId: 'paymentMethodId',
+  derivationRate: 'derivationRate'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const TransactionDerivationScalarFieldEnum = {
+  derivedId: 'derivedId',
+  sourceId: 'sourceId'
+} as const
+
+export type TransactionDerivationScalarFieldEnum = (typeof TransactionDerivationScalarFieldEnum)[keyof typeof TransactionDerivationScalarFieldEnum]
 
 
 export const TransactionDebtOwnerScalarFieldEnum = {

@@ -418,6 +418,70 @@ export class TransactionsService {
     );
   }
 
+  // Helper: reject a source basket that would create a derivation cycle.
+  private async assertNoCycle(
+    derivedId: number | undefined,
+    sourceIds: number[],
+    client: Prisma.TransactionClient,
+  ): Promise<void> {
+    // 1. If derivedId is undefined (first-time create), there is nothing
+    //    upstream of it yet — return immediately.
+    // 2. Walk forward from derivedId through its FeedsDerived links —
+    //    i.e. everything derivedId itself feeds — transitively, collecting
+    //    every reachable transaction id (BFS/DFS, guard against revisits).
+    // 3. If any id in that reachable set also appears in sourceIds, throw
+    //    BadRequestException — linking it would make derivedId (indirectly)
+    //    a source of itself.
+  }
+
+  // Helper: recompute one derived transaction from its current source links.
+  // Called directly (manual recalculate) and recursively when a derived row
+  // itself feeds another derived row.
+  private async recalculateFromSources(
+    derivedId: number,
+    client: Prisma.TransactionClient,
+    visited: Set<number> = new Set(),
+  ): Promise<void> {
+    // 1. If derivedId is already in `visited`, return (cycle/re-entry guard);
+    //    otherwise add it. Also stop past a hard depth cap (~10) if tracking
+    //    depth instead of/in addition to a visited set.
+    // 2. Load the derived transaction by id (via client, not the pool).
+    // 3. If derivationRate is null or it has no derivedFrom links, return —
+    //    it isn't derived (or was detached), nothing to recompute.
+    // 4. Load its links via findDerivationsByDerived(derivedId, client) —
+    //    this includes each linked `source` transaction.
+    // 5. base = sum of those sources' totalAmount.
+    // 6. newTotal = assignTotalAmount(base * derivationRate, derived.currency,
+    //    ledger.currency, derived.exchangeRate) — fetch the ledger the same
+    //    way updateCore does.
+    // 7. inflation = getInflationData(ledger.currency, derived.paymentMonth,
+    //    newTotal, ledger.baseCpiIndex).
+    // 8. repository.update(derivedId, { totalAmount: newTotal, monthlyAmount:
+    //    newTotal, ...inflation }, client).
+    // 9. Rewrite the W1-W4 breakdown so it still sums to newTotal:
+    //    - proportionally rescale each existing week
+    //      (newWk = oldWk * newTotal / oldTotal);
+    //    - if oldTotal is 0 (all weeks empty), put the full amount in the
+    //      week matching the row's transactionDate (getWeekofMonth),
+    //      falling back to week 1;
+    //    - write each via transactionBDService.update(bd.id, { amount }, client).
+    // 10. Recurse: this row may itself be a source for other derived rows —
+    //     call recalculateDerived(derivedId, client, visited).
+  }
+
+  // Helper: "a source transaction changed — refresh everything downstream."
+  private async recalculateDerived(
+    sourceId: number,
+    client: Prisma.TransactionClient,
+    visited: Set<number> = new Set(),
+  ): Promise<void> {
+    // 1. Fetch its dependents via findDerivationsBySource(sourceId, client).
+    // 2. Reduce to the distinct set of derivedId values.
+    // 3. For each distinct derivedId, call recalculateFromSources(derivedId,
+    //    client, visited) — sequentially (not Promise.all): they share one
+    //    interactive tx client, same convention as handleDebtOwners' loop.
+  }
+
   /////////////////////////////////////////////////////////////////////
 
   // Create an expense transaction, with merge-on-current-month behavior.
@@ -496,6 +560,11 @@ export class TransactionsService {
           totalAmount: updatedTotal,
           ...inflation,
         });
+        // TODO (derived-transaction hook): this merge just changed
+        // existing.totalAmount — call recalculateDerived(existing.id, tx)
+        // inside whichever runInTransaction ends up wrapping this branch
+        // (today only the debt-assignment sub-case below opens one; the
+        // no-debt return path a few lines down would need its own tx too).
         const debtDescription = existing.group.name;
 
         if (debtAssignments.length != 0) {
@@ -754,6 +823,57 @@ export class TransactionsService {
     });
   }
 
+  // Create an expense whose amount is `derivationRate * sum(source
+  // transactions' totalAmount)`, either as a single row or as a monthly
+  // series when transactionTypeEntry===FIXED + fixedBundleDto.bundleTo is set.
+  // dto: CreateTransactionDto & FixedBundleDto & { sourceTransactionIds: number[]; derivationRate: number }
+  async createDerivedExpense(
+    ledgerId: number,
+    dto: any, // TODO: replace `any` with CreateDerivedTransactionDto once it exists
+  ): Promise<TransactionResponseDto | TransactionResponseDto[]> {
+    // 1. Load the ledger (ledgersService.findOneMinimal).
+    // 2. Enforce currency !== ledger.currency && !exchangeRate -> 400,
+    //    same rule as createExpense/createIncome.
+    // 3. Fetch the source transactions: repository.findByIds(dto.sourceTransactionIds).
+    // 4. Validate the basket: non-empty, every source's ledgerId matches
+    //    ledgerId, every source's currency matches dto.currency (v0: no
+    //    mixed-currency baskets) — 404/400 otherwise.
+    // 5. assertNoCycle(undefined, dto.sourceTransactionIds, ...) — a no-op on
+    //    first create today, but keeps the guard exercised for when an
+    //    existing transaction can later be re-linked.
+    //
+    // 6. SINGLE PATH — transactionTypeEntry !== FIXED, or no bundleTo:
+    //    a. base = sum of sources' totalAmount.
+    //    b. total = assignTotalAmount(base * dto.derivationRate, dto.currency,
+    //       ledger.currency, dto.exchangeRate).
+    //    c. Open runInTransaction:
+    //       - build + create the transaction row (entryType EXPENSE,
+    //         derivationRate: dto.derivationRate, impactsCashflow from dto,
+    //         default true) — reuse the same create-input shape createExpense
+    //         builds inline.
+    //       - createTransactionsBD (the 4 weekly rows).
+    //       - createDerivationLink(newId, sourceId, tx) for each source id.
+    //       - getInflationData + spread it onto the create.
+    //       - return the mapped TransactionResponseDto.
+    //
+    // 7. SERIES PATH — transactionTypeEntry === FIXED and bundleTo is set:
+    //    a. months = monthRange(paymentMonth, parsePeriod(dto.bundleTo)).
+    //    b. Idempotency: repository.findDerivedInRange(...) -> 400 on collision.
+    //    c. Open one runInTransaction({ timeout: 30_000 }) wrapping the whole loop.
+    //    d. For each month M:
+    //       - resolve each source's sibling row for M via
+    //         repository.findSiblingForMonth(...).
+    //       - base_M = sum of the resolved siblings' totalAmount; if none
+    //         resolve for M, skip that month entirely (no 0-amount row).
+    //       - create the derived row for M + its breakdown + a
+    //         createDerivationLink to each resolved sibling.
+    //       - unlike createBundleRows, do NOT force impactsCashflow: false —
+    //         honor dto.impactsCashflow (default true); a tax/fee you
+    //         actually pay impacts cashflow.
+    //    e. Return the created rows.
+    return undefined as any;
+  }
+
   async assignBreakDown(
     transactionId: number,
     assignBreakDownDto: AssignBreakDownDto,
@@ -788,6 +908,10 @@ export class TransactionsService {
     const updated = await this.transactionsRepository.update(transaction.id, {
       totalAmount,
     });
+    // TODO (derived-transaction hook): wrap this method's writes in
+    // runInTransaction and call recalculateDerived(transaction.id, tx) here
+    // — this method just changed totalAmount, so anything derived from this
+    // row needs to be refreshed too.
 
     return transactionToResponseDto(updated);
   }
@@ -842,6 +966,17 @@ export class TransactionsService {
     id: number,
     dto: UpdateTransactionCoreDto,
   ): Promise<TransactionResponseDto> {
+    // TODO (derived-transaction hooks):
+    // - Wrap this whole method's mutation in runInTransaction so the detach
+    //   and the cascade below commit atomically with the core update.
+    // - Detach rule: if `transaction` has derivedFrom links AND
+    //   dto.totalProvidedAmount !== undefined, delete its derivation links
+    //   (deleteDerivationLinksByDerived(id, tx)) and clear derivationRate to
+    //   null *before* applying the manual amount below — a direct amount
+    //   edit detaches the row from its sources.
+    // - Cascade: after repository.update, if the amount/paymentMonth branch
+    //   ran (i.e. data.totalAmount was set), call
+    //   recalculateDerived(id, tx) — something might feed off this row too.
     const transaction = await this.transactionsRepository.findById(id);
     if (!transaction)
       throw new NotFoundException(`Transaction with id: ${id} not found.`);
@@ -885,11 +1020,39 @@ export class TransactionsService {
     }
 
     const updated = await this.transactionsRepository.update(id, data);
+    // TODO (derived-transaction hook): if data.totalAmount was set above,
+    // call recalculateDerived(id, tx) here, before returning — something
+    // might be derived from this row.
     return transactionToResponseDto(updated);
   }
 
   async deleteTransaction(id: number): Promise<void> {
+    // TODO (derived-transaction hook): wrap this in runInTransaction and:
+    // 1. Delete this row's own derivedFrom links first
+    //    (deleteDerivationLinksByDerived(id, tx)) so its own delete below
+    //    isn't blocked by the RESTRICT FK.
+    // 2. Look up who this row feeds — findDerivationsBySource(id, tx) —
+    //    capture the distinct derivedId set, then delete those link rows too
+    //    (so the FK on the source side is clear).
+    // 3. repository.delete(id, tx).
+    // 4. For each derivedId captured in step 2, call
+    //    recalculateFromSources(derivedId, tx) — it now has one fewer
+    //    source (or zero, in which case its amount recomputes to 0 and the
+    //    row is left for the user to delete or re-link).
     await this.transactionsRepository.delete(id);
+  }
+
+  // POST /transactions/:id/recalculate — force a derived row back in sync
+  // with its current sources, independent of the automatic cascade.
+  async recalculateById(id: number): Promise<TransactionResponseDto> {
+    // 1. runInTransaction:
+    //    - recalculateFromSources(id, tx).
+    //    - re-fetch the row (repository.findById or a client-aware
+    //      equivalent) and return its mapped TransactionResponseDto.
+    // 2. 404 if the row doesn't exist.
+    // 3. If it isn't derived (derivationRate is null), just return it
+    //    unchanged rather than throwing — recalculate is a no-op, not an error.
+    return undefined as any;
   }
 
   async findById(id: number): Promise<TransactionResponseDto> {
